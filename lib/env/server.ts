@@ -162,3 +162,25 @@ export function serverEnvSummary() {
     issues: serverEnvIssues,
   };
 }
+
+/**
+ * Keeper credentials.
+ *
+ * A round does not advance itself. `closeRound`, `requestRoundRandomness` and
+ * `settleEntries` are permissionless by design — anyone may call them — but
+ * "anyone" turned out to mean "nobody", and paid rounds sat unsettled until
+ * their refund timeout. This is the account that actually does it.
+ *
+ * The key is read from the process environment only. It is never sent to the
+ * browser, never logged, never included in a response, and must be set in the
+ * hosting provider's dashboard rather than any file in this repository.
+ */
+export const keeper = {
+  /** Hex private key for the keeper account. Server-only. */
+  privateKey: process.env.KEEPER_PRIVATE_KEY ?? null,
+  /** Shared secret the scheduler must present. */
+  cronSecret: process.env.CRON_SECRET ?? null,
+  get configured(): boolean {
+    return Boolean(this.privateKey && this.cronSecret);
+  },
+};
