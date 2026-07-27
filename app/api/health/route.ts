@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { ROBACHA_GACHA_ABI } from "@/lib/abi";
+import { ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI, ROBACHA_GACHA_ABI } from "@/lib/abi";
 import { ACTIVE_POOL_ID, chainConfig, configSummary, contracts } from "@/lib/config";
-import { database, serverEnvSummary } from "@/lib/env/server";
+import { database, keeper, serverEnvSummary } from "@/lib/env/server";
 import { hasArchiveRpc, publicClient, usingFallbackRpc } from "@/lib/server/chain";
 
 export const dynamic = "force-dynamic";
@@ -129,7 +129,66 @@ export async function GET() {
       : "DATABASE_URL is unset; the indexer and indexed history are unavailable",
   };
 
-  // ---- 5. Configuration parse errors ----
+  // ---- 5. Keeper ----
+  //
+  // A round does not advance itself, so a silently dead keeper looks exactly
+  // like a quiet day until someone's money is stuck. This reports whether it
+  // *could* run: credentials present, commitments in the queue, bond posted,
+  // and gas in the wallet.
+  //
+  // Booleans only for anything secret. The seed and the signing key are never
+  // read, echoed or hinted at here — this endpoint is public.
+  {
+    const missing: string[] = [];
+    if (!keeper.privateKey) missing.push("KEEPER_PRIVATE_KEY");
+    if (!keeper.cronSecret) missing.push("CRON_SECRET");
+    if (!keeper.commitmentSeed) missing.push("KEEPER_COMMITMENT_SEED");
+
+    let detail: string;
+    let ok = missing.length === 0;
+
+    if (!ok) {
+      detail = `not configured: ${missing.join(", ")} unset`;
+    } else if (!contracts.randomnessSender) {
+      ok = false;
+      detail = "randomness contract address is not configured";
+    } else {
+      try {
+        const rpc = publicClient();
+        const [available, bond, ready] = (await Promise.all([
+          rpc.readContract({
+            address: contracts.randomnessSender,
+            abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+            functionName: "availableCommitments",
+          }),
+          rpc.readContract({
+            address: contracts.randomnessSender,
+            abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+            functionName: "bond",
+          }),
+          rpc.readContract({
+            address: contracts.randomnessSender,
+            abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+            functionName: "isReady",
+          }),
+        ])) as [bigint, bigint, readonly [boolean, string]];
+
+        const commitments = Number(available);
+        const reason = ready[1];
+        ok = ready[0] && commitments > 0;
+        detail = ok
+          ? `configured; ${commitments} commitments queued, bond ${bond.toString()} wei`
+          : `randomness not ready: ${reason || "unknown"}; ${commitments} commitments queued`;
+      } catch (error) {
+        ok = false;
+        detail = error instanceof Error ? error.message : "randomness read failed";
+      }
+    }
+
+    checks.keeper = { ok, required: false, detail };
+  }
+
+  // ---- 6. Configuration parse errors ----
   const config = configSummary();
   const server = serverEnvSummary();
   checks.configuration = {
