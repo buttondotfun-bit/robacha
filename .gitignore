@@ -54,3 +54,9 @@ contracts/broadcast/
 # committed deliberately: they were installed by tarball rather than as git
 # submodules, so the repo would not build for a fresh clone without them.
 !contracts/lib/
+
+# Commitment secrets. Publishing these would let anyone compute a round's
+# outcome before it is revealed, which destroys the entire commit-reveal
+# guarantee. Never commit, never bundle, never log.
+keeper-secrets.json
+keeper-secrets*.json

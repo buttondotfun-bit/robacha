@@ -16,6 +16,7 @@ const TARGETS = {
   RobachaFeeRouter: "robacha-fee-router",
   RobachaRandomnessSender: "robacha-randomness-sender",
   RobachaSponsorRegistry: "robacha-sponsor-registry",
+  RobachaCommitRevealRandomness: "robacha-commit-reveal-randomness",
 };
 
 mkdirSync("lib/abi", { recursive: true });

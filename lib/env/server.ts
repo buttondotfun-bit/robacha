@@ -180,7 +180,25 @@ export const keeper = {
   privateKey: process.env.KEEPER_PRIVATE_KEY ?? null,
   /** Shared secret the scheduler must present. */
   cronSecret: process.env.CRON_SECRET ?? null,
+  /**
+   * Master seed for commitment secrets.
+   *
+   * Secrets are DERIVED from this, never stored: secret(i) = keccak256(seed, i).
+   * The previous design wrote them to a JSON file, which cannot work on a
+   * serverless host — the filesystem is read-only, every invocation is a fresh
+   * container, and the write happened *after* the commitments were already
+   * posted on chain. That combination posts commitments and then loses their
+   * secrets forever, and every one of them later binds to a round that can
+   * never be revealed. Derivation removes the storage problem entirely.
+   */
+  commitmentSeed: process.env.KEEPER_COMMITMENT_SEED ?? null,
+  /**
+   * Secrets for commitments posted before derivation existed, as a JSON map of
+   * index to secret. The queue is FIFO so these must stay revealable until
+   * they have all been consumed; after that this can be removed.
+   */
+  legacySecrets: process.env.KEEPER_LEGACY_SECRETS ?? null,
   get configured(): boolean {
-    return Boolean(this.privateKey && this.cronSecret);
+    return Boolean(this.privateKey && this.cronSecret && this.commitmentSeed);
   },
 };

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { createWalletClient, http, type Address } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { ROBACHA_GACHA_ABI } from "@/lib/abi/robacha-gacha";
+import { ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI } from "@/lib/abi/robacha-commit-reveal-randomness";
+import { keccak256, encodeAbiParameters } from "viem";
 import { chainConfig, contracts } from "@/lib/config";
 import { keeper, rpc } from "@/lib/env/server";
 import { publicClient, robinhoodChain } from "@/lib/server/chain";
@@ -43,6 +45,37 @@ const State = {
 /** How many rounds back to inspect. Old rounds are terminal and never change. */
 const SCAN_DEPTH = 25n;
 const SETTLE_BATCH = 25;
+
+/**
+ * Secret for a commitment index, derived rather than stored.
+ *
+ * Deterministic in the master seed, so any invocation on any container can
+ * recompute any secret. Nothing is written to disk, which is what makes this
+ * survive a serverless host: there is no file to be missing, and no window
+ * between posting a commitment and persisting its secret.
+ *
+ * Indices predating the seed fall back to an explicit map, because their
+ * hashes are already on chain and the queue is FIFO — they must stay
+ * revealable until consumed.
+ */
+function secretForIndex(index: number): `0x${string}` | null {
+  if (keeper.legacySecrets) {
+    try {
+      const map = JSON.parse(keeper.legacySecrets) as Record<string, string>;
+      const legacy = map[String(index)];
+      if (legacy) return legacy as `0x${string}`;
+    } catch {
+      // A malformed map must not mask a derivable secret.
+    }
+  }
+  if (!keeper.commitmentSeed) return null;
+  return keccak256(
+    encodeAbiParameters(
+      [{ type: "bytes32" }, { type: "uint256" }],
+      [keeper.commitmentSeed as `0x${string}`, BigInt(index)],
+    ),
+  );
+}
 
 type Action = {
   roundId: number;
@@ -110,6 +143,60 @@ export async function GET(request: Request) {
   }
 
   try {
+    const randomnessSender = contracts.randomnessSender as Address;
+
+    if (randomnessSender) {
+      try {
+        const available = Number(
+          await client.readContract({
+            address: randomnessSender,
+            abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+            functionName: "availableCommitments",
+          }),
+        );
+
+        if (available < 10) {
+          const nextUnused = Number(
+            await client.readContract({
+              address: randomnessSender,
+              abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+              functionName: "nextUnused",
+            }),
+          );
+          const startIndex = available + nextUnused;
+          const count = 50;
+
+          // Derive first. If a secret cannot be produced, nothing is posted —
+          // posting a commitment we cannot later reveal is strictly worse than
+          // running the queue dry, which merely stalls spins.
+          const newHashes: `0x${string}`[] = [];
+          for (let i = 0; i < count; i += 1) {
+            const secret = secretForIndex(startIndex + i);
+            if (!secret) {
+              throw new Error("KEEPER_COMMITMENT_SEED is not set — refusing to post unrevealable commitments");
+            }
+            newHashes.push(keccak256(encodeAbiParameters([{ type: "bytes32" }], [secret])));
+          }
+
+          const { request: postSim } = await client.simulateContract({
+            address: randomnessSender,
+            abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+            functionName: "postCommitments",
+            args: [newHashes],
+            account,
+          });
+          const txHash = await wallet.writeContract(postSim);
+          actions.push({ roundId: 0, action: `postCommitments:${count}`, txHash });
+        }
+      } catch (err) {
+        actions.push({
+          roundId: 0,
+          action: "postCommitments",
+          skipped: err instanceof Error ? err.message.split("\n")[0] : "failed",
+        });
+      }
+    }
+
     const nextRoundId = (await client.readContract({
       address: gacha,
       abi: ROBACHA_GACHA_ABI,
@@ -167,6 +254,52 @@ export async function GET(request: Request) {
           [id],
         );
         continue;
+      }
+
+      // 2.5. A round in RandomnessRequested state needs to be revealed if using CommitReveal.
+      if (state === State.RandomnessRequested && randomnessSender) {
+        try {
+          const pending = (await client.readContract({
+            address: randomnessSender,
+            abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+            functionName: "pending",
+            args: [id],
+          })) as readonly [`0x${string}`, bigint, bigint, boolean, boolean];
+
+          const [requestId, commitmentIndex, , revealed, missed] = pending;
+
+          if (
+            requestId !== "0x0000000000000000000000000000000000000000000000000000000000000000" &&
+            !revealed &&
+            !missed
+          ) {
+            const secret = secretForIndex(Number(commitmentIndex));
+            if (secret) {
+              const { request: revealSim } = await client.simulateContract({
+                address: randomnessSender,
+                abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+                functionName: "reveal",
+                args: [id, secret],
+                account,
+              });
+              const txHash = await wallet.writeContract(revealSim);
+              actions.push({ roundId, action: "reveal", txHash });
+              continue;
+            } else {
+              actions.push({
+                roundId,
+                action: "reveal",
+                skipped: `No secret derivable for commitment index ${commitmentIndex}`,
+              });
+            }
+          }
+        } catch (error) {
+          actions.push({
+            roundId,
+            action: "reveal",
+            skipped: error instanceof Error ? error.message.split("\n")[0] : "reverted",
+          });
+        }
       }
 
       // 3. The word arrived — pay everyone out, in batches.
