@@ -1,0 +1,699 @@
+@import "tailwindcss";
+
+/* ==================================================================
+   ROBACHA — spatial glass design system
+   Light, luminous, layered. Surfaces are translucent materials that
+   sit above an environmental background, not opaque cards on beige.
+================================================================== */
+
+@theme {
+  /* Environment */
+  --color-canvas: #f5f7f1;
+  --color-canvas-2: #fbfcf8;
+  --color-surface: #ffffff;
+
+  /* Text */
+  --color-ink: #10110f;
+  --color-ink-2: #5f6459;
+  --color-ink-3: #8b9086;
+
+  /* Hairlines */
+  --color-line: #e4e7de;
+  --color-line-strong: #d5d9ce;
+
+  /* Accent */
+  --color-accent: #ccff00;
+  --color-accent-hover: #b8ea00;
+  --color-accent-soft: #f2ffd0;
+  --color-accent-ink: #4e6600;
+
+  /* Brand */
+  --color-bubble: #ff77ac;
+  --color-bubble-deep: #f26fa4;
+  --color-bubble-soft: #ffeff5;
+
+  /* Radii — larger, softer, more spatial */
+  --radius-chamber: 36px;
+  --radius-section: 28px;
+  --radius-card: 20px;
+  --radius-control: 14px;
+
+  /* Type */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* ------------------------------------------------------------------
+   Glass material tokens. One place to retune the whole system.
+------------------------------------------------------------------ */
+:root {
+  --glass-nav-bg: rgba(255, 255, 255, 0.62);
+  --glass-panel-bg: rgba(255, 255, 255, 0.48);
+  --glass-card-bg: rgba(255, 255, 255, 0.52);
+  --glass-chip-bg: rgba(255, 255, 255, 0.55);
+  --glass-quiet-bg: rgba(248, 250, 244, 0.52);
+
+  --glass-edge: rgba(255, 255, 255, 0.75);
+  --glass-edge-soft: rgba(255, 255, 255, 0.6);
+  --glass-hairline: rgba(20, 24, 18, 0.06);
+  --glass-hairline-strong: rgba(20, 24, 18, 0.1);
+
+  --blur-nav: 26px;
+  --blur-panel: 34px;
+  --blur-card: 20px;
+  --blur-chip: 14px;
+
+  /* Ambient light fields */
+  --glow-green: rgba(204, 255, 0, 0.2);
+  --glow-pink: rgba(255, 119, 172, 0.16);
+  --glow-cool: rgba(151, 178, 255, 0.12);
+
+  /* Layered ambient shadows — depth without heaviness */
+  --shadow-soft: 0 1px 2px rgba(16, 17, 15, 0.03), 0 4px 12px -6px rgba(16, 17, 15, 0.06);
+  --shadow-card: 0 1px 1px rgba(255, 255, 255, 0.6) inset,
+    0 2px 6px -2px rgba(16, 17, 15, 0.06), 0 12px 28px -18px rgba(16, 17, 15, 0.22);
+  --shadow-panel: 0 1px 1px rgba(255, 255, 255, 0.7) inset,
+    0 4px 14px -6px rgba(16, 17, 15, 0.08), 0 28px 60px -34px rgba(16, 17, 15, 0.3);
+  --shadow-lift: 0 1px 1px rgba(255, 255, 255, 0.7) inset,
+    0 8px 22px -8px rgba(16, 17, 15, 0.14), 0 40px 80px -44px rgba(16, 17, 15, 0.34);
+  --shadow-nav: 0 1px 1px rgba(255, 255, 255, 0.8) inset,
+    0 2px 8px -2px rgba(16, 17, 15, 0.06), 0 18px 40px -26px rgba(16, 17, 15, 0.28);
+  --shadow-neon: 0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 4px 14px -4px rgba(160, 200, 0, 0.5), 0 12px 30px -16px rgba(120, 150, 0, 0.4);
+}
+
+/* ------------------------------------------------------------------
+   Rarity tokens. Set data-rarity on any ancestor; descendants read
+   --rarity-* from it — one source of truth for colour and glow.
+------------------------------------------------------------------ */
+[data-rarity="common"] {
+  --rarity-fg: #575d52;
+  --rarity-bg: rgba(242, 243, 238, 0.72);
+  --rarity-bd: rgba(160, 166, 152, 0.4);
+  --rarity-dot: #9aa093;
+  --rarity-glow: 154 160 147;
+}
+[data-rarity="uncommon"] {
+  --rarity-fg: #367135;
+  --rarity-bg: rgba(233, 248, 230, 0.72);
+  --rarity-bd: rgba(87, 164, 87, 0.34);
+  --rarity-dot: #57a457;
+  --rarity-glow: 87 164 87;
+}
+[data-rarity="rare"] {
+  --rarity-fg: #2a5c8e;
+  --rarity-bg: rgba(233, 243, 253, 0.72);
+  --rarity-bd: rgba(74, 135, 196, 0.32);
+  --rarity-dot: #4a87c4;
+  --rarity-glow: 74 135 196;
+}
+[data-rarity="epic"] {
+  --rarity-fg: #63419a;
+  --rarity-bg: rgba(243, 238, 253, 0.72);
+  --rarity-bd: rgba(138, 99, 201, 0.32);
+  --rarity-dot: #8a63c9;
+  --rarity-glow: 138 99 201;
+}
+[data-rarity="legendary"] {
+  --rarity-fg: #8c5a09;
+  --rarity-bg: rgba(253, 244, 227, 0.75);
+  --rarity-bd: rgba(201, 146, 43, 0.36);
+  --rarity-dot: #c9922b;
+  --rarity-glow: 201 146 43;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    letter-spacing: -0.011em;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    letter-spacing: -0.032em;
+    text-wrap: balance;
+  }
+
+  input[type="search"]::-webkit-search-decoration,
+  input[type="search"]::-webkit-search-cancel-button {
+    appearance: none;
+  }
+}
+
+@layer components {
+  /* ============================================================
+     GLASS LEVEL 1 — floating navigation
+  ============================================================ */
+  .glass-nav {
+    position: relative;
+    background: var(--glass-nav-bg);
+    -webkit-backdrop-filter: blur(var(--blur-nav)) saturate(180%);
+    backdrop-filter: blur(var(--blur-nav)) saturate(180%);
+    border: 1px solid var(--glass-edge);
+    box-shadow: var(--shadow-nav);
+  }
+
+  /* ============================================================
+     GLASS LEVEL 2 — primary product surface
+  ============================================================ */
+  .glass-panel {
+    position: relative;
+    background:
+      linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.62) 0%,
+        rgba(255, 255, 255, 0.34) 46%,
+        rgba(250, 252, 246, 0.42) 100%
+      );
+    -webkit-backdrop-filter: blur(var(--blur-panel)) saturate(170%);
+    backdrop-filter: blur(var(--blur-panel)) saturate(170%);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--radius-section);
+    box-shadow: var(--shadow-panel);
+  }
+
+  /* ============================================================
+     GLASS LEVEL 3 — standard content card
+  ============================================================ */
+  .glass-card {
+    position: relative;
+    background:
+      linear-gradient(
+        158deg,
+        rgba(255, 255, 255, 0.66) 0%,
+        rgba(255, 255, 255, 0.4) 55%,
+        rgba(249, 251, 245, 0.46) 100%
+      );
+    -webkit-backdrop-filter: blur(var(--blur-card)) saturate(160%);
+    backdrop-filter: blur(var(--blur-card)) saturate(160%);
+    border: 1px solid var(--glass-edge-soft);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+
+  .glass-quiet {
+    position: relative;
+    background: var(--glass-quiet-bg);
+    -webkit-backdrop-filter: blur(var(--blur-card)) saturate(140%);
+    backdrop-filter: blur(var(--blur-card)) saturate(140%);
+    border: 1px solid var(--glass-hairline);
+    border-radius: var(--radius-card);
+  }
+
+  /* ============================================================
+     GLASS LEVEL 4 — interactive chip
+  ============================================================ */
+  .glass-chip {
+    position: relative;
+    background: var(--glass-chip-bg);
+    -webkit-backdrop-filter: blur(var(--blur-chip)) saturate(150%);
+    backdrop-filter: blur(var(--blur-chip)) saturate(150%);
+    border: 1px solid var(--glass-edge-soft);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.7) inset,
+      0 2px 6px -2px rgba(16, 17, 15, 0.08);
+    transition:
+      transform 0.16s var(--ease-out-soft),
+      background-color 0.16s var(--ease-out-soft),
+      box-shadow 0.16s var(--ease-out-soft);
+  }
+  .glass-chip:hover {
+    background: rgba(255, 255, 255, 0.72);
+  }
+  .glass-chip:active {
+    transform: scale(0.97);
+  }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(var(--blur-chip)) saturate(150%);
+    backdrop-filter: blur(var(--blur-chip)) saturate(150%);
+    border: 1px solid var(--glass-edge-soft);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.65) inset,
+      0 1px 3px rgba(16, 17, 15, 0.04);
+    transition: border-color 0.16s var(--ease-out-soft), background-color 0.16s;
+  }
+  .glass-input:hover {
+    background: rgba(255, 255, 255, 0.68);
+  }
+  .glass-input:focus-within,
+  .glass-input:focus {
+    border-color: rgba(16, 17, 15, 0.22);
+    background: rgba(255, 255, 255, 0.78);
+  }
+
+  /* ============================================================
+     GLASS LEVEL 5 — dark micro-surface. Used sparingly for live
+     data readouts: wallet address, price capsule, tooltips.
+  ============================================================ */
+  .glass-micro {
+    background: rgba(16, 17, 15, 0.82);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    backdrop-filter: blur(12px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.94);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.14) inset,
+      0 6px 18px -8px rgba(16, 17, 15, 0.5);
+  }
+
+  /* ============================================================
+     Material details — reflections, highlights, noise
+  ============================================================ */
+
+  /* A bright specular sweep across the top-left of a glass surface. */
+  .glass-reflection::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.7) 0%,
+      rgba(255, 255, 255, 0.16) 26%,
+      rgba(255, 255, 255, 0) 52%
+    );
+    opacity: 0.85;
+  }
+
+  /* A 1px luminous line along the top edge — reads as a lit bevel. */
+  .glass-highlight::after {
+    content: "";
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    top: 0;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.95),
+      transparent
+    );
+  }
+
+  /* Fine grain. One shared SVG-free texture via layered gradients. */
+  .noise-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0.42;
+    mix-blend-mode: soft-light;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        rgba(16, 17, 15, 0.05) 0px,
+        rgba(16, 17, 15, 0.05) 1px,
+        transparent 1px,
+        transparent 2px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.06) 0px,
+        rgba(255, 255, 255, 0.06) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+  }
+
+  /* Pointer-tracked illumination. Components set --mx / --my. */
+  .glass-spotlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out-soft);
+    background: radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 0%),
+      rgba(255, 255, 255, 0.55),
+      transparent 62%
+    );
+  }
+  .glass-spotlight:hover::after {
+    opacity: 1;
+  }
+
+  .ambient-shadow {
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* ============================================================
+     Typographic + data helpers
+  ============================================================ */
+  .micro {
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-ink-3);
+  }
+
+  .num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .rarity-chip {
+    color: var(--rarity-fg);
+    background: var(--rarity-bg);
+    border: 1px solid var(--rarity-bd);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+    backdrop-filter: blur(10px) saturate(150%);
+  }
+
+  .rarity-dot {
+    background: var(--rarity-dot);
+  }
+
+  /* Rarity-tinted glass, used on reward tiers and reveal states. */
+  .rarity-glass {
+    background:
+      linear-gradient(
+        158deg,
+        rgba(255, 255, 255, 0.66) 0%,
+        rgba(255, 255, 255, 0.36) 50%,
+        rgb(var(--rarity-glow) / 0.14) 100%
+      );
+    -webkit-backdrop-filter: blur(var(--blur-card)) saturate(165%);
+    backdrop-filter: blur(var(--blur-card)) saturate(165%);
+    border: 1px solid var(--rarity-bd);
+    box-shadow:
+      0 1px 1px rgba(255, 255, 255, 0.65) inset,
+      0 12px 30px -18px rgb(var(--rarity-glow) / 0.55);
+  }
+
+  .rail-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+    overscroll-behavior: contain;
+  }
+  .rail-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .rail-scroll::-webkit-scrollbar-thumb {
+    background: rgba(16, 17, 15, 0.16);
+    border-radius: 99px;
+  }
+  .rail-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .hide-scrollbar {
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Technical grids used inside the environment and on stages. */
+  .dot-grid {
+    background-image: radial-gradient(
+      circle at center,
+      rgba(16, 17, 15, 0.055) 1px,
+      transparent 1.2px
+    );
+    background-size: 18px 18px;
+  }
+
+  .cross-grid {
+    background-image:
+      linear-gradient(to right, rgba(16, 17, 15, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(16, 17, 15, 0.03) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* Edge fade for marquee rails */
+  .edge-fade {
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 7%,
+      #000 93%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 7%,
+      #000 93%,
+      transparent
+    );
+  }
+}
+
+@layer utilities {
+  /* Editorial scale — confident, dominant hero */
+  .text-display {
+    font-size: clamp(3rem, 7.2vw, 6rem);
+    line-height: 0.94;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+  }
+  .text-page-title {
+    font-size: clamp(2rem, 4.4vw, 3.25rem);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+  }
+  .text-section-title {
+    font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+    line-height: 1.06;
+    font-weight: 680;
+    letter-spacing: -0.038em;
+  }
+  .text-card-title {
+    font-size: 0.9375rem;
+    line-height: 1.25;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* "meme economy" emphasis — a warm gradient, not a glow blast.
+     box-decoration-break: clone gives each wrapped line its own gradient so a
+     phrase breaking across lines doesn't render half black and half green. */
+  .text-gradient-accent {
+    background: linear-gradient(
+      100deg,
+      #2f3d00 0%,
+      #6f9200 30%,
+      #9bcc00 55%,
+      #5c7a00 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  .perspective-stage {
+    perspective: 1600px;
+    perspective-origin: 50% 42%;
+  }
+}
+
+/* ==================================================================
+   Motion
+================================================================== */
+
+@keyframes robacha-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+}
+.pulse-dot {
+  animation: robacha-pulse 2.4s var(--ease-out-soft) infinite;
+}
+
+/* Slow orbital ring rotation behind product visuals */
+@keyframes robacha-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.orbit-slow {
+  animation: robacha-orbit 46s linear infinite;
+}
+.orbit-reverse {
+  animation: robacha-orbit 64s linear infinite reverse;
+}
+
+/* Marquee for the ecosystem rail */
+@keyframes robacha-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.marquee-track {
+  animation: robacha-marquee var(--marquee-duration, 46s) linear infinite;
+  will-change: transform;
+}
+.marquee-host:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Legendary reveal border sweep */
+@keyframes robacha-sweep {
+  to {
+    background-position: 200% center;
+  }
+}
+.legendary-sweep {
+  background-image: linear-gradient(
+    100deg,
+    #ecd9ac 0%,
+    #f7e7bd 25%,
+    var(--color-accent) 45%,
+    #f7e7bd 62%,
+    #ecd9ac 100%
+  );
+  background-size: 200% auto;
+  animation: robacha-sweep 2.8s linear infinite;
+}
+
+/* One-shot sheen across the primary CTA */
+@keyframes robacha-sheen {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(240%) skewX(-18deg);
+  }
+}
+
+@keyframes robacha-confetti-fall {
+  0% {
+    transform: translate3d(0, -12px, 0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--dx, 0px), 340px, 0) rotate(var(--rot, 260deg));
+    opacity: 0;
+  }
+}
+.confetti-piece {
+  animation: robacha-confetti-fall var(--dur, 2000ms)
+    cubic-bezier(0.3, 0.7, 0.5, 1) var(--delay, 0ms) forwards;
+}
+
+@keyframes robacha-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: rgba(238, 240, 233, 0.7);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.75),
+    transparent
+  );
+  animation: robacha-shimmer 1.5s infinite;
+}
+
+/* ==================================================================
+   Performance + accessibility budgets
+================================================================== */
+
+/* Blur is expensive on mobile GPUs — step it down, keep the material. */
+@media (max-width: 767px) {
+  :root {
+    --blur-nav: 16px;
+    --blur-panel: 18px;
+    --blur-card: 12px;
+    --blur-chip: 8px;
+  }
+  .noise-overlay {
+    display: none;
+  }
+}
+
+/* Devices that can't composite backdrop-filter get solid-enough surfaces. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-nav,
+  .glass-panel,
+  .glass-card,
+  .glass-chip,
+  .glass-quiet,
+  .glass-input {
+    background: rgba(255, 255, 255, 0.94);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .pulse-dot,
+  .legendary-sweep,
+  .orbit-slow,
+  .orbit-reverse,
+  .marquee-track,
+  .skeleton::after {
+    animation: none !important;
+  }
+  .marquee-track {
+    transform: none !important;
+  }
+}

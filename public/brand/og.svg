@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <!-- Provisional ROBACHA social card. Replace with a rendered 1200x630 PNG before launch. -->
+  <rect width="1200" height="630" fill="#F7F8F3"/>
+  <g opacity="0.5">
+    <rect x="0" y="0" width="1200" height="630" fill="url(#dots)"/>
+  </g>
+  <defs>
+    <pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+      <circle cx="1.4" cy="1.4" r="1.4" fill="#10110f" opacity="0.05"/>
+    </pattern>
+  </defs>
+
+  <!-- Capsule mark -->
+  <g transform="translate(96 168)">
+    <g transform="scale(1.55)">
+      <defs>
+        <linearGradient id="ogs" x1="0.22" y1="0.08" x2="0.78" y2="0.96">
+          <stop offset="0" stop-color="#FCD8EA"/><stop offset="0.46" stop-color="#F8B7D8"/><stop offset="1" stop-color="#F09CC7"/>
+        </linearGradient>
+        <linearGradient id="ogb" x1="0.25" y1="0.15" x2="0.8" y2="0.9">
+          <stop offset="0" stop-color="#C3E84A"/><stop offset="1" stop-color="#8CC318"/>
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy="50" r="40.5" fill="url(#ogs)" stroke="#C4457F" stroke-width="5.2"/>
+      <path d="M11.5 51.2 Q50 55.4 88.5 51.2" fill="none" stroke="#C4457F" stroke-width="4.4" stroke-linecap="round"/>
+      <g fill="#ffffff">
+        <ellipse cx="31.5" cy="33" rx="3.4" ry="8.2" transform="rotate(-38 31.5 33)" opacity="0.92"/>
+        <ellipse cx="40.5" cy="25.8" rx="2.7" ry="4.4" transform="rotate(-38 40.5 25.8)" opacity="0.92"/>
+      </g>
+      <circle cx="35.2" cy="57.4" r="12.4" fill="#3A3A3C"/>
+      <circle cx="35.2" cy="57.4" r="9" fill="url(#ogb)"/>
+      <circle cx="32.2" cy="54.2" r="3.1" fill="#EAF8A4" opacity="0.95"/>
+    </g>
+  </g>
+
+  <!-- "robacha" wordmark -->
+  <g transform="translate(208 176)" fill="none" stroke="#10110f" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="scale(1.28)">
+      <g transform="rotate(-2.2 14 26)"><path d="M10 36V17"/><path d="M10 24c0-6.5 7-9 13-6.5"/></g>
+      <g transform="rotate(1.4 44 26)"><path d="M44 16c-5.6 0-10.2 4.5-10.2 10S38.4 36 44 36s10.2-4.5 10.2-10S49.6 16 44 16Z"/></g>
+      <g transform="rotate(-1.4 74 22)"><path d="M69 36V6"/><path d="M69 20.5c0-4.5 15.5-4.5 15.5 7.8s-15.5 12.2-15.5 7.7"/></g>
+      <g transform="rotate(2 104 26)"><path d="M113 17v19"/><path d="M113 22c0-6-16.5-6-16.5 4.8s16.5 10.6 16.5 4.8"/></g>
+      <g transform="rotate(-1.6 134 26)"><path d="M142.5 21.5c-3.4-4.4-10.2-6-15-2.6s-5.6 11.6-.9 15.4 11.9 1.6 15.4-2.4"/></g>
+      <g transform="rotate(1.8 164 22)"><path d="M155 36V6"/><path d="M155 24.5c0-6.5 16.5-7.5 16.5 1.8V36"/></g>
+      <g transform="rotate(-2.2 194 26)"><path d="M200 17v19"/><path d="M200 22c0-6-16.5-6-16.5 4.8s16.5 10.6 16.5 4.8"/></g>
+    </g>
+  </g>
+
+  <text x="96" y="404" font-family="Geist, Inter, system-ui, sans-serif" font-size="60" font-weight="700" fill="#10110f" letter-spacing="-2">
+    Rob the Gacha.
+  </text>
+  <text x="96" y="454" font-family="Geist, Inter, system-ui, sans-serif" font-size="26" fill="#696d65">
+    The memecoin gacha built for Robinhood Chain.
+  </text>
+
+  <g transform="translate(96 494)">
+    <rect x="0" y="0" width="232" height="40" rx="20" fill="#ffffff" stroke="#e4e7de"/>
+    <circle cx="22" cy="20" r="4" fill="#8ec500"/>
+    <text x="38" y="26" font-family="Geist, Inter, system-ui, sans-serif" font-size="16" fill="#696d65">Built on Robinhood Chain</text>
+  </g>
+</svg>

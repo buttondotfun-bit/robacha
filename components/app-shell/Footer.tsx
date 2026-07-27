@@ -1,0 +1,114 @@
+import Link from "next/link";
+import { RobachaLogo } from "@/components/brand/RobachaLogo";
+import { GlassChip } from "@/components/ui/Glass";
+import { BRAND, RISK_NOTICE } from "@/lib/constants";
+import { NETWORK_LABEL } from "@/lib/web3";
+
+const COLUMNS = [
+  {
+    title: "Product",
+    links: [
+      { label: "Spin", href: "/app" },
+      { label: "Reward Pool", href: "/rewards" },
+      { label: "My Bag", href: "/bag" },
+      { label: "Activity", href: "/activity" },
+    ],
+  },
+  {
+    title: "Resources",
+    links: [
+      { label: "How It Works", href: "/#how-it-works" },
+      { label: "FAQ", href: "/faq" },
+      { label: "Docs", href: "/faq#docs" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Terms of Service", href: "/legal/terms" },
+      { label: "Privacy Policy", href: "/legal/privacy" },
+      { label: "Risk Disclosure", href: "/legal/risk" },
+    ],
+  },
+];
+
+/** Social destinations aren't live yet — rendered as labelled, disabled. */
+const SOCIALS = ["X", "Discord", "Telegram"];
+
+export function Footer() {
+  return (
+    <footer className="relative px-4 pb-6 pt-16 sm:px-6">
+      {/* Environmental glow behind the footer slab */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[420px] bg-[radial-gradient(60%_100%_at_50%_100%,rgba(204,255,0,0.14),transparent_70%)]"
+      />
+
+      <div className="glass-panel glass-reflection glass-highlight relative mx-auto w-full max-w-[1360px] overflow-hidden rounded-[32px] px-6 py-10 sm:px-9 sm:py-12">
+        <span className="noise-overlay" aria-hidden="true" />
+
+        <div className="relative grid gap-10 md:grid-cols-[1.5fr_repeat(3,1fr)]">
+          <div>
+            <RobachaLogo size={32} />
+            <p className="mt-4 max-w-[32ch] text-[13.5px] leading-relaxed text-ink-2">
+              {BRAND.descriptor} Spin live reward pools and discover trending
+              tokens across the ecosystem.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <GlassChip dot className="h-8">
+                {NETWORK_LABEL} · Live
+              </GlassChip>
+            </div>
+          </div>
+
+          {COLUMNS.map((column) => (
+            <nav key={column.title} aria-label={column.title}>
+              <p className="micro mb-4">{column.title}</p>
+              <ul className="space-y-2.5">
+                {column.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-[13.5px] text-ink-2 transition-colors hover:text-ink"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              {column.title === "Resources" ? (
+                <>
+                  <p className="micro mb-3 mt-7">Social</p>
+                  <ul className="flex flex-wrap gap-1.5">
+                    {SOCIALS.map((social) => (
+                      <li key={social}>
+                        <span
+                          className="glass-quiet inline-flex h-7 cursor-not-allowed items-center rounded-full px-2.5 text-[11.5px] text-ink-3"
+                          title={`${social} account coming at launch`}
+                        >
+                          {social}
+                          <span className="sr-only"> — not yet available</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+            </nav>
+          ))}
+        </div>
+
+        <div className="relative mt-10 border-t border-[rgba(20,24,18,0.08)] pt-6">
+          <p className="max-w-[80ch] text-[12px] leading-relaxed text-ink-3">
+            {RISK_NOTICE} ROBACHA is an independent project built for{" "}
+            {NETWORK_LABEL}. It is not affiliated with, endorsed by, or operated
+            by Robinhood.
+          </p>
+          <p className="mt-4 text-[12px] text-ink-3">
+            © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}

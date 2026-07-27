@@ -1,0 +1,60 @@
+{
+  "_comment": "Chainlink configuration read from the official Chainlink sources on 2026-07-26. Nothing here is inferred. CCIP values come from https://docs.chain.link/api/ccip/v1/chains?environment=mainnet and .../lanes; VRF values from https://docs.chain.link/vrf/v2-5/supported-networks. Do not edit by hand — re-fetch from those endpoints.",
+  "fetchedAt": "2026-07-26T10:07:41Z",
+  "ccip": {
+    "source": "https://docs.chain.link/api/ccip/v1/chains?environment=mainnet",
+    "robinhood": {
+      "chainId": 4663,
+      "displayName": "Robinhood Chain",
+      "chainSelector": "6180753054346818345",
+      "router": "0x06fC836cf9839B1cd891C440A0a45242DA6Ae1c9",
+      "rmn": "0xe8464c353210Cc398A45dB2454FBc5BCd25fFf20",
+      "registryModule": "0x3237c0D7B58BEc8Dc17F00103B784Bd6678f789E",
+      "tokenAdminRegistry": "0x1912C3cFafE8A76A32a92861d815aC2837F237Ca",
+      "feeTokens": ["LINK", "WETH", "ETH"],
+      "linkToken": "0x492641F648a4986844848E0beFE66D14817bCE34"
+    },
+    "ethereum": {
+      "chainId": 1,
+      "displayName": "Ethereum",
+      "chainSelector": "5009297550715157269",
+      "router": "0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D",
+      "rmn": "0x411dE17f12D1A34ecC7F45f49844626267c75e81",
+      "feeTokens": ["GHO", "LINK", "WETH", "ETH"],
+      "linkToken": "0x514910771AF9Ca656af840dff83E8264EcF986CA"
+    },
+    "lanes": {
+      "robinhoodToEthereum": {
+        "verified": true,
+        "version": "1.6.0",
+        "onRamp": "0xe72d25aDd538E8ef9CeF85622eA8912a6CB98Be6",
+        "offRamp": "0xcDca5D374e46A6DDDab50bD2D9acB8c796eC35C3"
+      },
+      "ethereumToRobinhood": {
+        "verified": true,
+        "version": "1.6.0",
+        "onRamp": "0x913814782144864e523C3FdB78E3ca25D2c2aeCa",
+        "offRamp": "0x26d3681DfC9E4c8C79cfbf461adec8A21d5d73C5"
+      }
+    }
+  },
+  "vrf": {
+    "source": "https://docs.chain.link/vrf/v2-5/supported-networks",
+    "version": "v2.5",
+    "ethereum": {
+      "chainId": 1,
+      "coordinator": "0xD7f86b4b8Cae7D942340FF628F82735b7a20893a",
+      "linkToken": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+      "keyHashes": {
+        "200gwei": "0x8077df514608a09f83e4e8d300645594e5d7234665448ba83f51a50f842bd3d9",
+        "500gwei": "0x3fd2fec10d06ee8f65e7f2e95f5c56511359ece3f33960ad8a866ae24a8ff10b",
+        "1000gwei": "0xc6bf2e7b88e5cfbb4946ff23af846494ae1f3c65270b79ee7876c9aa99d3d45f"
+      },
+      "maxGasLimit": 2500000,
+      "minimumConfirmations": 3,
+      "maximumConfirmations": 200
+    },
+    "subscriptionId": null,
+    "subscriptionIdNote": "A VRF v2.5 subscription must be created and funded at https://vrf.chain.link before the Ethereum coordinator can be configured. There is no default and none is assumed."
+  }
+}

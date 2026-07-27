@@ -1,0 +1,124 @@
+{
+  "_comment": "ROBACHA deployment record for Robinhood Chain mainnet. Every address below was confirmed to hold bytecode via eth_getCode, and byte length was matched against the compiled artifact. Verify.s.sol passed against these addresses.",
+  "network": {
+    "name": "Robinhood Chain",
+    "chainId": 4663,
+    "chainIdHex": "0x1237",
+    "rpcUrl": "https://rpc.mainnet.chain.robinhood.com",
+    "explorerUrl": "https://robinhoodchain.blockscout.com",
+    "nativeSymbol": "ETH",
+    "verifiedAgainstNode": true,
+    "headBlockAtRecord": 19813669,
+    "gasPriceAtRecordWei": "55884464"
+  },
+  "status": "deployed-and-linked-pool-not-created",
+  "recordedAt": "2026-07-26T12:00:00Z",
+  "admin": {
+    "address": "0x19BF0B60852Afa668b261D3020A1A4321362e68D",
+    "checksumValid": true,
+    "isEOA": true,
+    "balanceWeiAtRecord": "4988314256104033",
+    "nonceAtRecord": 17,
+    "note": "Funded and active. NOTE: this address is also the deployer, so no deployer/admin privilege separation exists \u2014 one EOA holds DEFAULT_ADMIN_ROLE on every contract. TransferRoles cannot reduce this."
+  },
+  "deployer": {
+    "address": "0x19BF0B60852Afa668b261D3020A1A4321362e68D",
+    "note": "Same address as admin. See admin.note."
+  },
+  "contracts": {
+    "RobachaFeeRouter": "0x5C3d838b0d4Ce3D68e2a1B17451915a772319dBa",
+    "RobachaRewardVault": "0xd324Ba28Bd893471999ccb40996a9B07781B21A6",
+    "RobachaPoolRegistry": "0x90C67101D36925D573C862A1eD3469b3233F3E51",
+    "RobachaGacha": "0xb775F90356972ae8d7c19841520bd0E6FFaCD93B",
+    "RobachaRandomnessSender": "0x9E458DE99945390A8F8977FF48A7a0a0CE820Ab5",
+    "RobachaRandomnessReceiver": "0x4CeF8FAC8C6703D57Ae0595b73c9F2298Ac1b2C8",
+    "RobachaSponsorRegistry": "0x9a43fceC5228DF4B27db8029fD63BE95099ed076"
+  },
+  "ethereum": {
+    "chainId": 1,
+    "EthereumRobachaRandomnessCoordinator": "0xd324Ba28Bd893471999ccb40996a9B07781B21A6",
+    "note": "Shares an address with the Robinhood reward vault. This is expected, not an error: a CREATE address is derived from (deployer, nonce), and the same deployer used the same nonce on both chains."
+  },
+  "transactions": {
+    "deployTxHashes": [],
+    "roleTransferTxHashes": [],
+    "poolActivationTxHash": null,
+    "controlledSpinTxHash": null,
+    "fulfillmentTxHash": null,
+    "claimTxHash": null
+  },
+  "measuredDeploymentGas": {
+    "_comment": "Measured by executing script/DeployRobinhood.s.sol against an anvil fork of Robinhood Chain mainnet on 2026-07-26. Real bytecode, real CCIP router address, real chain state.",
+    "RobachaFeeRouter": 1398620,
+    "RobachaRewardVault": 1120960,
+    "RobachaPoolRegistry": 2491450,
+    "RobachaGacha": 3490979,
+    "RobachaRandomnessSender": 1237087,
+    "RobachaRandomnessReceiver": 792299,
+    "RobachaSponsorRegistry": 1327053,
+    "wiringCalls": 270588,
+    "total": 12129036,
+    "estimatedFeeEthAtRecordedGasPrice": "0.00067782"
+  },
+  "feeConfiguration": {
+    "protocolFeeBps": 1200,
+    "operationsFeeBps": 300,
+    "rewardReserveBps": 8500,
+    "totalBps": 10000,
+    "maxProtocolFeeBps": 2000,
+    "maxOperationsFeeBps": 500,
+    "changeTimelockHours": 48
+  },
+  "randomness": {
+    "architecture": "RobachaGacha -> RobachaRandomnessSender -> Chainlink CCIP -> EthereumRobachaRandomnessCoordinator -> Chainlink VRF v2.5 -> CCIP -> RobachaRandomnessReceiver -> RobachaGacha",
+    "ccipRobinhoodRouter": "0x06fC836cf9839B1cd891C440A0a45242DA6Ae1c9",
+    "ccipRobinhoodSelector": "6180753054346818345",
+    "ccipEthereumRouter": "0x80226fc0Ee2b096224EeAc085Bb9a8cba1146f7D",
+    "ccipEthereumSelector": "5009297550715157269",
+    "laneRobinhoodToEthereum": "verified supported, v1.6.0",
+    "laneEthereumToRobinhood": "verified supported, v1.6.0",
+    "vrfCoordinator": "0xD7f86b4b8Cae7D942340FF628F82735b7a20893a",
+    "vrfKeyHash200Gwei": "0x8077df514608a09f83e4e8d300645594e5d7234665448ba83f51a50f842bd3d9",
+    "vrfSubscriptionId": "75705840288517749258529232963152845752225771265485729182830728448838092833298",
+    "vrfSubscriptionFunded": true,
+    "vrfConsumerAuthorised": true,
+    "note": "No manual, operator-supplied or block-derived randomness source exists anywhere in src/. The previous ManualRandomness adapter has been deleted. If this architecture is not fully configured and funded, spinReadiness returns false and paid spins stay closed.",
+    "vrfSubscriptionLinkBalance": "2000000000000000000",
+    "vrfSubscriptionOwner": "0x19BF0B60852Afa668b261D3020A1A4321362e68D",
+    "vrfRequestCountAtRecord": 0,
+    "ccipSenderFeeBalanceWei": "5000000000000000",
+    "ccipReturnFeeBalanceWei": "10000000000000000",
+    "measuredRequestFeeWei": "576125704495076",
+    "senderIsReady": true,
+    "coordinatorIsReady": true
+  },
+  "inventory": {
+    "tokensFunded": [],
+    "note": "No reward inventory has been deposited. None is manufactured. A pool cannot activate until every reward slot is funded to at least its own maximum."
+  },
+  "pool": {
+    "poolId": null,
+    "version": null,
+    "active": false,
+    "probabilitiesBps": null,
+    "baseSpinPriceWei": null,
+    "randomnessSurchargeWei": null,
+    "note": "No pool has been created (registry.nextPoolId - 1 == 0) and the vault holds no tokens (knownTokenCount == 0). spinReadiness reports poolOpen=false, so paid spins are impossible. This is the remaining launch work."
+  },
+  "verification": {
+    "blockscoutVerified": true,
+    "etherscanVerified": false,
+    "independentSecurityAudit": false,
+    "auditNote": "ROBACHA has NOT been independently audited. Do not represent it as audited.",
+    "blockscoutNote": "All 7 Robinhood contracts verified and source-matched on Blockscout."
+  },
+  "testing": {
+    "framework": "Foundry",
+    "unitAndFuzzTests": 100,
+    "invariantTests": 9,
+    "invariantCallsPerRun": 3072,
+    "allPassing": true,
+    "lastRun": "2026-07-26",
+    "forkDeploymentRehearsal": "script/DeployRobinhood.s.sol executed successfully against an anvil fork of chain 4663"
+  }
+}
