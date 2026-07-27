@@ -5,6 +5,7 @@ import { formatUnits } from "viem";
 import { TokenAvatar } from "@/components/brand/TokenAvatar";
 import { RarityChip } from "@/components/shared/RarityChip";
 import { ShareWin } from "@/components/rewards/ShareWin";
+import { RefundPanel } from "./RefundPanel";
 import { UnavailableState } from "@/components/shared/UnavailableState";
 import { EmptyState } from "@/components/shared/primitives";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -78,6 +79,10 @@ export function BagClient() {
 
   return (
     <div className="space-y-8">
+      {/* Money owed comes first. Someone arriving here after being told their
+          refund is waiting should see it before anything else. */}
+      <RefundPanel />
+
       {/* Robacha rewards */}
       <section>
         <header className="mb-3 flex items-center justify-between gap-3">
