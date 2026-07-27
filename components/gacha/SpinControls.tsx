@@ -136,7 +136,7 @@ export function SpinControls({
             ? `${formatEther(totalBaseWei)} ${chainConfig.nativeSymbol}`
             : "Unavailable"}
         </Row>
-        <Row label="Random draw fee" hint="Pays for the random draw itself. We don’t keep any of it.">
+        <Row label="Random draw fee" hint="Covers the gas of running the draw and paying out. We don’t keep any of it.">
           {baseWei > 0n
             ? `${formatEther(totalSurchargeWei)} ${chainConfig.nativeSymbol}`
             : "Unavailable"}
@@ -193,8 +193,10 @@ export function SpinControls({
 
       <p className="mt-3 text-[11.5px] leading-relaxed text-ink-3">
         Every spin has the same odds shown above — one pull never changes the
-        next. Your reward is picked by Chainlink&rsquo;s random draw once the
-        round closes, and nobody at ROBACHA gets to choose it. Token values go
+        next. We lock in a sealed number before your round even opens, and it
+        gets mixed with everyone who enters, so we can&rsquo;t pick your reward.
+        We could refuse to unseal it — then the round is cancelled and everyone
+        is refunded in full, and it&rsquo;s recorded publicly. Token values go
         up and down.
       </p>
 

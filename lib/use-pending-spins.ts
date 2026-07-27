@@ -63,7 +63,7 @@ function describe(state: number, entries: number): { label: string; detail: stri
     case RoundState.Closed:
       return {
         label: "Round closed",
-        detail: "Asking Chainlink for the random draw.",
+        detail: "Unsealing this round's random number.",
       };
     case RoundState.RandomnessRequested:
     case RoundState.CrossChainPending:
@@ -72,7 +72,7 @@ function describe(state: number, entries: number): { label: string; detail: stri
       return {
         label: "Draw in progress",
         detail:
-          "Waiting on Chainlink's random number, which travels to Ethereum and back. Nobody can rush it or change it.",
+          "Waiting for this round's sealed number to be unsealed. It was locked in before the round opened, so nobody can change it now.",
       };
     case RoundState.RandomnessReceived:
       return {

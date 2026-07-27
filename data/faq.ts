@@ -152,9 +152,14 @@ export const FAQ_GROUPS: FaqGroup[] = [
           "The contracts are live on Robinhood Chain, and everything you see — prizes, price, odds, what's left in stock — is read straight from them. Paid spins are still switched off while we finish testing, so the spin button stays disabled rather than pretending to work.",
       },
       {
-        question: "Can the draw be rigged?",
+        question: "Can you pick what I get?",
         answer:
-          "No. The random number comes from Chainlink, and it's only requested after the round closes — so it doesn't exist yet at the moment you pay. Nobody at ROBACHA can supply it, swap it out, or choose your reward. If it never arrives, the round becomes refundable and you take your money back.",
+          "No, and here's exactly why. Before a round even opens we lock in a sealed random number — the contract publishes a fingerprint of it and refuses any number sealed after the round started. When the round ends we unseal it, and the contract checks it matches that fingerprint. We can't swap it for a nicer one. On top of that, the final result mixes in the addresses of everyone who entered, which we couldn't have known when we sealed it.",
+      },
+      {
+        question: "So what CAN you do?",
+        answer:
+          "One thing, and we'd rather say it than have you find it. Once a round closes we can see the result before unsealing it, and we could refuse to unseal. That doesn't let us change your prize — it cancels the whole round and refunds everyone in full, including us losing the fees. Every refusal is counted on chain forever, so a pattern of convenient failures is visible to anyone. We also post a deposit that gets slashed each time it happens.",
       },
       {
         question: "Can I check the code?",

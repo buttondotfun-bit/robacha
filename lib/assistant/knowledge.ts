@@ -128,7 +128,7 @@ export const ASSISTANT_ENTRIES: AssistantEntry[] = [
         );
       }
       body.push(
-        "The draw fee is separate and goes straight to Chainlink for the random number. We never keep any of it.",
+        "The draw fee is separate. It only covers the gas of running the draw and paying everyone out — we never keep any of it as profit.",
       );
       return { body };
     },
@@ -148,7 +148,7 @@ export const ASSISTANT_ENTRIES: AssistantEntry[] = [
       }
       return {
         body: [
-          `One spin is ${ctx.pool.spinPriceDisplay} ${sym}, plus a draw fee that pays Chainlink for the random number. The panel shows both and the total before you confirm anything.`,
+          `One spin is ${ctx.pool.spinPriceDisplay} ${sym}, plus a small draw fee that covers running the draw. The panel shows both and the total before you confirm anything.`,
           "Your wallet adds its own network fee on top, which it calculates when you sign — that one goes to the network, not to us.",
           `You can buy up to ${ctx.pool.maxQuantityPerTx} at a time.`,
         ],
@@ -181,7 +181,7 @@ export const ASSISTANT_ENTRIES: AssistantEntry[] = [
       const timeout = duration(ctx.money.randomnessTimeoutSeconds);
       const body: string[] = [
         "Not instantly — and that's by design, not a fault.",
-        "Spins are grouped into rounds. Yours waits for its round to fill up or run out of time, then a random number is requested from Chainlink, then everything in the round is settled together. Sharing one draw across a round is what keeps the fee small.",
+        "Spins are grouped into rounds. Yours waits for its round to fill up or run out of time, then the sealed number for that round is unsealed, then everything in the round is settled together. Sharing one draw across a round is what keeps the fee small.",
       ];
       if (round) {
         body.push(
@@ -323,14 +323,14 @@ export const ASSISTANT_ENTRIES: AssistantEntry[] = [
   // ---------------------------------------------------------------- trust
   {
     id: "rigged",
-    question: "Can the draw be rigged?",
-    keywords: ["rigged", "fair", "random", "cheat", "manipulate", "chainlink", "vrf", "fixed"],
+    question: "Can you pick what I get?",
+    keywords: ["rigged", "fair", "random", "cheat", "manipulate", "fixed", "choose", "pick"],
     group: "trust",
     answer: () => ({
       body: [
-        "No. The random number comes from Chainlink and it's only requested after the round closes — it doesn't exist yet at the moment you pay.",
-        "Nobody at ROBACHA can supply that number, swap it out, or choose your reward. The contract derives every result from it mechanically.",
-        "If it never arrives, we can't invent one to move things along. The round just becomes refundable and everyone gets their money back.",
+        "No. Before a round opens we seal a random number and publish its fingerprint on chain. The contract refuses any number sealed after the round started, so it was fixed before your entry existed.",
+        "When the round ends we unseal it and the contract checks it against that fingerprint. Swapping it for a nicer one is impossible — the check fails. The result also mixes in the addresses of everyone who entered, which we couldn't have known when we sealed it.",
+        "What we could do is refuse to unseal. That doesn't change your prize — it cancels the round and refunds everyone in full. It costs us a slashed deposit and it's counted on chain permanently, so you can check how often it happens.",
       ],
       action: { label: "Read the docs", href: "/docs" },
     }),
