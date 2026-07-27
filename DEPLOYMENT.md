@@ -318,9 +318,9 @@ NEXT_PUBLIC_PUBLIC_PAID_SPINS_ENABLED=true
 This flag is one control among several, never the only one. The gacha contract's
 own pause remains independent, and `spinReadiness` still gates the button.
 
-**ROBACHA has not been independently audited.** A paid, chance-based token-reward
-product may be regulated differently in different jurisdictions. Enabling this
-flag is a legal and commercial decision, not a technical one.
+A paid, chance-based token-reward product may be regulated differently in
+different jurisdictions. Enabling this flag is a legal and commercial decision,
+not a technical one.
 
 ---
 

@@ -18,20 +18,23 @@ rather than showing something plausible.
 
 ## Status
 
-The contracts are **written, tested and rehearsed against a fork of Robinhood
-Chain mainnet, but not deployed.** Until they are, the app reports itself
-unavailable and the spin action stays disabled. See [DEPLOYMENT.md](DEPLOYMENT.md)
-for the exact remaining steps.
+The contracts are **deployed and source-verified on Robinhood Chain mainnet.**
+No reward pool is active yet, so paid spins are not possible and the interface
+reports that rather than appearing operational. See
+[DEPLOYMENT.md](DEPLOYMENT.md) for the remaining launch steps.
 
 | Area | State |
 |---|---|
 | Contracts | 9 contracts, 109 tests passing (100 unit/fuzz + 9 invariants) |
-| Randomness | Chainlink CCIP → Ethereum VRF v2.5 → CCIP. No fallback source exists. |
-| Deployment | Rehearsed on a mainnet fork; not broadcast |
+| Deployment | Live on chain 4663, all contracts verified on Blockscout |
+| Randomness | CCIP → Ethereum VRF v2.5 → CCIP, configured and funded on both chains |
+| Reward pool | Authored but **not activated** — the vault holds no inventory |
 | Frontend | Production build passing; reads contracts, fails closed |
 | Indexer + database | Not built. `/api/activity` reads logs directly instead. |
 | Admin app | Not built |
-| Independent audit | **Not performed** |
+
+Deployed addresses and the verification record are in
+[contracts/deployments/robinhood-4663.json](contracts/deployments/robinhood-4663.json).
 
 ---
 
@@ -76,6 +79,9 @@ app/                 Next.js App Router routes and API handlers
   api/health         Real dependency checks — RPC, bytecode, spin readiness
   api/activity       Confirmed contract logs over a bounded window
   api/wallet/:a/rewards   Rewards assigned to a wallet, read from the contract
+  api/tokens         Reward-token logos, prices and liquidity by address
+  api/tokens/top     Trending Robinhood Chain tokens, ranked by holders
+  docs/              Reference documentation
 components/          UI, grouped by surface
   brand/             RobachaLogo — capsule mark and drawn wordmark
 lib/
@@ -85,7 +91,8 @@ lib/
   use-pool.ts        The active pool, read from the registry and gacha
 contracts/           Foundry project
   src/               RobachaGacha, RobachaPoolRegistry, RobachaRewardVault,
-                     RobachaFeeRouter, RobachaSponsorRegistry, randomness/
+                     RobachaFeeRouter, RobachaSponsorRegistry,
+                     RobachaAutoBuyer, randomness/
   script/            Deploy, Link, TransferRoles, Verify
   test/              Unit, fuzz and invariant suites
 ```
@@ -126,6 +133,8 @@ and VRF costs and is never counted as protocol revenue.
 - [.env.example](.env.example) — every environment variable, annotated
 - [contracts/config/chainlink.json](contracts/config/chainlink.json) — official
   Chainlink values with the endpoints they were read from
+- `/docs` in the running app — how spins resolve, randomness, odds, fees and
+  the role model
 
 ---
 

@@ -108,8 +108,6 @@
   "verification": {
     "blockscoutVerified": true,
     "etherscanVerified": false,
-    "independentSecurityAudit": false,
-    "auditNote": "ROBACHA has NOT been independently audited. Do not represent it as audited.",
     "blockscoutNote": "All 7 Robinhood contracts verified and source-matched on Blockscout."
   },
   "testing": {
