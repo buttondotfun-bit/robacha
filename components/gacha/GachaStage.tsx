@@ -5,13 +5,19 @@ import { useMemo, useState } from "react";
 import { RarityChip } from "@/components/shared/RarityChip";
 import { formatAmount, formatOdds, formatRange } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
+import { useSpin } from "@/lib/spin-store";
+import type { SpinPhase } from "@/types/reward";
 import type { ActivePool } from "@/lib/use-pool";
 import { RewardCarousel } from "./RewardCarousel";
+
 
 /**
  * The stage. Renders the active pool's reward slots and a readout of whichever
  * one is focused — all of it contract state.
  */
+/** Phases where a signature or a block confirmation is genuinely outstanding. */
+const SPINNING_PHASES = new Set<SpinPhase>(["simulating", "confirming", "broadcast"]);
+
 export function GachaStage({
   pool,
   className,
@@ -23,6 +29,15 @@ export function GachaStage({
   const entries = pool.entries;
   const len = entries.length;
   const focused = len ? entries[((activeIndex % len) + len) % len] : null;
+
+  // Only while the transaction itself is in flight.
+  //
+  // `busy` stays true all the way through `randomness-pending`, which can be
+  // hours — a reel turning that long would drain a phone and, worse, imply a
+  // result is seconds away when it is waiting on another chain. Once the entry
+  // is safely in a round, PendingSpins is what reports the wait.
+  const spin = useSpin();
+  const spinning = SPINNING_PHASES.has(spin.phase);
 
   const readout = useMemo(() => {
     if (!focused) return [];
@@ -70,6 +85,7 @@ export function GachaStage({
           entries={entries}
           activeIndex={activeIndex}
           onActiveIndexChange={setActiveIndex}
+          spinning={spinning}
         />
 
         {focused ? (

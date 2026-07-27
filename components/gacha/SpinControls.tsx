@@ -19,6 +19,7 @@ import { useWallet } from "@/lib/use-wallet";
 import { cn } from "@/lib/utils";
 import type { ActivePool, PoolReadiness } from "@/lib/use-pool";
 import { QuantitySelector } from "./QuantitySelector";
+import { ShareSpin } from "./ShareSpin";
 import { SPIN_COPY, SpinStatus } from "./SpinStatus";
 
 /**
@@ -237,18 +238,21 @@ export function SpinControls({
         <SpinStatus phase={spin.phase} className="mt-3" />
       )}
 
+      {/* Both appear only once a real transaction exists to point at. */}
       {txLink ? (
-        <ButtonLink
-          href={txLink}
-          external
-          variant="secondary"
-          size="sm"
-          className="mt-2"
-          fullWidth
-        >
-          <span className="num">{shortHash(spin.txHash ?? "")}</span>
-          <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-        </ButtonLink>
+        <div className="mt-2 flex items-center gap-2">
+          <ButtonLink
+            href={txLink}
+            external
+            variant="secondary"
+            size="sm"
+            className="flex-1"
+          >
+            <span className="num">{shortHash(spin.txHash ?? "")}</span>
+            <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+          </ButtonLink>
+          <ShareSpin quantity={spin.quantity} />
+        </div>
       ) : null}
 
       <Button

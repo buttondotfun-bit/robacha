@@ -25,11 +25,18 @@ export function RewardCarousel({
   entries,
   activeIndex,
   onActiveIndexChange,
+  spinning = false,
   className,
 }: {
   entries: PoolRewardEntry[];
   activeIndex: number;
   onActiveIndexChange: (index: number) => void;
+  /**
+   * Drives the free-spin animation. Bound to the real transaction phase, not
+   * a timer — the reel turns for exactly as long as the spin is genuinely in
+   * flight, so the motion reports state rather than performing it.
+   */
+  spinning?: boolean;
   className?: string;
 }) {
   // One request covers every slot on the carousel.
@@ -83,13 +90,49 @@ export function RewardCarousel({
   );
 
   useEffect(() => {
-    if (len === 0) return;
+    if (len === 0 || spinning) return;
     const current = ((posRef.current % len) + len) % len;
     const delta = ringDelta(current, activeIndex, len);
     if (Math.abs(delta) < 0.001) return;
     animate(delta, 460);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeIndex, len]);
+  }, [activeIndex, len, spinning]);
+
+  /**
+   * While a spin is in flight the reel free-runs at a constant rate. It is
+   * deliberately not an ease: an accelerating-then-settling reel implies the
+   * result is arriving, and on this product the result is minutes away on
+   * another chain. A steady turn reads as "working", which is the truth.
+   */
+  useEffect(() => {
+    if (!spinning || len === 0) return;
+
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    stop();
+    let raf: number;
+    let last = performance.now();
+    const CARDS_PER_SECOND = 2.2;
+
+    const tick = (now: number) => {
+      const dt = (now - last) / 1000;
+      last = now;
+      posRef.current += CARDS_PER_SECOND * dt;
+      setPos(posRef.current);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      // Land on a whole card rather than stopping mid-gap.
+      posRef.current = len ? ((Math.round(posRef.current) % len) + len) % len : 0;
+      setPos(posRef.current);
+    };
+  }, [spinning, len, stop]);
 
   useEffect(() => stop, [stop]);
 

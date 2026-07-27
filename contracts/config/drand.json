@@ -1,0 +1,42 @@
+{
+  "_comment": [
+    "drand evmnet beacon parameters. Every value here was read from the beacon's",
+    "own API at the endpoint recorded in `source`, on the date in `readAt`.",
+    "Nothing in this file is derived, guessed or copied from documentation.",
+    "",
+    "evmnet exists specifically so that beacon signatures can be verified inside",
+    "an EVM contract: it signs on BN254 rather than BLS12-381, which is the curve",
+    "the EVM exposes precompiles for (0x06 add, 0x07 mul, 0x08 pairing).",
+    "",
+    "Robinhood Chain (4663) was checked directly and the BN254 pairing precompile",
+    "at 0x08 returns 1 for the empty-input identity case, so verification is",
+    "possible on chain. BLS12-381 precompiles (0x0b-0x11) are NOT present, which",
+    "is why the default and quicknet chains cannot be used here."
+  ],
+  "source": "https://api.drand.sh/v2/chains/04f1e9062b8a81f848fded9c12306733282b2727ecced50032187751166ec8c3/info",
+  "readAt": "2026-07-28",
+  "beaconId": "evmnet",
+  "scheme": "bls-bn254-unchained-on-g1",
+  "chainHash": "0x04f1e9062b8a81f848fded9c12306733282b2727ecced50032187751166ec8c3",
+  "genesisTime": 1727521075,
+  "periodSeconds": 3,
+  "genesisSeed": "0xcd7ad2f0e0cce5d8c288f2dd016ffe7bc8dc88dbb229b3da2b6ad736490dfed6",
+  "publicKeyG2Hex": "0x07e1d1d335df83fa98462005690372c643340060d205306a9aa8106b6bd0b3820557ec32c2ad488e4d4f6008f89a346f18492092ccc0d594610de2732c8b808f0095685ae3a85ba243747b1b2f426049010f6b73a0cf1d389351d5aaaa1047f6297d3a4f9749b33eb2d904c9d9ebf17224150ddd7abd7567a9bec6c74480ee0b",
+  "publicKeyBytes": 128,
+  "signatureBytes": 64,
+  "notes": {
+    "unchained": "Each round is signed over the round number alone, not over the previous signature. A future round's value therefore cannot be derived from any earlier one.",
+    "roundFromTimestamp": "round = floor((timestamp - genesisTime) / periodSeconds) + 1",
+    "whyItCannotBeGround": "A round commits to a drand round number that has not yet been produced. The value for that round does not exist at commit time and is fixed by the drand network, not by us, so no party can select an outcome by choosing when to submit.",
+    "precompileCheck": {
+      "chainId": 4663,
+      "bn254PairingAt0x08": "available (empty-input call returns 1)",
+      "bls12381At0x0b": "absent"
+    }
+  },
+  "sampleBeacon": {
+    "_comment": "Kept only as a shape reference for tests. Not a trusted value.",
+    "round": 19223403,
+    "signature": "0x06d729828ee4063df706eb8a4b4feb0e624cb85d6a6eb67ac701197a6895bed623b1236c1df5c18d50ad7360a65e94b6626a48e17173904e0f0193c91c4161f4"
+  }
+}
