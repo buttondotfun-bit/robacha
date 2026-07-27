@@ -14,6 +14,7 @@ import {
 } from "@/lib/config";
 import { shortAddress, shortHash } from "@/lib/formatters";
 import { useSpin } from "@/lib/spin-store";
+import { usePendingSpins, RoundState } from "@/lib/use-pending-spins";
 import { useWallet } from "@/lib/use-wallet";
 import { cn } from "@/lib/utils";
 import type { ActivePool, PoolReadiness } from "@/lib/use-pool";
@@ -45,6 +46,12 @@ export function SpinControls({
   const spin = useSpin();
   const wallet = useWallet();
   const [confirming, setConfirming] = useState(false);
+  const { pending } = usePendingSpins();
+
+  // Spins already paid for. Whether a new spin joins them or starts a fresh
+  // round decides what the confirmation has to warn about.
+  const pendingTotal = pending.reduce((sum, row) => sum + row.entries, 0);
+  const openRound = pending.find((row) => row.state === RoundState.Open);
 
   const busy = SPIN_COPY[spin.phase].busy;
 
@@ -303,6 +310,22 @@ export function SpinControls({
             </dd>
           </div>
         </dl>
+
+        {/* Someone with money already in flight is the most likely person to
+            pay twice by mistake, so say plainly what this button does to it. */}
+        {pendingTotal > 0 ? (
+          <div className="mt-3.5 rounded-[14px] border border-[#eadfc4] bg-[#fdfaf2] px-3.5 py-3">
+            <p className="text-[12.5px] font-medium text-ink">
+              You already have {pendingTotal}{" "}
+              {pendingTotal === 1 ? "spin" : "spins"} waiting
+            </p>
+            <p className="mt-1 text-[12px] leading-relaxed text-ink-2">
+              {openRound
+                ? `This adds to round #${openRound.roundId}, which helps it fill up and finish sooner.`
+                : "This buys a new spin in a new round. It doesn't retry or speed up the ones you're waiting on."}
+            </p>
+          </div>
+        ) : null}
 
         <p className="mt-3.5 text-[12px] leading-relaxed text-ink-2">
           Once this is signed it can&rsquo;t be cancelled — entries have to be
