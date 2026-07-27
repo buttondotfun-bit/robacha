@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react";
 import { ActivityFeed } from "@/components/activity/ActivityFeed";
 import { GachaStage } from "@/components/gacha/GachaStage";
 import { PoolBar } from "@/components/gacha/PoolBar";
+import { PendingSpins } from "@/components/gacha/PendingSpins";
 import { SpinAssistant } from "@/components/gacha/SpinAssistant";
 import { SpinControls } from "@/components/gacha/SpinControls";
 import { UnavailableState } from "@/components/shared/UnavailableState";
@@ -56,6 +57,7 @@ export function AppClient() {
         </div>
 
         <div className="flex flex-col gap-4">
+          <PendingSpins />
           <div className="glass-panel rounded-[24px] p-4">
             <SpinControls pool={pool} readiness={readiness} />
           </div>
