@@ -2,47 +2,46 @@ import { LightField } from "@/components/shared/AmbientBackground";
 import { PageContainer, Pill, SectionHeader } from "@/components/shared/primitives";
 
 /**
- * What changes in pool v2, stated as a plan rather than a promise.
+ * What v2 changed, and the one thing still ahead of us.
  *
- * Pool v1 is locked on chain: its price, odds and reward amounts can never be
- * edited. Every improvement below therefore requires a *new pool version*, which
- * does not exist yet. Nothing here is read from chain, because there is nothing
- * to read — so nothing here is presented as live, and no date is given.
+ * Everything in CHANGES has shipped and is live on chain. The `from` values are
+ * v1's configuration and the `to` values are v2's; both are immutable for their
+ * version, which is what makes them safe to state here rather than read at
+ * runtime.
  *
- * The `from` values are v1's on-chain configuration, which is immutable and so
- * safe to state. The `to` values are targets: the surcharge tracks the live
- * Chainlink fee and the reward sizing tracks live token prices, both of which
- * are only fixed at the moment the pool is created. They are labelled as such
- * here and in the footnote, and must not be presented as committed figures.
+ * Deliberately absent: a payout percentage. It moves with the price of every
+ * reward token, so any number written here would be wrong within the hour. The
+ * reward reserve share is stated instead — that one is fixed in the contract.
+ *
+ * The tokenised-stocks block below is the only forward-looking claim on this
+ * page, and it is framed as exploration because that is what it is.
  */
 const CHANGES = [
   {
     title: "Grab 5 at once",
-    body: "Today you can only pull 2 at a time. Soon you can pull 5 — enough to fill a whole round on your own.",
+    body: "You used to be capped at 2 per transaction. Now it's 5 — enough to fill a whole round in one go and settle it immediately.",
     from: "2 a go",
     to: "5 a go",
     icon: <StackGlyph />,
   },
   {
-    title: "Barely any waiting",
-    body: "A round pops the moment it's full. Smaller rounds fill faster, so you find out what you got in minutes.",
+    title: "Rounds finish fast",
+    body: "Rounds hold 5 spins instead of 25, and close after two minutes if they don't fill. Far less waiting around for strangers.",
     from: "25 to fill",
     to: "5 to fill",
     icon: <RoundGlyph />,
   },
   {
-    title: "Cheaper to play",
-    body: "There's a small fee on top that pays for the random draw. It's coming down.",
+    title: "The draw fee dropped",
+    body: "The small fee covering the random draw came down sharply when we moved the draw onto Robinhood Chain itself.",
     from: "0.0007 ETH",
-    to: "≈0.00059 ETH",
-    toIsTarget: true,
+    to: "0.0001 ETH",
     icon: <LinkGlyph />,
   },
   {
-    title: "Way more in the capsule",
-    body: "Most of what you pay goes straight back into the prize stash — so there's a lot more waiting inside.",
-    to: "75% into prizes",
-    toIsTarget: true,
+    title: "Most of it goes to prizes",
+    body: "85% of every spin price is reserved for buying what goes in the machine. That split is fixed in the contract and can't be edited on this pool.",
+    to: "85% into prizes",
     icon: <CapsuleGlyph />,
   },
 ];
@@ -58,11 +57,15 @@ export function NextRelease() {
 
       <PageContainer width="wide" className="relative">
         <SectionHeader
-          eyebrow="Coming next"
-          title="v2 is coming. It's a big one."
-          description="Five pulls at a time. Rounds that finish fast. And a whole lot more packed into every capsule."
+          eyebrow="Shipped in v2"
+          title="v2 is live."
+          description="Five pulls at a time. Rounds that finish in minutes. And a bigger share of every spin going straight into the prize machine."
           className="mb-4"
-          action={<Pill tone="neutral">Not live yet</Pill>}
+          action={
+            <Pill tone="accent" dot>
+              Live now
+            </Pill>
+          }
         />
 
         <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -97,26 +100,20 @@ export function NextRelease() {
                 <span className="num text-[13px] font-semibold text-accent-ink">
                   {change.to}
                 </span>
-                {change.toIsTarget ? (
-                  <span
-                    className="text-[11px] text-ink-3"
-                    title="Finalised when the pool is created"
-                  >
-                    target
-                  </span>
-                ) : null}
+
               </div>
             </li>
           ))}
         </ul>
 
-        {/* The next pool's theme, stated as an intention. Robinhood Chain does
-            host tokenised equities, so this is grounded — but which ones we can
-            stock, and where, is not settled, and the copy must not imply it is. */}
+        {/* The only forward-looking claim on the page. Robinhood Chain does
+            host tokenised equities, so this is grounded — but which ones we
+            could stock, and where, is not settled, and the copy must not imply
+            it is. */}
         <div className="mt-6 overflow-hidden rounded-[20px] border border-[#e2f5a8] bg-accent-soft px-5 py-5 sm:px-6">
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="inline-flex h-6 items-center rounded-full bg-white/70 px-2.5 text-[11px] font-medium text-accent-ink">
-              After that
+              Up next
             </span>
             <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-accent-ink/70">
               Exploring
@@ -132,26 +129,21 @@ export function NextRelease() {
             company instead of a memecoin.
           </p>
           <p className="mt-2.5 max-w-[62ch] text-[12px] leading-relaxed text-accent-ink/80">
-            We&rsquo;re exploring this, not announcing it. Tokenised stocks are
-            regulated differently to memecoins, so which ones we can put in a
-            pool — and who can spin for them — depends on rules we don&rsquo;t
-            set. We&rsquo;ll only ship it where it&rsquo;s allowed, and
-            we&rsquo;ll say plainly what changed when we do.
+            We&rsquo;re exploring this, not announcing it. There&rsquo;s no date.
+            Tokenised stocks are regulated differently to memecoins, so which
+            ones we can put in a pool — and who can spin for them — depends on
+            rules we don&rsquo;t set. We&rsquo;ll only ship it where it&rsquo;s
+            allowed, and we&rsquo;ll say plainly what changed when we do.
           </p>
         </div>
 
         <p className="mt-6 max-w-[86ch] text-[12.5px] leading-relaxed text-ink-3">
-          None of this is live yet and we&rsquo;re not putting a date on it —
-          it ships when it&rsquo;s ready. Anything marked{" "}
-          <span className="text-ink-2">target</span>{" "}
-          isn&rsquo;t final; those
-          numbers get set from real prices on the day v2 launches, so they will
-          move. The pool running today keeps running exactly as it is until
-          then. And every spin is chance — you might pull something small, you
-          might pull something big. You&rsquo;ll always see the odds and the
-          full price before you approve anything, and token rewards go up and
-          down in value.
+          Every spin is chance — you might pull something small, you might pull
+          something big. You&rsquo;ll always see the odds and the full price
+          before you approve anything, and token rewards go up and down in
+          value.
         </p>
+
       </PageContainer>
     </section>
   );
@@ -160,7 +152,7 @@ export function NextRelease() {
 /* Monoline glyphs drawn here rather than pulled from an icon set, so they share
    the rounded language used by the other landing sections. Each carries one
    accent-green detail that names the thing the card is about: the fifth
-   capsule, the filled arc, the VRF spark, the reward inside the shell. */
+   capsule, the filled arc, the draw fee, the reward inside the shell. */
 
 const GLYPH = "h-[22px] w-[22px]";
 const ACCENT = "#a8e000";
@@ -196,7 +188,7 @@ function RoundGlyph() {
   );
 }
 
-/** Two chain links with a spark — the Chainlink cost the surcharge pays. */
+/** Two links with a spark — the draw fee that rides along with a spin. */
 function LinkGlyph() {
   return (
     <svg viewBox="0 0 24 24" className={GLYPH} fill="none" aria-hidden="true">
