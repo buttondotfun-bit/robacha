@@ -18,17 +18,18 @@ rather than showing something plausible.
 
 ## Status
 
-The contracts are **deployed and source-verified on Robinhood Chain mainnet.**
-No reward pool is active yet, so paid spins are not possible and the interface
-reports that rather than appearing operational. See
+The contracts are **deployed and source-verified on Robinhood Chain mainnet**,
+and the Genesis Pool is active with a funded, solvent vault. Paid spins are
+still closed behind the operator flag. See
 [DEPLOYMENT.md](DEPLOYMENT.md) for the remaining launch steps.
 
 | Area | State |
 |---|---|
-| Contracts | 9 contracts, 109 tests passing (100 unit/fuzz + 9 invariants) |
+| Contracts | 9 contracts, 126 tests passing (117 unit/fuzz + 9 invariants) |
 | Deployment | Live on chain 4663, all contracts verified on Blockscout |
 | Randomness | CCIP → Ethereum VRF v2.5 → CCIP, configured and funded on both chains |
-| Reward pool | Authored but **not activated** — the vault holds no inventory |
+| Reward pool | **Genesis Pool active**, vault funded and solvent |
+| Paid spins | **Closed** — `PUBLIC_PAID_SPINS_ENABLED` is off by default |
 | Frontend | Production build passing; reads contracts, fails closed |
 | Indexer + database | Not built. `/api/activity` reads logs directly instead. |
 | Admin app | Not built |

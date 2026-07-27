@@ -7,22 +7,13 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {RobachaRoles} from "./RobachaRoles.sol";
 
-interface IWETH {
-    function deposit() external payable;
-    function approve(address guy, uint256 wad) external returns (bool);
-}
-
-interface ISwapRouter02 {
-    struct ExactInputSingleParams {
-        address tokenIn;
-        address tokenOut;
-        uint24 fee;
-        address recipient;
-        uint256 amountIn;
-        uint256 amountOutMinimum;
-        uint160 sqrtPriceLimitX96;
-    }
-    function exactInputSingle(ExactInputSingleParams calldata params) external payable returns (uint256 amountOut);
+interface IUniswapV2Router02 {
+    function swapExactETHForTokens(
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external payable returns (uint256[] memory amounts);
 }
 
 interface IRobachaRewardVault {
@@ -32,14 +23,14 @@ interface IRobachaRewardVault {
 /**
  * @title RobachaAutoBuyer
  * @notice Receives native ETH (from initial funding or routed rewards) and
- *         swaps it for reward tokens using Uniswap V3 on Robinhood Chain,
+ *         swaps it for reward tokens using Uniswap V2 on Robinhood Chain,
  *         then automatically deposits those tokens into the reward vault.
  */
 contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     address public constant WETH = 0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73;
-    address public constant SWAP_ROUTER = 0x8876789976dEcBfCbBbe364623C63652db8C0904;
+    address public constant SWAP_ROUTER = 0x89e5DB8B5aA49aA85AC63f691524311AEB649eba;
 
     IRobachaRewardVault public immutable vault;
 
@@ -57,33 +48,29 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
 
     function swapAndFund(
         address token,
-        uint24 poolFee,
+        uint24, // poolFee parameter kept for ABI compatibility, unused in V2
         uint256 ethAmount,
         uint256 minAmountOut
     ) external payable onlyRole(RobachaRoles.POOL_MANAGER_ROLE) nonReentrant returns (uint256 amountOut) {
         require(address(this).balance >= ethAmount, "Insufficient ETH balance");
         require(ethAmount > 0, "Zero ETH amount");
 
-        // 1. Wrap ETH to WETH
-        IWETH(WETH).deposit{value: ethAmount}();
+        // 1. Prepare path
+        address[] memory path = new address[](2);
+        path[0] = WETH;
+        path[1] = token;
 
-        // 2. Approve SwapRouter
-        IWETH(WETH).approve(SWAP_ROUTER, ethAmount);
+        // 2. Perform Swap ETH -> Token
+        uint256[] memory amounts = IUniswapV2Router02(SWAP_ROUTER).swapExactETHForTokens{value: ethAmount}(
+            minAmountOut,
+            path,
+            address(this),
+            block.timestamp + 300
+        );
 
-        // 3. Swap WETH -> Token
-        ISwapRouter02.ExactInputSingleParams memory params = ISwapRouter02.ExactInputSingleParams({
-            tokenIn: WETH,
-            tokenOut: token,
-            fee: poolFee,
-            recipient: address(this),
-            amountIn: ethAmount,
-            amountOutMinimum: minAmountOut,
-            sqrtPriceLimitX96: 0
-        });
+        amountOut = amounts[amounts.length - 1];
 
-        amountOut = ISwapRouter02(SWAP_ROUTER).exactInputSingle(params);
-
-        // 4. Approve vault and fund
+        // 3. Approve vault and fund
         IERC20(token).approve(address(vault), amountOut);
         vault.fund(token, amountOut);
 

@@ -11,8 +11,8 @@
     "headBlockAtRecord": 19813669,
     "gasPriceAtRecordWei": "55884464"
   },
-  "status": "deployed-and-linked-pool-not-created",
-  "recordedAt": "2026-07-26T12:00:00Z",
+  "status": "deployed-pool-active-paid-spins-disabled",
+  "recordedAt": "2026-07-27T20:00:00Z",
   "admin": {
     "address": "0x19BF0B60852Afa668b261D3020A1A4321362e68D",
     "checksumValid": true,
@@ -32,7 +32,9 @@
     "RobachaGacha": "0xb775F90356972ae8d7c19841520bd0E6FFaCD93B",
     "RobachaRandomnessSender": "0x9E458DE99945390A8F8977FF48A7a0a0CE820Ab5",
     "RobachaRandomnessReceiver": "0x4CeF8FAC8C6703D57Ae0595b73c9F2298Ac1b2C8",
-    "RobachaSponsorRegistry": "0x9a43fceC5228DF4B27db8029fD63BE95099ed076"
+    "RobachaSponsorRegistry": "0x9a43fceC5228DF4B27db8029fD63BE95099ed076",
+    "RobachaAutoBuyer": "0xc9729b6E60836850586313aF369659273b40b000",
+    "_autoBuyerNote": "Redeployed against a Uniswap V2 router after the original V3 router address was found not to implement exactInputSingle. Verified on chain: router WETH() matches the contract constant, swapExactETHForTokens is present, and a full swapAndFund call simulates successfully end to end."
   },
   "ethereum": {
     "chainId": 1,
@@ -90,20 +92,44 @@
     "ccipReturnFeeBalanceWei": "10000000000000000",
     "measuredRequestFeeWei": "576125704495076",
     "senderIsReady": true,
-    "coordinatorIsReady": true
+    "coordinatorIsReady": true,
+    "swapRouterV2": "0x89e5DB8B5aA49aA85AC63f691524311AEB649eba"
   },
   "inventory": {
-    "tokensFunded": [],
-    "note": "No reward inventory has been deposited. None is manufactured. A pool cannot activate until every reward slot is funded to at least its own maximum."
+    "tokensFunded": [
+      {
+        "symbol": "CASHCAT",
+        "address": "0x020bfC650A365f8BB26819deAAbF3E21291018b4",
+        "vaultBalance": "51978914478249344658",
+        "solvent": true
+      },
+      {
+        "symbol": "4663",
+        "address": "0xd4052415613B34Af236024B895574c467f65b6dD",
+        "vaultBalance": "36095102971021240657",
+        "solvent": true
+      }
+    ],
+    "note": "Acquired through RobachaAutoBuyer and deposited via vault.fund()."
   },
   "pool": {
-    "poolId": null,
-    "version": null,
-    "active": false,
-    "probabilitiesBps": null,
-    "baseSpinPriceWei": null,
-    "randomnessSurchargeWei": null,
-    "note": "No pool has been created (registry.nextPoolId - 1 == 0) and the vault holds no tokens (knownTokenCount == 0). spinReadiness reports poolOpen=false, so paid spins are impossible. This is the remaining launch work."
+    "poolId": 1,
+    "version": 1,
+    "name": "Genesis Pool",
+    "active": true,
+    "probabilitiesBps": [
+      7000,
+      2500,
+      500
+    ],
+    "baseSpinPriceWei": "500000000000000",
+    "randomnessSurchargeWei": "100000000000000",
+    "maxEntriesPerRound": 25,
+    "roundDurationSeconds": 300,
+    "maxQuantityPerTx": 2,
+    "maxQuantityPerWallet": 15,
+    "lockedAt": 0,
+    "note": "Active and solvent; spinReadiness reports ready. Paid spins remain closed because PUBLIC_PAID_SPINS_ENABLED is false. OPEN ISSUE: the surcharge of 0.0001 ETH per entry sits below the measured CCIP cost of ~0.000666 ETH per round, so a round needs ~7 entries to cover its own randomness. The surcharge becomes immutable on the first paid spin (lockedAt is still 0)."
   },
   "verification": {
     "blockscoutVerified": true,
@@ -112,11 +138,12 @@
   },
   "testing": {
     "framework": "Foundry",
-    "unitAndFuzzTests": 100,
+    "unitAndFuzzTests": 117,
     "invariantTests": 9,
     "invariantCallsPerRun": 3072,
     "allPassing": true,
-    "lastRun": "2026-07-26",
-    "forkDeploymentRehearsal": "script/DeployRobinhood.s.sol executed successfully against an anvil fork of chain 4663"
+    "lastRun": "2026-07-27",
+    "forkDeploymentRehearsal": "script/DeployRobinhood.s.sol executed successfully against an anvil fork of chain 4663",
+    "note": "126 total, including 17 covering RobachaAutoBuyer."
   }
 }
