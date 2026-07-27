@@ -13,9 +13,12 @@ export function RewardCard({
   entry,
   position,
   active,
+  logoUrl,
   className,
 }: {
   entry: PoolRewardEntry;
+  /** Real token logo, resolved by contract address. */
+  logoUrl?: string | null;
   /** 1-based slot number in the active pool. */
   position: number;
   active?: boolean;
@@ -47,6 +50,8 @@ export function RewardCard({
         <div className="overflow-hidden rounded-xl border border-[rgba(255,255,255,0.8)] shadow-[0_4px_12px_-6px_rgba(16,17,15,0.32)] [container-type:inline-size]">
           <span className="block aspect-square w-full">
             <TokenAvatar
+              logoUrl={logoUrl}
+              size={220}
               address={entry.token}
               symbol={entry.symbol}
               rounded="none"

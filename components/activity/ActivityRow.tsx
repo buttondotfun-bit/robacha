@@ -11,6 +11,7 @@ import {
   shortHash,
 } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
+import { useTokenMarket } from "@/lib/use-token-market";
 import type { ActivityEvent } from "@/types/activity";
 
 const KIND_VERB: Record<ActivityEvent["kind"], string> = {
@@ -53,6 +54,7 @@ export function ActivityRow({
   variant?: "rail" | "table";
   className?: string;
 }) {
+  const market = useTokenMarket(event.token ? [event.token] : []);
   const age = formatAge((now - event.at) / 60_000);
   const amount = amountOf(event);
   const Icon = KIND_ICON[event.kind];
@@ -96,6 +98,8 @@ export function ActivityRow({
           <TokenAvatar
             address={event.token}
             symbol={event.tokenSymbol ?? null}
+            logoUrl={event.token ? market.get(event.token)?.logoUrl : null}
+            size={36}
             rounded="none"
           />
         </span>

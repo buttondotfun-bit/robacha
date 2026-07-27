@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn, ringDelta } from "@/lib/utils";
 import type { PoolRewardEntry } from "@/lib/use-pool";
+import { useTokenMarket } from "@/lib/use-token-market";
 import { RewardCard } from "./RewardCard";
 
 /**
@@ -31,6 +32,9 @@ export function RewardCarousel({
   onActiveIndexChange: (index: number) => void;
   className?: string;
 }) {
+  // One request covers every slot on the carousel.
+  const market = useTokenMarket(entries.map((entry) => entry.token));
+
   const [pos, setPos] = useState(activeIndex);
   const posRef = useRef(activeIndex);
   const frame = useRef<number | null>(null);
@@ -170,7 +174,12 @@ export function RewardCarousel({
                 opacity,
               }}
             >
-              <RewardCard entry={entry} position={index + 1} active={isCentre} />
+              <RewardCard
+                entry={entry}
+                position={index + 1}
+                active={isCentre}
+                logoUrl={market.get(entry.token)?.logoUrl}
+              />
             </button>
           );
         })}
