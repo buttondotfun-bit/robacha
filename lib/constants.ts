@@ -10,20 +10,34 @@ export const BRAND = {
   builtOn: "Built on Robinhood Chain",
 } as const;
 
-export const SITE_NAV = [
+/**
+ * `walletOnly` links are hidden until a wallet is connected.
+ *
+ * Filtering happens only after mount, so the server and the first client
+ * render agree on "not connected" and hydration stays clean. The pages
+ * themselves are never gated — hiding a link is a navigation choice, not
+ * access control, and every route stays reachable by URL.
+ */
+export interface NavLink {
+  label: string;
+  href: string;
+  walletOnly?: boolean;
+}
+
+export const SITE_NAV: readonly NavLink[] = [
   { label: "How It Works", href: "/#how-it-works" },
-  { label: "Rewards", href: "/rewards" },
-  { label: "Activity", href: "/activity" },
+  { label: "Rewards", href: "/rewards", walletOnly: true },
+  { label: "Activity", href: "/activity", walletOnly: true },
   { label: "Docs", href: "/docs" },
   { label: "FAQ", href: "/faq" },
-] as const;
+];
 
-export const APP_NAV = [
+export const APP_NAV: readonly NavLink[] = [
   { label: "Spin", href: "/app" },
-  { label: "Rewards", href: "/rewards" },
-  { label: "My Bag", href: "/bag" },
-  { label: "Activity", href: "/activity" },
-] as const;
+  { label: "Rewards", href: "/rewards", walletOnly: true },
+  { label: "My Bag", href: "/bag", walletOnly: true },
+  { label: "Activity", href: "/activity", walletOnly: true },
+];
 
 export const RARITY_ORDER: Rarity[] = [
   "common",

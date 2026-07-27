@@ -8,14 +8,15 @@ import { ButtonLink } from "@/components/ui/Button";
 import { GlassChip } from "@/components/ui/Glass";
 import { SITE_NAV, SOCIAL_LINKS } from "@/lib/constants";
 import { useScrolled } from "@/lib/use-scrolled";
+import { useVisibleNav } from "@/lib/use-visible-nav";
 import { cn } from "@/lib/utils";
 import { NETWORK_LABEL } from "@/lib/web3";
 import { MobileNavigation } from "./MobileNavigation";
 
 const MOBILE_ITEMS = [
   { label: "Home", href: "/" },
-  ...SITE_NAV.map((item) => ({ ...item })),
-  { label: "My Bag", href: "/bag" },
+  ...SITE_NAV,
+  { label: "My Bag", href: "/bag", walletOnly: true },
 ];
 
 /**
@@ -26,6 +27,8 @@ const MOBILE_ITEMS = [
 export function SiteHeader() {
   const pathname = usePathname();
   const scrolled = useScrolled();
+  const nav = useVisibleNav(SITE_NAV);
+  const mobileItems = useVisibleNav(MOBILE_ITEMS);
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 sm:pt-5">
@@ -48,7 +51,7 @@ export function SiteHeader() {
           aria-label="Primary"
           className="ml-2 hidden items-center gap-0.5 md:flex"
         >
-          {SITE_NAV.map((item) => {
+          {nav.map((item) => {
             const active =
               item.href.startsWith("/") &&
               !item.href.includes("#") &&
@@ -98,7 +101,7 @@ export function SiteHeader() {
 
           <span className="block md:hidden">
             <MobileNavigation
-              items={MOBILE_ITEMS}
+              items={mobileItems}
               cta={{ label: "Launch App", href: "/app" }}
             />
           </span>

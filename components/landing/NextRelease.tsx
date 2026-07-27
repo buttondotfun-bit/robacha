@@ -110,6 +110,36 @@ export function NextRelease() {
           ))}
         </ul>
 
+        {/* The next pool's theme, stated as an intention. Robinhood Chain does
+            host tokenised equities, so this is grounded — but which ones we can
+            stock, and where, is not settled, and the copy must not imply it is. */}
+        <div className="mt-6 overflow-hidden rounded-[20px] border border-[#e2f5a8] bg-accent-soft px-5 py-5 sm:px-6">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex h-6 items-center rounded-full bg-white/70 px-2.5 text-[11px] font-medium text-accent-ink">
+              After that
+            </span>
+            <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-accent-ink/70">
+              Exploring
+            </span>
+          </div>
+
+          <h3 className="mt-3 text-[20px] font-semibold tracking-[-0.03em] text-ink sm:text-[22px]">
+            Tokenised stocks in the machine.
+          </h3>
+          <p className="mt-2.5 max-w-[62ch] text-[13.5px] leading-relaxed text-ink-2">
+            Robinhood Chain was built around tokenised stocks, so that&rsquo;s
+            where we want to take the machine next — pull a slice of a real
+            company instead of a memecoin.
+          </p>
+          <p className="mt-2.5 max-w-[62ch] text-[12px] leading-relaxed text-accent-ink/80">
+            We&rsquo;re exploring this, not announcing it. Tokenised stocks are
+            regulated differently to memecoins, so which ones we can put in a
+            pool — and who can spin for them — depends on rules we don&rsquo;t
+            set. We&rsquo;ll only ship it where it&rsquo;s allowed, and
+            we&rsquo;ll say plainly what changed when we do.
+          </p>
+        </div>
+
         <p className="mt-6 max-w-[86ch] text-[12.5px] leading-relaxed text-ink-3">
           None of this is live yet and we&rsquo;re not putting a date on it —
           it ships when it&rsquo;s ready. Anything marked{" "}

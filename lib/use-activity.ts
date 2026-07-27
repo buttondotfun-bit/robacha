@@ -12,6 +12,8 @@ export type ActivityUnavailable =
   | "not-configured"
   | "indexer-unavailable"
   | "indexer-behind"
+  /** Upstream RPC returned 429. A throttle, not a fault — worth saying so. */
+  | "rpc-throttled"
   | null;
 
 /** Thrown when `/api/activity` cannot serve confirmed data. */
@@ -54,7 +56,9 @@ export function useActivity(options?: {
   limit?: number;
   pollMs?: number;
 }) {
-  const { wallet, kinds, limit = 50, pollMs = 15_000 } = options ?? {};
+  // Paced against the public RPC rather than the block time: this feed is
+  // read-only context, and polling it hard is what exhausted the rate limit.
+  const { wallet, kinds, limit = 50, pollMs = 45_000 } = options ?? {};
   const kindKey = kinds?.join(",") ?? "";
 
   const query = useQuery({

@@ -66,9 +66,11 @@ export function ActivityPreview() {
                 icon={<Activity className="h-5 w-5" aria-hidden="true" />}
                 title="Nothing has happened yet."
                 description={
-                  unavailable === "indexer-unavailable"
-                    ? "We can’t load the activity feed right now."
-                    : `No spins yet. The first one shows up here.`
+                  unavailable === "rpc-throttled"
+                    ? "Robinhood Chain is busy right now, so the feed is taking a breather. It comes back on its own."
+                    : unavailable === "indexer-unavailable"
+                      ? "We can’t load the activity feed right now."
+                      : "No spins yet. The first one shows up here."
                 }
               />
             )}

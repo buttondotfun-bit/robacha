@@ -148,7 +148,9 @@ interface RawRewardSlot {
   maxAmount: bigint;
 }
 
-const REFETCH_MS = 20_000;
+// Pool state changes on round boundaries, not per block. Polling faster than
+// this just spends the shared RPC budget that the spin flow needs.
+const REFETCH_MS = 45_000;
 
 export function usePool() {
   const registryAddress = contracts.poolRegistry ?? undefined;

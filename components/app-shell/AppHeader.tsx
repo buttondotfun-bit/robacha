@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
 import { XIcon } from "@/components/brand/XIcon";
 import { APP_NAV, SOCIAL_LINKS } from "@/lib/constants";
+import { useVisibleNav } from "@/lib/use-visible-nav";
 import { useScrolled } from "@/lib/use-scrolled";
 import { cn } from "@/lib/utils";
 import { MobileNavigation } from "./MobileNavigation";
@@ -12,7 +13,7 @@ import { NetworkBadge } from "./NetworkBadge";
 import { WalletButton } from "./WalletButton";
 
 const MOBILE_ITEMS = [
-  ...APP_NAV.map((item) => ({ ...item })),
+  ...APP_NAV,
   { label: "FAQ", href: "/faq" },
   { label: "Home", href: "/" },
 ];
@@ -20,6 +21,8 @@ const MOBILE_ITEMS = [
 /** Floating product navigation — same material as the site header, denser. */
 export function AppHeader() {
   const pathname = usePathname();
+  const nav = useVisibleNav(APP_NAV);
+  const mobileItems = useVisibleNav(MOBILE_ITEMS);
   const scrolled = useScrolled();
 
   return (
@@ -48,7 +51,7 @@ export function AppHeader() {
           aria-label="Product"
           className="ml-1 hidden items-center gap-0.5 md:flex"
         >
-          {APP_NAV.map((item) => {
+          {nav.map((item) => {
             const active = pathname === item.href;
             return (
               <Link
@@ -85,7 +88,7 @@ export function AppHeader() {
 
           <WalletButton />
           <span className="block md:hidden">
-            <MobileNavigation items={MOBILE_ITEMS} />
+            <MobileNavigation items={mobileItems} />
           </span>
         </div>
       </div>

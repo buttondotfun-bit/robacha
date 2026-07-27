@@ -93,7 +93,9 @@ export function ActivityFeed({
             title="Nothing has happened yet."
             description={
               unavailable
-                ? "We can’t load the activity feed right now."
+                ? unavailable === "rpc-throttled"
+                    ? "Robinhood Chain is busy right now, so the feed is taking a breather. It'll come back on its own."
+                    : "We can’t load the activity feed right now."
                 : "Spins and claims show up here as they happen."
             }
           />

@@ -9,6 +9,34 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 /**
+ * Every request here costs five `getLogs` calls plus block and token lookups.
+ * Unthrottled, each visitor polling every 20s multiplies straight onto the
+ * public RPC, which answers with 429 and takes the whole feed down — that is
+ * exactly how this route failed in production.
+ *
+ * Two layers fix it. `CDN_HEADERS` lets the edge serve one response to every
+ * visitor for a few seconds, and the in-process cache below collapses whatever
+ * still reaches a warm instance. Both are short: this is deduplication, not
+ * stale data, and the window is well under the block time.
+ */
+const CACHE_TTL_MS = 12_000;
+const CDN_HEADERS = {
+  "Cache-Control": "public, s-maxage=12, stale-while-revalidate=45",
+};
+
+const cache = new Map<string, { at: number; body: unknown }>();
+
+function cached(key: string): unknown | null {
+  const hit = cache.get(key);
+  if (!hit) return null;
+  if (Date.now() - hit.at > CACHE_TTL_MS) {
+    cache.delete(key);
+    return null;
+  }
+  return hit.body;
+}
+
+/**
  * Confirmed Robacha activity.
  *
  * Reads logs from the chain over a bounded recent window. Every row is a real
@@ -61,6 +89,14 @@ export async function GET(request: Request) {
     .split(",")
     .map((kind) => kind.trim())
     .filter(Boolean) as ActivityKind[];
+
+  // Same query -> same upstream work, so identical concurrent requests share
+  // one result instead of each triggering its own round of log reads.
+  const cacheKey = `${limit}|${wallet ?? ""}|${kinds.join(",")}`;
+  const fresh = cached(cacheKey);
+  if (fresh !== null) {
+    return NextResponse.json(fresh, { headers: CDN_HEADERS });
+  }
 
   const client = archiveClient() ?? publicClient();
 
@@ -208,14 +244,17 @@ export async function GET(request: Request) {
       synced: Number(head) - Number(confirmedTo) <= indexer.maxLagBlocks,
     };
 
-    return NextResponse.json(serialiseBigints(response));
+    const body = serialiseBigints(response);
+    cache.set(cacheKey, { at: Date.now(), body });
+    return NextResponse.json(body, { headers: CDN_HEADERS });
   } catch (error) {
+    const message = error instanceof Error ? error.message : "log query failed";
+    // A rate-limited upstream is a throttle, not an outage. Say so, so the
+    // interface can tell someone to wait rather than implying the feed broke.
+    const throttled = /too many requests|429|rate limit/i.test(message);
     return NextResponse.json(
-      {
-        reason: "indexer-unavailable",
-        error: error instanceof Error ? error.message : "log query failed",
-      },
-      { status: 503 },
+      { reason: throttled ? "rpc-throttled" : "indexer-unavailable", error: message },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
     );
   }
 }

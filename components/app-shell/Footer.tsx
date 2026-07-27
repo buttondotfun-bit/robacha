@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
+import { FooterNav } from "./FooterNav";
 import { GlassChip } from "@/components/ui/Glass";
 import { BRAND, RISK_NOTICE, SOCIAL_LINKS } from "@/lib/constants";
 import { NETWORK_LABEL } from "@/lib/web3";
@@ -9,9 +9,9 @@ const COLUMNS = [
     title: "Product",
     links: [
       { label: "Spin", href: "/app" },
-      { label: "Reward Pool", href: "/rewards" },
-      { label: "My Bag", href: "/bag" },
-      { label: "Activity", href: "/activity" },
+      { label: "Reward Pool", href: "/rewards", walletOnly: true },
+      { label: "My Bag", href: "/bag", walletOnly: true },
+      { label: "Activity", href: "/activity", walletOnly: true },
     ],
   },
   {
@@ -61,18 +61,7 @@ export function Footer() {
           {COLUMNS.map((column) => (
             <nav key={column.title} aria-label={column.title}>
               <p className="micro mb-4">{column.title}</p>
-              <ul className="space-y-2.5">
-                {column.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-[13.5px] text-ink-2 transition-colors hover:text-ink"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <FooterNav title={column.title} links={column.links} />
               {column.title === "Resources" ? (
                 <>
                   <p className="micro mb-3 mt-7">Social</p>

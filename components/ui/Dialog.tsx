@@ -182,7 +182,7 @@ export function Dialog({
               </button>
             ) : null}
 
-            <div className="rail-scroll min-h-0 flex-1 overflow-y-auto">
+            <div className="rail-scroll min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-4">
               {children}
             </div>
 

@@ -31,7 +31,7 @@ export function useWalletRewards() {
     queryKey: ["robacha", "wallet-rewards", address ?? ""],
     enabled: Boolean(address) && isConnected,
     retry: false,
-    refetchInterval: 20_000,
+    refetchInterval: 45_000,
     queryFn: async ({ signal }): Promise<WalletRewardsResponse> => {
       const response = await fetch(`/api/wallet/${address}/rewards`, {
         signal,

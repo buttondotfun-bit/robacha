@@ -71,15 +71,19 @@ export function ActivityPageClient() {
               }
               title={
                 unavailable === "indexer-behind"
-                  ? "Indexer is catching up"
-                  : undefined
+                  ? "Catching up"
+                  : unavailable === "rpc-throttled"
+                    ? "Robinhood Chain is busy"
+                    : undefined
               }
               description={
                 unavailable === "indexer-behind"
-                  ? `The indexer is ${lag ?? "some"} blocks behind the chain head. Activity is withheld until it is caught up so nothing shown here is stale.`
-                  : unavailable === "indexer-unavailable"
-                    ? "The Robacha indexer is not reachable, so confirmed activity cannot be listed right now."
-                    : undefined
+                  ? `We're ${lag ?? "a few"} blocks behind the chain. We'd rather show nothing than something out of date, so this fills in once we catch up.`
+                  : unavailable === "rpc-throttled"
+                    ? "The network is rate-limiting us right now, so the feed is taking a breather. It comes back on its own — nothing is wrong with your spins or your rewards."
+                    : unavailable === "indexer-unavailable"
+                      ? "We can't load the activity feed right now. Your spins and rewards aren't affected."
+                      : undefined
               }
               action={
                 <Button variant="secondary" size="md" onClick={refetch}>

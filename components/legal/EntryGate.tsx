@@ -37,7 +37,6 @@ export function EntryGate() {
       title="Before you spin"
       description="ROBACHA is a paid, chance-based product. Please confirm three things."
     >
-      <div className="px-5 pb-5 pt-4">
       <div className="space-y-3">
         <Check
           checked={checks.age}
@@ -90,7 +89,6 @@ export function EntryGate() {
       >
         {ready ? "Continue" : "Tick all three to continue"}
       </Button>
-      </div>
     </Dialog>
   );
 }

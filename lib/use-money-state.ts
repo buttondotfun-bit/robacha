@@ -34,7 +34,7 @@ export function useMoneyState(): MoneyState {
     allowFailure: true,
     query: {
       enabled: Boolean(gacha),
-      refetchInterval: 15_000,
+      refetchInterval: 30_000,
     },
     contracts: gacha
       ? [
