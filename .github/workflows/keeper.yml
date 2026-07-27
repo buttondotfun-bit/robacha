@@ -1,0 +1,46 @@
+# Drives round settlement.
+#
+# Vercel Cron is the obvious home for this, but the Hobby plan caps schedules
+# at once per day — a once-a-minute entry in vercel.json is rejected and takes
+# the whole deployment down with it. So vercel.json keeps a daily backstop that
+# deploys on any plan, and the real cadence runs from here, where it is free.
+#
+# Five minutes is GitHub's floor and runs are best-effort, which is fine: a
+# round's window is five minutes and its refund timeout is two hours, so a late
+# tick delays a payout rather than risking one.
+name: keeper
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: keeper
+  cancel-in-progress: false
+
+jobs:
+  advance-rounds:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Advance any round that is due
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          KEEPER_URL: ${{ vars.KEEPER_URL || 'https://www.robacha.fun/api/keeper' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET is not set in repository secrets — nothing to do."
+            exit 1
+          fi
+          code=$(curl -s -o response.json -w "%{http_code}" \
+            --max-time 60 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$KEEPER_URL")
+          echo "HTTP $code"
+          # The body reports which rounds moved. It never contains the key.
+          cat response.json
+          echo ""
+          if [ "$code" != "200" ]; then
+            echo "Keeper call failed."
+            exit 1
+          fi
