@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
 import { GlassChip } from "@/components/ui/Glass";
-import { BRAND, RISK_NOTICE } from "@/lib/constants";
+import { BRAND, RISK_NOTICE, SOCIAL_LINKS } from "@/lib/constants";
 import { NETWORK_LABEL } from "@/lib/web3";
 
 const COLUMNS = [
@@ -19,7 +19,7 @@ const COLUMNS = [
     links: [
       { label: "How It Works", href: "/#how-it-works" },
       { label: "FAQ", href: "/faq" },
-      { label: "Docs", href: "/faq#docs" },
+      { label: "Docs", href: "/docs" },
     ],
   },
   {
@@ -31,9 +31,6 @@ const COLUMNS = [
     ],
   },
 ];
-
-/** Social destinations aren't live yet — rendered as labelled, disabled. */
-const SOCIALS = ["X", "Discord", "Telegram"];
 
 export function Footer() {
   return (
@@ -80,15 +77,17 @@ export function Footer() {
                 <>
                   <p className="micro mb-3 mt-7">Social</p>
                   <ul className="flex flex-wrap gap-1.5">
-                    {SOCIALS.map((social) => (
-                      <li key={social}>
-                        <span
-                          className="glass-quiet inline-flex h-7 cursor-not-allowed items-center rounded-full px-2.5 text-[11.5px] text-ink-3"
-                          title={`${social} account coming at launch`}
+                    {SOCIAL_LINKS.map((social) => (
+                      <li key={social.label}>
+                        <a
+                          href={social.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="glass-quiet inline-flex h-7 items-center rounded-full px-2.5 text-[11.5px] text-ink-2 transition-colors hover:text-ink"
                         >
-                          {social}
-                          <span className="sr-only"> — not yet available</span>
-                        </span>
+                          {social.label}
+                          <span className="sr-only"> — {social.handle}</span>
+                        </a>
                       </li>
                     ))}
                   </ul>

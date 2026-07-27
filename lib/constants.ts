@@ -14,6 +14,7 @@ export const SITE_NAV = [
   { label: "How It Works", href: "/#how-it-works" },
   { label: "Rewards", href: "/rewards" },
   { label: "Activity", href: "/activity" },
+  { label: "Docs", href: "/docs" },
   { label: "FAQ", href: "/faq" },
 ] as const;
 
@@ -59,3 +60,11 @@ export const RISK_NOTICE =
 
 /** Local UI preferences only. No balances or rewards are stored client-side. */
 export const STORAGE_KEY = "robacha.prefs.v1";
+
+/**
+ * Social destinations. Only accounts that actually exist are listed — an
+ * unlinked icon is worse than no icon.
+ */
+export const SOCIAL_LINKS = [
+  { label: "X", handle: "@robachadotfun", href: "https://www.x.com/robachadotfun" },
+] as const;

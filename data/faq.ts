@@ -152,9 +152,9 @@ export const FAQ_GROUPS: FaqGroup[] = [
           "Randomness is settled on chain as part of the spin transaction, so a draw cannot be influenced by the frontend. The randomness source is named in the pool transparency panel, and no spin can be submitted until that contract is live.",
       },
       {
-        question: "Are the contracts audited?",
+        question: "Can I verify the contract code?",
         answer:
-          "The gacha and reward vault contracts are not deployed yet, so there is nothing audited to point to. The transparency panel shows contract status and will carry the address and audit references as soon as they exist.",
+          "The contracts are deployed and source-verified on Robinhood Chain, so you can read the exact code that runs. Every deployed address is listed in the docs, linked to the block explorer.",
       },
       {
         question: "What are the risks?",

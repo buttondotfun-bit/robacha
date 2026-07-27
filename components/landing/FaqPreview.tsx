@@ -33,7 +33,8 @@ export function FaqPreview() {
               </h2>
               <p className="mt-4 max-w-[36ch] text-[14px] leading-relaxed text-ink-2">
                 How spins resolve, how odds are published, and what this build
-                does and does not do yet.
+                does and does not do yet. The docs cover the same ground in
+                depth, down to the contract level.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-2">
@@ -47,13 +48,10 @@ export function FaqPreview() {
                   All questions
                   <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                 </ButtonLink>
-                <span
-                  className="glass-quiet inline-flex h-10 cursor-not-allowed items-center gap-1.5 rounded-full px-4 text-sm font-medium text-ink-3"
-                  title="Documentation is published at launch"
-                >
+                <ButtonLink href="/docs" variant="secondary" size="md">
                   <BookOpen className="h-4 w-4" aria-hidden="true" />
-                  Docs
-                </span>
+                  Read the docs
+                </ButtonLink>
               </div>
             </div>
 

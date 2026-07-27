@@ -4,15 +4,13 @@ import { PageContainer } from "@/components/shared/primitives";
 import { Accordion } from "@/components/ui/Accordion";
 import { ButtonLink } from "@/components/ui/Button";
 import { FAQ_GROUPS } from "@/data/faq";
-import { RISK_NOTICE } from "@/lib/constants";
+import { RISK_NOTICE, SOCIAL_LINKS } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "FAQ",
   description:
     "How Robacha spins, odds, claims and reward pools work on Robinhood Chain.",
 };
-
-const SOCIALS = ["X", "Discord", "Telegram"];
 
 export default function FaqPage() {
   return (
@@ -63,22 +61,19 @@ export default function FaqPage() {
         <div className="glass-quiet p-6 sm:p-7">
           <h2 className="text-section-title">Still have a question?</h2>
           <p className="mt-2 max-w-[52ch] text-[13.5px] leading-relaxed text-ink-2">
-            Developer documentation and community channels open alongside the
-            first live pool. Until then, the pool transparency panel in the app
-            is the most current statement of what is live on chain.
+            The documentation covers how spins resolve, where randomness comes
+            from, how odds and fees are published, and every deployed contract
+            address — linked to the block explorer so you can read the code.
           </p>
 
           <div className="mt-5 flex flex-wrap items-center gap-2">
             <ButtonLink href="/app" variant="primary" size="md">
               Open the app
             </ButtonLink>
-            <span
-              className="inline-flex h-10 cursor-not-allowed items-center gap-1.5 glass-card rounded-[14px] px-4 text-sm font-medium text-ink-3"
-              title="Documentation is published at launch"
-            >
+            <ButtonLink href="/docs" variant="secondary" size="md">
               <BookOpen className="h-4 w-4" aria-hidden="true" />
-              Docs — coming at launch
-            </span>
+              Read the docs
+            </ButtonLink>
           </div>
 
           <div className="mt-6 border-t border-[rgba(20,24,18,0.08)] pt-5">
@@ -87,15 +82,17 @@ export default function FaqPage() {
               Community
             </p>
             <ul className="flex flex-wrap gap-1.5">
-              {SOCIALS.map((social) => (
-                <li key={social}>
-                  <span
-                    className="inline-flex h-8 cursor-not-allowed items-center rounded-full border border-[rgba(255,255,255,0.8)] bg-white/60 px-3 text-[12.5px] text-ink-3"
-                    title={`${social} account opens at launch`}
+              {SOCIAL_LINKS.map((social) => (
+                <li key={social.label}>
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex h-8 items-center rounded-full border border-[rgba(255,255,255,0.8)] bg-white/60 px-3 text-[12.5px] text-ink-2 transition-colors hover:text-ink"
                   >
-                    {social}
-                    <span className="sr-only"> — not yet available</span>
-                  </span>
+                    {social.label}
+                    <span className="sr-only"> — {social.handle}</span>
+                  </a>
                 </li>
               ))}
             </ul>
