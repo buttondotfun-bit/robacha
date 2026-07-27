@@ -34,43 +34,43 @@ const COPY: Record<
   { title: string; body: string; icon: ReactNode }
 > = {
   "not-configured": {
-    title: "ROBACHA contract is not configured",
-    body: "No gacha contract address is set for this deployment, so there is no pool to read. Spins are unavailable.",
+    title: "ROBACHA isn’t set up yet",
+    body: "No pool is connected to this site yet, so there’s nothing to spin.",
     icon: <Boxes className="h-5 w-5" aria-hidden="true" />,
   },
   "rpc-unavailable": {
-    title: `${chainConfig.name} RPC is currently unavailable`,
-    body: "Pool state could not be read from the chain. Nothing is shown rather than serving a stale or guessed value.",
+    title: `Can’t reach ${chainConfig.name}`,
+    body: "We couldn’t load the pool just now. We’d rather show you nothing than something out of date.",
     icon: <ServerCrash className="h-5 w-5" aria-hidden="true" />,
   },
   "no-active-pool": {
-    title: "No active Robacha reward pool is currently available",
-    body: "The contract is live but no pool is currently activated. Spins open when a pool goes active.",
+    title: "No pool is open right now",
+    body: "Everything’s working — there just isn’t a pool running. Spins open the moment one starts.",
     icon: <Boxes className="h-5 w-5" aria-hidden="true" />,
   },
   loading: {
-    title: "Reading pool from chain…",
-    body: "Fetching the active pool, its odds and its live inventory.",
+    title: "Loading the pool…",
+    body: "Grabbing what’s inside, the odds and how much is left.",
     icon: <PlugZap className="h-5 w-5" aria-hidden="true" />,
   },
   paused: {
-    title: "Robacha spins are temporarily paused",
-    body: "The contract is paused. Existing rewards remain claimable; new spins are disabled.",
+    title: "Spins are paused",
+    body: "New spins are off for now. Anything you’ve already won is still yours to claim.",
     icon: <PauseCircle className="h-5 w-5" aria-hidden="true" />,
   },
   randomness: {
-    title: "Secure randomness is currently unavailable",
-    body: "No randomness provider is configured on the contract. A reward can only be drawn from verifiable on-chain randomness, so spins stay closed.",
+    title: "The random draw is unavailable",
+    body: "Rewards can only be picked by a real random draw, so spins stay closed until it’s back.",
     icon: <Dice5 className="h-5 w-5" aria-hidden="true" />,
   },
   "no-inventory": {
-    title: "This pool has no funded rewards",
-    body: "The reward vault holds no payable inventory for the active pool.",
+    title: "This pool is out of prizes",
+    body: "There’s nothing left in the prize vault for this pool right now.",
     icon: <Boxes className="h-5 w-5" aria-hidden="true" />,
   },
   "wrong-network": {
     title: `Switch to ${chainConfig.name}`,
-    body: "Your wallet is connected to a different network.",
+    body: "Your wallet is on a different network.",
     icon: <AlertTriangle className="h-5 w-5" aria-hidden="true" />,
   },
   disconnected: {

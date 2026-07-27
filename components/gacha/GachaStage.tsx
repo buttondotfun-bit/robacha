@@ -28,15 +28,15 @@ export function GachaStage({
     if (!focused) return [];
     return [
       {
-        label: "Reward range",
+        label: "You could get",
         value:
           focused.minDisplay !== null && focused.maxDisplay !== null
             ? formatRange(focused.minDisplay, focused.maxDisplay)
             : "Unavailable",
       },
-      { label: "Pull odds", value: formatOdds(focused.oddsPercent) },
+      { label: "Chance", value: formatOdds(focused.oddsPercent) },
       {
-        label: "Inventory",
+        label: "Left in stock",
         value:
           focused.availableDisplay !== null
             ? formatAmount(focused.availableDisplay)

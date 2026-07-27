@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { ExternalLink, Loader2, Sparkles, Wallet } from "lucide-react";
 import { formatEther } from "viem";
 import { ErrorState } from "@/components/shared/primitives";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { Dialog } from "@/components/ui/Dialog";
 import {
   chainConfig,
   contracts,
@@ -42,6 +44,7 @@ export function SpinControls({
 }) {
   const spin = useSpin();
   const wallet = useWallet();
+  const [confirming, setConfirming] = useState(false);
 
   const busy = SPIN_COPY[spin.phase].busy;
 
@@ -59,8 +62,8 @@ export function SpinControls({
   // Highest-priority blocker decides the label.
   const blocker: { label: string; note: string | null } = !PUBLIC_PAID_SPINS_ENABLED
     ? {
-        label: "Spins Not Yet Open",
-        note: "Public paid spins have not been enabled for this deployment.",
+        label: "Spins Aren’t Open Yet",
+        note: "We haven’t switched on paid spins yet.",
       }
     : !wallet.isConnected
       ? { label: "Connect Wallet", note: null }
@@ -68,24 +71,24 @@ export function SpinControls({
         ? { label: `Switch to ${chainConfig.name}`, note: null }
         : !readiness
           ? {
-              label: "Pool Unavailable",
-              note: "Pool state could not be read from the chain.",
+              label: "Can’t Reach the Pool",
+              note: "We couldn’t load the pool just now.",
             }
           : !readiness.poolOpen
-            ? { label: "No Active Pool", note: "No pool is currently open." }
+            ? { label: "No Pool Open", note: "There’s no pool running right now." }
             : !readiness.notPaused
-              ? { label: "Spins Paused", note: "The contract is paused." }
+              ? { label: "Spins Paused", note: "Spins are switched off for now." }
               : !readiness.randomnessAvailable
                 ? {
-                    label: "Randomness Unavailable",
+                    label: "Random Draw Unavailable",
                     note:
                       readiness.randomnessReason ||
-                      "Verifiable randomness is not available, so a reward cannot be drawn.",
+                      "The random draw isn’t available, so we can’t pick a reward.",
                   }
                 : baseWei === 0n
                   ? {
                       label: "Price Unavailable",
-                      note: "The spin price could not be read from the contract.",
+                      note: "We couldn’t load the spin price.",
                     }
                   : { label: "Rob the Gacha", note: null };
 
@@ -102,7 +105,7 @@ export function SpinControls({
   return (
     <div className={cn("flex flex-col", className)}>
       <div className="flex items-center justify-between">
-        <p className="text-[13px] font-semibold tracking-[-0.02em]">Spin quantity</p>
+        <p className="text-[13px] font-semibold tracking-[-0.02em]">How many spins?</p>
         <span className="num text-[12px] text-ink-2">
           {baseWei > 0n
             ? `${formatEther(perEntryWei)} ${chainConfig.nativeSymbol} / spin`
@@ -120,21 +123,21 @@ export function SpinControls({
 
       {/* Full cost and routing disclosure, before any signature is requested. */}
       <dl className="mt-4 space-y-2 border-t border-[rgba(20,24,18,0.08)] pt-3.5 text-[13px]">
-        <Row label="Base spin price">
+        <Row label="Spin price">
           {baseWei > 0n
             ? `${formatEther(totalBaseWei)} ${chainConfig.nativeSymbol}`
             : "Unavailable"}
         </Row>
-        <Row label="Randomness surcharge" hint="Pays the cross-chain VRF request. Not protocol revenue.">
+        <Row label="Random draw fee" hint="Pays for the random draw itself. We don’t keep any of it.">
           {baseWei > 0n
             ? `${formatEther(totalSurchargeWei)} ${chainConfig.nativeSymbol}`
             : "Unavailable"}
         </Row>
         <Row label="Network fee">
-          <span className="text-[12px] text-ink-3">Estimated by your wallet at signature</span>
+          <span className="text-[12px] text-ink-3">Your wallet works this out when you sign</span>
         </Row>
         <div className="flex items-center justify-between border-t border-[rgba(20,24,18,0.08)] pt-2">
-          <dt className="font-semibold text-ink">Total sent</dt>
+          <dt className="font-semibold text-ink">Total</dt>
           <dd className="num font-semibold text-ink">
             {baseWei > 0n
               ? `${formatEther(totalWei)} ${chainConfig.nativeSymbol}`
@@ -145,14 +148,14 @@ export function SpinControls({
 
       {pool ? (
         <dl className="mt-3 space-y-1.5 rounded-2xl bg-[rgba(16,17,15,0.03)] p-3 text-[11.5px]">
-          <p className="micro mb-1.5">How the base price is routed</p>
-          <Row small label="Reward reserve">
+          <p className="micro mb-1.5">Where your spin price goes</p>
+          <Row small label="Into prizes">
             {(pool.rewardReserveBps / 100).toFixed(2)}%
           </Row>
-          <Row small label="Protocol">
+          <Row small label="To ROBACHA">
             {(pool.protocolFeeBps / 100).toFixed(2)}%
           </Row>
-          <Row small label="Operations">
+          <Row small label="Running costs">
             {(pool.operationsFeeBps / 100).toFixed(2)}%
           </Row>
         </dl>
@@ -181,9 +184,10 @@ export function SpinControls({
       </dl>
 
       <p className="mt-3 text-[11.5px] leading-relaxed text-ink-3">
-        Published probabilities apply to every entry independently. The reward is
-        assigned on chain from a Chainlink VRF result after the round closes.
-        Token values can fluctuate.
+        Every spin has the same odds shown above — one pull never changes the
+        next. Your reward is picked by Chainlink&rsquo;s random draw once the
+        round closes, and nobody at ROBACHA gets to choose it. Token values go
+        up and down.
       </p>
 
       {gachaLink || vaultLink ? (
@@ -195,7 +199,7 @@ export function SpinControls({
               rel="noreferrer"
               className="underline decoration-dotted underline-offset-2 hover:text-ink-2"
             >
-              Pool contract
+              See the pool contract
             </a>
           ) : null}
           {vaultLink ? (
@@ -205,7 +209,7 @@ export function SpinControls({
               rel="noreferrer"
               className="underline decoration-dotted underline-offset-2 hover:text-ink-2"
             >
-              Reward vault
+              See the prize vault
             </a>
           ) : null}
         </p>
@@ -257,7 +261,7 @@ export function SpinControls({
             return;
           }
           if (!canSpin) return;
-          void spin.spin(perEntryWei);
+          setConfirming(true);
         }}
       >
         {busy ? (
@@ -275,6 +279,63 @@ export function SpinControls({
           {blocker.note}
         </p>
       ) : null}
+
+      {/* Last stop before a signature is requested. Restates the exact amount
+          leaving the wallet and the fact that it cannot be undone, because the
+          wallet prompt itself shows a raw number with no context. */}
+      <Dialog
+        open={confirming}
+        onClose={() => setConfirming(false)}
+        title="Confirm your spin"
+        description={`${spin.quantity} spin${spin.quantity === 1 ? "" : "s"} on ${pool?.name ?? "this pool"}`}
+      >
+        <dl className="space-y-2 rounded-[16px] bg-[rgba(16,17,15,0.035)] p-4 text-[13px]">
+          <Row label="Spin price">
+            {`${formatEther(totalBaseWei)} ${chainConfig.nativeSymbol}`}
+          </Row>
+          <Row label="Random draw fee">
+            {`${formatEther(totalSurchargeWei)} ${chainConfig.nativeSymbol}`}
+          </Row>
+          <div className="flex items-center justify-between border-t border-[rgba(20,24,18,0.1)] pt-2">
+            <dt className="font-semibold text-ink">Leaving your wallet</dt>
+            <dd className="num font-semibold text-ink">
+              {`${formatEther(totalWei)} ${chainConfig.nativeSymbol}`}
+            </dd>
+          </div>
+        </dl>
+
+        <p className="mt-3.5 text-[12px] leading-relaxed text-ink-2">
+          Once this is signed it can&rsquo;t be cancelled — entries have to be
+          locked before the draw happens. If the draw can&rsquo;t be completed
+          you get the full amount back.
+        </p>
+        <p className="mt-2 text-[11.5px] leading-relaxed text-ink-3">
+          Your wallet adds its own network fee on top. Every spin is chance, and
+          token rewards go up and down in value.
+        </p>
+
+        <div className="mt-5 flex gap-2">
+          <Button
+            variant="secondary"
+            size="lg"
+            className="flex-1"
+            onClick={() => setConfirming(false)}
+          >
+            Back
+          </Button>
+          <Button
+            variant="primary"
+            size="lg"
+            className="flex-1"
+            onClick={() => {
+              setConfirming(false);
+              void spin.spin(perEntryWei);
+            }}
+          >
+            Confirm &amp; sign
+          </Button>
+        </div>
+      </Dialog>
     </div>
   );
 }

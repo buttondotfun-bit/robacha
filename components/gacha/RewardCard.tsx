@@ -87,7 +87,7 @@ export function RewardCard({
                 soldOut ? "bg-[rgba(16,17,15,0.2)]" : "bg-[#8ec500]",
               )}
               aria-hidden="true"
-              title={soldOut ? "No inventory remaining" : "Inventory available"}
+              title={soldOut ? "Out of stock" : "In stock"}
             />
           </div>
         </div>

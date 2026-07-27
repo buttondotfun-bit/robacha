@@ -14,22 +14,22 @@ const ICON_RADIUS = 28;
 const STEPS = [
   {
     title: "Connect",
-    body: "Link your Robinhood Chain-compatible wallet.",
+    body: "Hook up a wallet that works with Robinhood Chain.",
     icon: <WalletGlyph />,
   },
   {
     title: "Pick",
-    body: "Select the number of spins you want.",
+    body: "Choose how many spins you want.",
     icon: <StackGlyph />,
   },
   {
     title: "Spin",
-    body: "Pull a random reward from the live pool.",
+    body: "Pull a random token out of the machine.",
     icon: <CapsuleGlyph />,
   },
   {
     title: "Claim",
-    body: "Receive the tokens and track them in My Bag.",
+    body: "Grab your tokens and find them in My Bag.",
     icon: <BagGlyph />,
   },
 ];
@@ -50,8 +50,8 @@ export function HowItWorks() {
       <PageContainer width="wide" className="relative">
         <SectionHeader
           eyebrow="How it works"
-          title="Four steps from wallet to reward."
-          description="Every spin is a single transaction against the live pool. Odds are published before you spin, not after."
+          title="Four steps, start to finish."
+          description="One spin, one transaction. You see the odds before you pay, not after."
           className="mb-10"
         />
 

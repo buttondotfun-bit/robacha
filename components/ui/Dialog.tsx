@@ -25,6 +25,12 @@ interface DialogProps {
   className?: string;
   /** `sheet` slides from the right on desktop and up from the bottom on mobile. */
   variant?: "modal" | "sheet";
+  /**
+   * When false, Escape, the backdrop and the close button are all disabled and
+   * the close control is not rendered. For gates the user must answer — a
+   * visible control that silently does nothing reads as a broken dialog.
+   */
+  dismissible?: boolean;
   footer?: ReactNode;
 }
 
@@ -41,6 +47,7 @@ export function Dialog({
   children,
   className,
   variant = "modal",
+  dismissible = true,
   footer,
 }: DialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -76,7 +83,7 @@ export function Dialog({
     (event: React.KeyboardEvent) => {
       if (event.key === "Escape") {
         event.stopPropagation();
-        onClose();
+        if (dismissible) onClose();
         return;
       }
       if (event.key !== "Tab") return;
@@ -99,7 +106,7 @@ export function Dialog({
         first.focus();
       }
     },
-    [onClose],
+    [onClose, dismissible],
   );
 
   const isSheet = variant === "sheet";
@@ -120,7 +127,7 @@ export function Dialog({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.16 }}
-            onClick={onClose}
+            onClick={dismissible ? onClose : undefined}
             aria-hidden="true"
           />
           <motion.div
@@ -164,14 +171,16 @@ export function Dialog({
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close dialog"
-              className="glass-chip absolute right-3.5 top-3.5 z-20 grid h-9 w-9 place-items-center rounded-full text-ink-2 hover:text-ink"
-            >
-              <X className="h-4 w-4" aria-hidden="true" />
-            </button>
+            {dismissible ? (
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close dialog"
+                className="glass-chip absolute right-3.5 top-3.5 z-20 grid h-9 w-9 place-items-center rounded-full text-ink-2 hover:text-ink"
+              >
+                <X className="h-4 w-4" aria-hidden="true" />
+              </button>
+            ) : null}
 
             <div className="rail-scroll min-h-0 flex-1 overflow-y-auto">
               {children}

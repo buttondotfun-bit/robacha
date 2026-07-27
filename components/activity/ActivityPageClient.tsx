@@ -118,15 +118,15 @@ export function ActivityPageClient() {
           ) : (
             <EmptyState
               icon={<Activity className="h-5 w-5" aria-hidden="true" />}
-              title="No onchain Robacha activity yet."
-              description={`Nothing has been recorded on ${chainConfig.name} for this filter. Rows appear here once a confirmed Robacha transaction is indexed.`}
+              title="Nothing here yet."
+              description={`Nothing on ${chainConfig.name} matches this filter yet. Spins and claims show up here as they happen.`}
             />
           )}
         </div>
       </section>
 
       <aside className="glass-card h-fit rounded-[22px] p-5">
-        <p className="micro">Indexer</p>
+        <p className="micro">Feed status</p>
         <dl className="mt-4 space-y-3 text-[12.5px]">
           <div className="flex items-baseline justify-between gap-3">
             <dt className="text-ink-3">Chain</dt>

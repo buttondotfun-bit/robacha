@@ -71,12 +71,12 @@ export function LivePoolPreview() {
                   {pool.name || `Pool #${pool.poolId}`}
                 </h2>
                 <p className="mt-3 max-w-[40ch] text-[13.5px] leading-relaxed text-ink-2">
-                  Read live from the gacha contract on {chainConfig.name}. Odds,
-                  reward ranges and inventory are contract state.
+                  Everything below is live from the pool itself — what’s inside,
+                  your odds, and how much is left.
                 </p>
 
                 <dl className="mt-7 grid grid-cols-2 gap-x-4 gap-y-5">
-                  <Fact label="Reward slots" value={String(pool.entries.length)} />
+                  <Fact label="Prizes inside" value={String(pool.entries.length)} />
                   <Fact
                     label="Spin price"
                     value={`${pool.spinPriceDisplay} ${chainConfig.nativeSymbol}`}
@@ -90,14 +90,14 @@ export function LivePoolPreview() {
                     }
                   />
                   <Fact
-                    label="Pool version"
+                    label="Version"
                     value={`v${pool.version}`}
                     accent={pool.active}
                   />
                 </dl>
 
                 <div className="mt-7 border-t border-[rgba(20,24,18,0.08)] pt-5">
-                  <p className="micro mb-3">Published odds</p>
+                  <p className="micro mb-3">Your odds</p>
                   <ul className="flex flex-wrap gap-1.5">
                     {pool.tiers.map((tier) => (
                       <li key={tier.index} data-rarity={tier.rarity}>
@@ -117,14 +117,14 @@ export function LivePoolPreview() {
                   size="md"
                   className="mt-7"
                 >
-                  Explore Full Pool
+                  See the whole pool
                   <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                 </ButtonLink>
               </div>
 
               <div className="glass-card rounded-[22px] p-5">
                 <div className="flex items-center justify-between">
-                  <p className="micro">Reward slots</p>
+                  <p className="micro">What’s inside</p>
                   <GlassChip dot className="h-6 text-[10px]">
                     Live
                   </GlassChip>

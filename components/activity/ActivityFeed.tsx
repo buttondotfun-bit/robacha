@@ -90,11 +90,11 @@ export function ActivityFeed({
           <EmptyState
             className="py-10"
             icon={<Activity className="h-5 w-5" aria-hidden="true" />}
-            title="No onchain Robacha activity yet."
+            title="Nothing has happened yet."
             description={
               unavailable
-                ? "The activity indexer is not reachable, so no confirmed events can be listed."
-                : "Rows appear here once a confirmed Robacha transaction is indexed."
+                ? "We can’t load the activity feed right now."
+                : "Spins and claims show up here as they happen."
             }
           />
         )}

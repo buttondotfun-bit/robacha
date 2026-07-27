@@ -25,8 +25,8 @@ export function ActivityPreview() {
       <PageContainer width="wide" className="relative">
         <SectionHeader
           eyebrow="Onchain activity"
-          title="Every spin and claim is a public transaction."
-          description={`Spins, settlements and claims are recorded on ${chainConfig.name}. This feed is built from confirmed contract logs — you can open any row on the explorer.`}
+          title="Every spin is out in the open."
+          description={`Every spin and claim gets written to ${chainConfig.name} for anyone to check. Tap any row to see it for yourself.`}
           action={
             <ButtonLink href="/activity" variant="secondary" size="md">
               View all activity
@@ -64,11 +64,11 @@ export function ActivityPreview() {
             ) : (
               <EmptyState
                 icon={<Activity className="h-5 w-5" aria-hidden="true" />}
-                title="No onchain Robacha activity yet."
+                title="Nothing has happened yet."
                 description={
                   unavailable === "indexer-unavailable"
-                    ? "The activity indexer is not reachable right now, so no confirmed events can be listed."
-                    : `Nothing has been recorded on ${chainConfig.name} yet. The first confirmed spin will appear here.`
+                    ? "We can’t load the activity feed right now."
+                    : `No spins yet. The first one shows up here.`
                 }
               />
             )}

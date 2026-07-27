@@ -5,161 +5,166 @@ export interface FaqGroup {
   items: { question: string; answer: string }[];
 }
 
+/**
+ * Plain-language answers, written to match what the contracts actually do.
+ *
+ * Two rules when editing these. Keep the language ordinary — someone who has
+ * never touched a wallet should follow every answer. And keep them true to the
+ * deployed system: a spin resolves after its round closes, not in the spin
+ * transaction; a pool's odds and prizes are frozen once it starts selling; an
+ * underfunded prize is refunded rather than paid short. If the contracts
+ * change, these change with them.
+ */
 export const FAQ_GROUPS: FaqGroup[] = [
   {
     id: "getting-started",
     title: "Getting Started",
-    description: "What ROBACHA is and how to take a first spin.",
+    description: "What this is, and how to take your first spin.",
     items: [
       {
         question: "What is ROBACHA?",
         answer:
-          "ROBACHA is a memecoin gacha built for Robinhood Chain. You buy a spin, and the pool sends back a random token reward from the tokens currently stocked in that rotation. It is a discovery product — the point is to find ecosystem tokens you would not have gone looking for.",
+          "It's a capsule machine for memecoins, built on Robinhood Chain. You pay for a spin and get a random token back from whatever's loaded in the machine. The point is to turn up coins you'd never have gone looking for.",
       },
       {
         question: "How does a spin work?",
         answer:
-          "A spin draws one rarity band using the published probabilities, then picks a token within that band using its weight, then picks a quantity inside that token's reward range. Each spin is independent — previous results do not change the odds of the next one.",
+          "Three steps. It picks a rarity — common, rare or legendary — using the odds shown on screen. Then it picks one of the prizes in that rarity. Then it picks how much you get, somewhere inside that prize's range. Every spin stands on its own: what happened last time doesn't change your chances this time.",
       },
       {
-        question: "Do I need to spin more than once?",
+        question: "How many spins can I buy at once?",
         answer:
-          "No. One spin returns one reward. You can queue up to ten spins at a time for convenience, but each is drawn separately against the same odds.",
+          "Two at a time right now. We're raising it to five in v2.",
       },
       {
-        question: "Is there a cost to spin?",
+        question: "What does it cost?",
         answer:
-          "Each spin has a listed price shown in the spin panel before you confirm, plus the Robinhood Chain network fee for the transaction. Both are displayed before you commit.",
+          "Two things, both shown before you confirm: the spin price, and a small fee that pays for the random draw. You'll see the total too. On top of that your wallet charges its own network fee, which it works out when you sign.",
       },
     ],
   },
   {
     id: "spins-and-rewards",
     title: "Spins and Rewards",
-    description: "Rarity, odds and what actually arrives in your wallet.",
+    description: "Rarity, odds, and what actually lands in your wallet.",
     items: [
       {
-        question: "Which tokens can I receive?",
+        question: "Which coins can I get?",
         answer:
-          "Whatever is stocked in the current rotation. The full list, with each token's rarity, reward range, odds and pool allocation, is on the Rewards page — you can read it before spending anything.",
+          "Whatever's loaded in the machine right now. The full list — every prize, its rarity, how much you could get and the exact odds — is on the Rewards page, and you can read all of it before spending anything.",
       },
       {
-        question: "Are the odds visible?",
+        question: "Can I see the odds?",
         answer:
-          "Yes. Band probabilities sit at the top of the app and on every tier card, and per-token odds appear on each reward card and in its detail view. The same numbers drive the draw itself.",
+          "Yes, always, before you pay. They're at the top of the app, on every rarity and on each prize. Those exact numbers are what the draw actually runs on — there's no second set behind them.",
       },
       {
-        question: "What do the rarity bands mean?",
+        question: "What do the rarities mean?",
         answer:
-          "Rarity describes how scarce a reward is within the pool, and generally tracks the size of the reward. Common is the most frequent band; Legendary is the least. Rarity does not affect whether you receive a reward — every spin returns one.",
+          "How hard something is to pull. Common comes up most often, legendary least, and rarer usually means you get more. Rarity doesn't decide whether you get something — every spin gives you a prize.",
       },
       {
-        question: "Can a token appear in more than one band?",
+        question: "Can the same coin show up in more than one rarity?",
         answer:
-          "No. Each token sits in exactly one rarity band for the duration of a rotation. A token can move between bands when a new rotation opens.",
+          "Yes. A pool can stock the same coin at different amounts — a small common prize and a much bigger legendary one. Genesis Pool does exactly that with Cash Cat.",
       },
     ],
   },
   {
     id: "wallets-and-claims",
     title: "Wallets and Claims",
-    description: "Connecting, claiming and where rewards are held.",
+    description: "Connecting, claiming, and where your prizes sit.",
     items: [
       {
-        question: "How do I claim a reward?",
+        question: "How do I get my reward?",
         answer:
-          "Rewards land in My Bag as soon as a spin resolves. Claiming moves them to your wallet — claim one at a time from the reward row, or use Claim All to settle everything unclaimed in one action.",
+          "A spin doesn't resolve the second you pay. It waits for its round to fill up or time out, then for the random draw to come back — usually a few minutes. After that your prize appears in My Bag, and claiming moves it into your wallet. Claim one at a time, or everything at once.",
       },
       {
-        question: "Which wallets are supported?",
+        question: "Which wallets work?",
         answer:
-          "Any injected browser wallet that supports Robinhood Chain. Additional connection methods can be added as the ecosystem's wallet support matures.",
+          "Any browser wallet that can connect to Robinhood Chain.",
       },
       {
-        question: "What happens if I disconnect before claiming?",
+        question: "What if I disconnect before claiming?",
         answer:
-          "Unclaimed rewards stay associated with the wallet that won them. Reconnecting the same wallet brings them back into My Bag.",
+          "Nothing is lost. Prizes stay tied to the wallet that won them — reconnect that wallet and they're back in My Bag.",
       },
       {
         question: "Is there a deadline to claim?",
         answer:
-          "There is no claim deadline planned for the initial release. If that changes, any window would be shown on the reward row well before it applies.",
+          "No, there's no expiry. If that ever changed we'd show it on the reward itself, well before it applied.",
       },
     ],
   },
   {
     id: "reward-pools",
-    title: "Reward Pools",
-    description: "How rotations are built and refreshed.",
+    title: "The Machine",
+    description: "How a pool is put together, and when it changes.",
     items: [
       {
-        question: "How often are reward pools updated?",
+        question: "Does the machine get restocked?",
         answer:
-          "Pools rotate on a schedule, and the countdown to the next rotation is shown in the app and on the Rewards page. Tokens can be added or removed at rotation boundaries rather than mid-pool.",
+          "There's one pool running today — Genesis Pool. Its prizes, odds and price are frozen: once a pool starts selling spins, none of that can be edited by anyone, including us. Changing it means starting a new version of the pool, and we'd say so clearly when that happens.",
       },
       {
-        question: "How are tokens chosen for a pool?",
+        question: "How do you pick the coins?",
         answer:
-          "A mix of trending ecosystem tokens, community-selected entries and sponsored slots. Sponsorship affects which tokens are stocked — it does not change the disclosed odds of the band a token sits in.",
+          "Coins that are active on Robinhood Chain, plus ones people ask for. Sponsors can pay to get a coin stocked in the machine — but they can't buy better odds. The odds are published up front and are the same for everyone.",
       },
       {
-        question: "What does pool allocation mean?",
+        question: "What if the machine runs out of a prize?",
         answer:
-          "The share of pool inventory reserved for that token. Inventory is stocked in proportion to draw odds, so allocation and odds track each other closely.",
-      },
-      {
-        question: "What happens when a pool runs out of a token?",
-        answer:
-          "Inventory is sized against expected draw volume for the rotation. If a token is exhausted early, it is removed from the pool and the remaining probabilities are republished before further spins.",
+          "Every spin checks there's enough in the prize vault to pay it in full. If there isn't, that spin is refunded instead of paying you short. You can see how much is left in stock on every prize.",
       },
     ],
   },
   {
     id: "robinhood-chain",
     title: "Robinhood Chain",
-    description: "The network ROBACHA is built on.",
+    description: "The network this runs on.",
     items: [
       {
-        question: "Is ROBACHA built on Robinhood Chain?",
+        question: "Is this built on Robinhood Chain?",
         answer:
-          "Yes. ROBACHA is designed as a Robinhood Chain-native product — spins, reward inventory and claims are all intended to settle on that chain.",
+          "Yes, all of it — the spins, the prize vault, and the coins you win.",
       },
       {
-        question: "Is ROBACHA affiliated with Robinhood?",
+        question: "Are you connected to Robinhood?",
         answer:
-          "No. ROBACHA is an independent project built for Robinhood Chain. It is not owned, endorsed or operated by Robinhood, and nothing in the product should be read as implying otherwise.",
+          "No. ROBACHA is an independent project built for Robinhood Chain. Robinhood doesn't own it, run it or endorse it, and nothing here should be read as suggesting otherwise.",
       },
       {
-        question: "Do I need a specific network configured?",
+        question: "Do I need to set anything up?",
         answer:
-          "Your wallet needs Robinhood Chain selected. If it is on another network, the app shows a switch prompt rather than letting a spin proceed against the wrong chain.",
+          "Just have Robinhood Chain selected in your wallet. If you're on a different network the app asks you to switch rather than letting a spin go through on the wrong one.",
       },
     ],
   },
   {
     id: "risk-and-transparency",
-    title: "Risk and Transparency",
-    description: "What this build does today, and what it does not.",
+    title: "Risk and Straight Answers",
+    description: "What works today, what doesn't, and what can go wrong.",
     items: [
       {
         question: "Is ROBACHA live?",
         answer:
-          "The pool is live: every reward token, contract, price and set of odds you see is read from Robinhood Chain mainnet, and connecting a wallet reads your real balances. Spins themselves open when the gacha contract is deployed — until then the spin button is disabled rather than simulating a result.",
+          "The contracts are live on Robinhood Chain, and everything you see — prizes, price, odds, what's left in stock — is read straight from them. Paid spins are still switched off while we finish testing, so the spin button stays disabled rather than pretending to work.",
       },
       {
-        question: "Is the randomness verifiable?",
+        question: "Can the draw be rigged?",
         answer:
-          "Randomness is settled on chain as part of the spin transaction, so a draw cannot be influenced by the frontend. The randomness source is named in the pool transparency panel, and no spin can be submitted until that contract is live.",
+          "No. The random number comes from Chainlink, and it's only requested after the round closes — so it doesn't exist yet at the moment you pay. Nobody at ROBACHA can supply it, swap it out, or choose your reward. If it never arrives, the round becomes refundable and you take your money back.",
       },
       {
-        question: "Can I verify the contract code?",
+        question: "Can I check the code?",
         answer:
-          "The contracts are deployed and source-verified on Robinhood Chain, so you can read the exact code that runs. Every deployed address is listed in the docs, linked to the block explorer.",
+          "Yes. Every contract is deployed and source-verified on Robinhood Chain, so you can read exactly what runs. All the addresses are in the docs with links to the explorer.",
       },
       {
         question: "What are the risks?",
         answer:
-          "Token rewards can fall in value, sometimes sharply, and some tokens may become illiquid — you can check any reward's live price and liquidity on the Rewards page before you spin. Smart-contract risk applies once contracts are live. Spending on spins should be treated as spending, not investing — see the Risk Disclosure for the full statement.",
+          "Coins can fall in value, sometimes sharply, and some can be hard to sell — check any prize's live price before you spin. Smart contracts can carry bugs. Treat money spent on spins as spent, not invested. The Risk Disclosure has the full version.",
       },
     ],
   },

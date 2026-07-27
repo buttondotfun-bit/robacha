@@ -4,6 +4,7 @@ import { RefreshCw } from "lucide-react";
 import { ActivityFeed } from "@/components/activity/ActivityFeed";
 import { GachaStage } from "@/components/gacha/GachaStage";
 import { PoolBar } from "@/components/gacha/PoolBar";
+import { SpinAssistant } from "@/components/gacha/SpinAssistant";
 import { SpinControls } from "@/components/gacha/SpinControls";
 import { UnavailableState } from "@/components/shared/UnavailableState";
 import { Button } from "@/components/ui/Button";
@@ -58,6 +59,7 @@ export function AppClient() {
           <div className="glass-panel rounded-[24px] p-4">
             <SpinControls pool={pool} readiness={readiness} />
           </div>
+          <SpinAssistant pool={pool} readiness={readiness} />
           <div className="glass-panel overflow-hidden rounded-[24px]">
             <ActivityFeed maxHeight={380} />
           </div>

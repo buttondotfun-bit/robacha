@@ -112,7 +112,7 @@ export function FinalCta() {
             </div>
 
             <p className="mt-6 text-[11.5px] text-ink-3">
-              Published probability · Token values can fluctuate
+              Odds shown before you spin · Token values go up and down
             </p>
           </div>
         </div>

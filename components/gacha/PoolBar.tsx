@@ -43,7 +43,7 @@ export function PoolBar({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="micro mb-1.5 lg:hidden">Pull odds</p>
+        <p className="micro mb-1.5 lg:hidden">Your odds</p>
         <ul className="flex flex-wrap items-center gap-1.5">
           {pool.tiers.map((tier) => (
             <li key={tier.index} data-rarity={tier.rarity}>

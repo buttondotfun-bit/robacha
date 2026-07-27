@@ -40,12 +40,12 @@ export function WhyRobacha() {
                 Discover emerging memes
               </h3>
               <p className="mt-3 text-[14px] leading-relaxed text-ink-2">
-                Each rotation surfaces tokens you would otherwise have to hunt
-                for across the chain.
+                Every spin can turn up a coin you’d never have gone looking
+                for on your own.
               </p>
               {pool ? (
                 <p className="num mt-6 text-[11.5px] text-ink-3">
-                  {pool.entries.length} reward slots in the live pool
+                  {pool.entries.length} prizes in the pool right now
                 </p>
               ) : null}
             </div>
@@ -55,28 +55,28 @@ export function WhyRobacha() {
           {/* 2 — Tall: real rewards, shown as a capsule dispensing */}
           <article className="glass-card glass-reflection glass-highlight relative overflow-hidden rounded-[26px] p-7 lg:row-span-2">
             <h3 className="text-[19px] font-semibold tracking-[-0.03em]">
-              Receive real token rewards
+              Real coins, not points
             </h3>
             <p className="mt-3 text-[14px] leading-relaxed text-ink-2">
-              Pulls settle as transferable tokens in your wallet, not points or
-              vouchers.
+              What you win lands in your wallet as real tokens you can keep,
+              send or sell.
             </p>
 
             <RewardCapsule />
 
             <p className="num mt-6 text-[11.5px] text-ink-3">
-              Settled onchain on {chainConfig.name}
+              Sent to you on {chainConfig.name}
             </p>
           </article>
 
           {/* 3 — Wide: transparent odds, shown as the live distribution */}
           <article className="glass-card glass-reflection glass-highlight relative overflow-hidden rounded-[26px] p-7">
             <h3 className="text-[19px] font-semibold tracking-[-0.03em]">
-              Transparent pool odds
+              You see the odds first
             </h3>
             <p className="mt-3 max-w-[34ch] text-[14px] leading-relaxed text-ink-2">
-              Band probabilities and per-token odds are published before you
-              spin, never hidden behind a reveal.
+              Every chance is on the table before you spend anything — never
+              hidden behind the reveal.
             </p>
 
             {tiers.length ? (
@@ -104,8 +104,7 @@ export function WhyRobacha() {
               </ul>
             ) : (
               <p className="mt-6 text-[12.5px] leading-relaxed text-ink-3">
-                Exact percentages are read from the pool contract and appear
-                here as soon as a pool is active.
+                Exact odds show up here as soon as a pool is running.
               </p>
             )}
           </article>
@@ -117,8 +116,8 @@ export function WhyRobacha() {
               Built for {chainConfig.name}
             </h3>
             <p className="relative mt-3 text-[14px] leading-relaxed text-ink-2">
-              Native to the chain end to end, from the reward vault to the tokens
-              in each rotation.
+              Everything lives on the chain — the prizes, the draw, and the
+              coins you win.
             </p>
             <p className="num relative mt-6 text-[11.5px] text-ink-3">
               Chain ID {chainConfig.id}

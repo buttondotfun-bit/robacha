@@ -208,7 +208,7 @@ export function RewardsExplorer() {
                     </dd>
                   </div>
                   <div className="flex items-baseline justify-between gap-2">
-                    <dt className="shrink-0 text-ink-3">Inventory</dt>
+                    <dt className="shrink-0 text-ink-3">Left in stock</dt>
                     <dd className="num text-ink-2">
                       {entry.availableDisplay !== null
                         ? formatAmount(entry.availableDisplay)

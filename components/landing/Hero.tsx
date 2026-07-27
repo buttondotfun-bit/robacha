@@ -5,10 +5,10 @@ import { ButtonLink } from "@/components/ui/Button";
 import { HeroConsole } from "./HeroConsole";
 
 const TRUST = [
-  "Onchain rewards",
-  "Transparent odds",
-  "Instant claims",
-  "Robinhood Chain native",
+  "Real tokens",
+  "Odds shown upfront",
+  "Claim straight away",
+  "Built on Robinhood Chain",
 ];
 
 export function Hero() {
@@ -28,9 +28,9 @@ export function Hero() {
             </h1>
 
             <p className="mt-6 max-w-[46ch] text-[17px] leading-relaxed text-ink-2 sm:text-[18px]">
-              ROBACHA is the memecoin gacha built for Robinhood Chain. Spin live
-              reward pools and receive random tokens from trending ecosystem
-              projects.
+              It&rsquo;s a capsule machine for memecoins. Take a spin, and you
+              pull a random token from whatever&rsquo;s loaded in the machine
+              right now.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">

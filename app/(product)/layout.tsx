@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/app-shell/AppHeader";
+import { EntryGate } from "@/components/legal/EntryGate";
+import { FollowPrompt } from "@/components/marketing/FollowPrompt";
 import { AmbientBackground } from "@/components/shared/AmbientBackground";
 import { RISK_NOTICE } from "@/lib/constants";
 import { NETWORK_LABEL } from "@/lib/web3";
@@ -12,6 +14,7 @@ export default function ProductLayout({
   return (
     <>
       <AmbientBackground />
+      <EntryGate />
       <AppHeader />
       {/* Clears the floating navbar, which is fixed. */}
       <main id="main" className="flex-1 pt-[76px] sm:pt-[84px]">
@@ -48,6 +51,7 @@ export default function ProductLayout({
           </nav>
         </div>
       </footer>
+      <FollowPrompt />
     </>
   );
 }

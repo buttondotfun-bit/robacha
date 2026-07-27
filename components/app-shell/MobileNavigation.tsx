@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { XIcon } from "@/components/brand/XIcon";
+import { SOCIAL_LINKS } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
 import { ButtonLink, IconButton } from "@/components/ui/Button";
@@ -122,6 +124,17 @@ export function MobileNavigation({
                   {cta.label}
                 </ButtonLink>
               ) : null}
+
+              <a
+                href={SOCIAL_LINKS[0].href}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setOpen(false)}
+                className="mt-4 flex items-center justify-center gap-2 rounded-full py-2 text-[13.5px] font-medium text-ink-2 transition-colors hover:text-ink"
+              >
+                <XIcon className="h-3.5 w-3.5" />
+                {SOCIAL_LINKS[0].handle}
+              </a>
 
               <p className="mt-4 flex items-center justify-center gap-1.5 text-[12px] text-ink-3">
                 <span

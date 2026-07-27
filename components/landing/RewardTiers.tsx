@@ -39,8 +39,8 @@ export function RewardTiers() {
       <PageContainer width="wide" className="relative">
         <SectionHeader
           eyebrow="Reward tiers"
-          title="Rarity is ranked, and the odds are published on chain."
-          description="Each pool defines its tiers in the contract. ROBACHA labels them by probability rank — the scarcest tier reads as legendary — and shows you the exact percentages before you spin."
+          title="Some pulls are rarer than others."
+          description="Every pool sorts its prizes into tiers. The harder something is to pull, the rarer we call it — and you can see the exact chance of each one before you spend anything."
           className="mb-10"
         />
 
@@ -70,7 +70,7 @@ export function RewardTiers() {
                     </div>
                     <p className="mt-2 text-[12.5px] text-ink-2">
                       {tier.entries.length}{" "}
-                      {tier.entries.length === 1 ? "reward slot" : "reward slots"}{" "}
+                      {tier.entries.length === 1 ? "prize" : "prizes"}{" "}
                       in this tier
                     </p>
                   </li>
@@ -100,7 +100,7 @@ export function RewardTiers() {
                       {RARITY_LABEL[rarity]}
                     </p>
                     <p className="num mt-1 text-[11.5px] text-ink-3">
-                      Rank {RARITY_ORDER.length - index} by probability
+                      Rarity rank {RARITY_ORDER.length - index}
                     </p>
                   </li>
                 ))}

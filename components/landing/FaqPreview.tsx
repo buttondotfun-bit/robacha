@@ -32,9 +32,9 @@ export function FaqPreview() {
                 Questions worth asking first.
               </h2>
               <p className="mt-4 max-w-[36ch] text-[14px] leading-relaxed text-ink-2">
-                How spins resolve, how odds are published, and what this build
-                does and does not do yet. The docs cover the same ground in
-                depth, down to the contract level.
+                How a spin actually works, where the odds come from, and what
+                we&rsquo;ve built so far versus what we haven&rsquo;t. The docs
+                go deeper if you want the full detail.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-2">

@@ -4,6 +4,7 @@ import { ExternalLink, Gift, RefreshCw, Wallet } from "lucide-react";
 import { formatUnits } from "viem";
 import { TokenAvatar } from "@/components/brand/TokenAvatar";
 import { RarityChip } from "@/components/shared/RarityChip";
+import { ShareWin } from "@/components/rewards/ShareWin";
 import { UnavailableState } from "@/components/shared/UnavailableState";
 import { EmptyState } from "@/components/shared/primitives";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -171,14 +172,15 @@ export function BagClient() {
                   >
                     {reward.claimed ? "claimed" : "unclaimed"}
                   </span>
+                  <ShareWin reward={reward} />
                 </li>
               ))}
             </ul>
           ) : (
             <EmptyState
               icon={<Gift className="h-5 w-5" aria-hidden="true" />}
-              title="No Robacha rewards found for this wallet."
-              description="Rewards appear here once a spin has settled onchain and the contract has assigned a reward to this address."
+              title="Nothing in your bag yet."
+              description="Prizes show up here once a spin has settled and the contract has assigned one to this wallet."
               action={
                 <ButtonLink href="/app" variant="primary" size="md">
                   Open the pool

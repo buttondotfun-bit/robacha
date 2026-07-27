@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
+import { XIcon } from "@/components/brand/XIcon";
 import { ButtonLink } from "@/components/ui/Button";
 import { GlassChip } from "@/components/ui/Glass";
-import { SITE_NAV } from "@/lib/constants";
+import { SITE_NAV, SOCIAL_LINKS } from "@/lib/constants";
 import { useScrolled } from "@/lib/use-scrolled";
 import { cn } from "@/lib/utils";
 import { NETWORK_LABEL } from "@/lib/web3";
@@ -70,6 +71,17 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <a
+            href={SOCIAL_LINKS[0].href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`ROBACHA on X (${SOCIAL_LINKS[0].handle})`}
+            title={`ROBACHA on X · ${SOCIAL_LINKS[0].handle}`}
+            className="hidden h-9 w-9 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:bg-[rgba(255,255,255,0.6)] hover:text-ink sm:grid"
+          >
+            <XIcon />
+          </a>
+
           <GlassChip dot className="hidden h-9 lg:inline-flex">
             {NETWORK_LABEL}
           </GlassChip>

@@ -63,7 +63,7 @@ export function HeroConsole() {
                 aria-hidden="true"
               />
             )}
-            {pool ? "Live" : isLoading ? "Reading chain" : "No pool open"}
+            {pool ? "Live" : isLoading ? "Loading" : "No pool open"}
           </span>
         </div>
 
@@ -107,12 +107,12 @@ export function HeroConsole() {
             <EmptyChamber
               reason={
                 isLoading
-                  ? "Reading the pool from chain…"
+                  ? "Loading the pool…"
                   : unavailableReason === "not-configured"
-                    ? "No pool contract is configured for this deployment."
+                    ? "No pool is connected to this site yet."
                     : unavailableReason === "rpc-unavailable"
-                      ? `${chainConfig.name} could not be reached.`
-                      : "No reward pool is open right now. Odds and rewards appear here the moment one activates."
+                      ? `Couldn’t reach ${chainConfig.name}.`
+                      : "No pool is open right now. Rewards and odds show up here the second one starts."
               }
             />
           )}
@@ -133,8 +133,8 @@ export function HeroConsole() {
           </div>
         ) : (
           <p className="relative mt-4 text-[11.5px] leading-relaxed text-ink-3">
-            Every reward, probability and inventory figure shown here is read
-            from the pool contract on {chainConfig.name}.
+            Everything here comes straight from the pool itself — the rewards,
+            the odds and how much is left. Nothing is made up.
           </p>
         )}
       </div>
