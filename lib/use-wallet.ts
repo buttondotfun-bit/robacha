@@ -21,6 +21,12 @@ export interface WalletState {
   hasWallet: boolean;
   /** Native balance on Robinhood Chain, formatted. */
   balance: string | null;
+  /**
+   * The same balance unformatted, so callers can compare it against a cost.
+   * Null while unknown — which is not the same as zero, and a "you can't
+   * afford this" message must never be shown on the strength of a pending read.
+   */
+  balanceWei: bigint | null;
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   switchNetwork: () => Promise<void>;
@@ -65,6 +71,7 @@ export function useWallet(): WalletState {
     balance: balance
       ? `${Number(formatUnits(balance.value, balance.decimals)).toFixed(4)} ${balance.symbol}`
       : null,
+    balanceWei: balance ? balance.value : null,
     connect,
     disconnect: async () => {
       await disconnectAsync();

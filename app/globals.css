@@ -674,6 +674,82 @@
   }
 }
 
+/* ------------------------------------------------------------------
+   Reward reveal. Every prize used to appear identically, so a legendary
+   landed with exactly the weight of a common — the rarity was a label
+   rather than a moment. These read the same --rarity-glow token the
+   chips do, so the intensity is derived from the tier rather than
+   hand-assigned, and a new tier inherits it for free.
+
+   Order matters: the entrance runs once, then rare and above hold a
+   glow. Nothing loops forever except the legendary shine, which is slow
+   enough to sit behind text.
+------------------------------------------------------------------ */
+@keyframes reward-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes reward-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--rarity-glow) / 0);
+  }
+  50% {
+    box-shadow: 0 0 18px 2px rgba(var(--rarity-glow) / 0.38);
+  }
+}
+
+@keyframes reward-shine {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+
+.reward-reveal {
+  animation: reward-rise 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  /* Staggered from the index so a five-prize round lands one at a time. */
+  animation-delay: calc(var(--reveal-index, 0) * 110ms);
+}
+
+/* Common stays quiet on purpose — if everything glows, nothing does. */
+.reward-reveal[data-rarity="rare"],
+.reward-reveal[data-rarity="epic"],
+.reward-reveal[data-rarity="legendary"] {
+  animation:
+    reward-rise 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards,
+    reward-glow 1900ms ease-in-out calc(var(--reveal-index, 0) * 110ms + 380ms) 2;
+}
+
+.reward-reveal[data-rarity="legendary"] {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(var(--rarity-glow) / 0.45);
+}
+
+.reward-reveal[data-rarity="legendary"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.5) 45%,
+    transparent 70%
+  );
+  animation: reward-shine 2600ms ease-in-out calc(var(--reveal-index, 0) * 110ms + 300ms) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -686,10 +762,12 @@
     transition-duration: 0.001ms !important;
   }
   .pulse-dot,
+  .reward-reveal,
   .legendary-sweep,
   .orbit-slow,
   .orbit-reverse,
   .marquee-track,
+  .reward-reveal::after,
   .skeleton::after {
     animation: none !important;
   }

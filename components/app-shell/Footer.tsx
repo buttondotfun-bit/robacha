@@ -12,6 +12,7 @@ const COLUMNS = [
       { label: "Reward Pool", href: "/rewards", walletOnly: true },
       { label: "My Bag", href: "/bag", walletOnly: true },
       { label: "Activity", href: "/activity", walletOnly: true },
+      { label: "Leaderboard", href: "/leaderboard" },
     ],
   },
   {

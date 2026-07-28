@@ -132,13 +132,16 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
         </div>
       ) : (
         <ul className="space-y-2">
-          {won.map((r) => {
+          {won.map((r, index) => {
             const rarity = r.rarity ?? pool?.tiers[r.tierIndex]?.rarity ?? null;
             return (
               <li
                 key={r.rewardId}
                 data-rarity={rarity ?? undefined}
-                className="glass-card flex items-center gap-3 rounded-[16px] p-3"
+                // Index drives the stagger, so prizes land one after another
+                // rather than all at once.
+                style={{ "--reveal-index": index } as React.CSSProperties}
+                className="reward-reveal glass-card flex items-center gap-3 rounded-[16px] border border-transparent p-3"
               >
                 <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.85)] [container-type:inline-size]">
                   <TokenAvatar

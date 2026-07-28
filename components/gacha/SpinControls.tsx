@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ExternalLink, Loader2, Sparkles, Wallet } from "lucide-react";
-import { formatEther } from "viem";
+import { CurrencyToggle } from "@/components/shared/CurrencyToggle";
 import { ErrorState } from "@/components/shared/primitives";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
@@ -15,12 +15,15 @@ import {
 import { shortAddress, shortHash } from "@/lib/formatters";
 import { useSpin } from "@/lib/spin-store";
 import { usePendingSpins, RoundState } from "@/lib/use-pending-spins";
+import { useMoney } from "@/lib/use-money";
 import { useWalletCap } from "@/lib/use-wallet-cap";
+import { useWalletHistory } from "@/lib/use-wallet-history";
 import { useWallet } from "@/lib/use-wallet";
 import { cn } from "@/lib/utils";
 import type { ActivePool, PoolReadiness } from "@/lib/use-pool";
 import { QuantitySelector } from "./QuantitySelector";
 import { ShareSpin } from "./ShareSpin";
+import { SpinReceipt } from "./SpinReceipt";
 import { SPIN_COPY, SpinStatus } from "./SpinStatus";
 
 /**
@@ -47,6 +50,8 @@ export function SpinControls({
 }) {
   const spin = useSpin();
   const wallet = useWallet();
+  const money = useMoney();
+  const { history } = useWalletHistory();
   const [confirming, setConfirming] = useState(false);
   const { pending } = usePendingSpins();
 
@@ -71,6 +76,14 @@ export function SpinControls({
 
   const onRightNetwork = wallet.isConnected && !wallet.wrongNetwork;
   const contractReady = readiness?.ready ?? false;
+
+  // Only ever true on a balance we have actually read. A null balance is
+  // unknown, not empty, and telling someone they cannot afford a spin while
+  // their balance is still loading would be both wrong and insulting.
+  const shortBy =
+    wallet.balanceWei !== null && totalWei > 0n && wallet.balanceWei < totalWei
+      ? totalWei - wallet.balanceWei
+      : null;
 
   // Highest-priority blocker decides the label.
   const blocker: { label: string; note: string | null } = !PUBLIC_PAID_SPINS_ENABLED
@@ -103,6 +116,11 @@ export function SpinControls({
                       label: "Price Unavailable",
                       note: "We couldn’t load the spin price.",
                     }
+                  : shortBy !== null
+                    ? {
+                        label: "Not Enough to Cover This",
+                        note: `This costs ${money.native(totalWei)} and your wallet holds ${money.native(wallet.balanceWei ?? 0n)}. Add about ${money.native(shortBy)} — plus a little for the network fee — or spin fewer times.`,
+                      }
                   : walletCap.exhausted
                     ? {
                         label: "You've Used All Your Spins",
@@ -115,6 +133,7 @@ export function SpinControls({
     onRightNetwork &&
     contractReady &&
     baseWei > 0n &&
+    shortBy === null &&
     !walletCap.exhausted &&
     !busy;
   const label = busy ? SPIN_COPY[spin.phase].label : blocker.label;
@@ -127,13 +146,14 @@ export function SpinControls({
 
   return (
     <div className={cn("flex flex-col", className)}>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-[13px] font-semibold tracking-[-0.02em]">How many spins?</p>
-        <span className="num text-[12px] text-ink-2">
-          {baseWei > 0n
-            ? `${formatEther(perEntryWei)} ${chainConfig.nativeSymbol} / spin`
-            : "Price unavailable"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="num text-[12px] text-ink-2">
+            {baseWei > 0n ? `${money.format(perEntryWei)} / spin` : "Price unavailable"}
+          </span>
+          <CurrencyToggle />
+        </div>
       </div>
 
       {walletCap.cap > 0 && wallet.isConnected ? (
@@ -159,24 +179,25 @@ export function SpinControls({
       {/* Full cost and routing disclosure, before any signature is requested. */}
       <dl className="mt-4 space-y-2 border-t border-[rgba(20,24,18,0.08)] pt-3.5 text-[13px]">
         <Row label="Spin price">
-          {baseWei > 0n
-            ? `${formatEther(totalBaseWei)} ${chainConfig.nativeSymbol}`
-            : "Unavailable"}
+          {baseWei > 0n ? money.format(totalBaseWei) : "Unavailable"}
         </Row>
         <Row label="Random draw fee" hint="Covers the gas of running the draw and paying out. We don’t keep any of it.">
-          {baseWei > 0n
-            ? `${formatEther(totalSurchargeWei)} ${chainConfig.nativeSymbol}`
-            : "Unavailable"}
+          {baseWei > 0n ? money.format(totalSurchargeWei) : "Unavailable"}
         </Row>
         <Row label="Network fee">
           <span className="text-[12px] text-ink-3">Your wallet works this out when you sign</span>
         </Row>
         <div className="flex items-center justify-between border-t border-[rgba(20,24,18,0.08)] pt-2">
           <dt className="font-semibold text-ink">Total</dt>
-          <dd className="num font-semibold text-ink">
-            {baseWei > 0n
-              ? `${formatEther(totalWei)} ${chainConfig.nativeSymbol}`
-              : "Unavailable"}
+          <dd className="num text-right font-semibold text-ink">
+            {baseWei > 0n ? money.format(totalWei) : "Unavailable"}
+            {/* The other currency, always, so the real amount is never hidden
+                behind a converted one. */}
+            {baseWei > 0n && money.hasPrice ? (
+              <span className="block text-[11px] font-normal text-ink-3">
+                {money.preference === "usd" ? money.native(totalWei) : money.usd(totalWei)}
+              </span>
+            ) : null}
           </dd>
         </div>
       </dl>
@@ -330,19 +351,52 @@ export function SpinControls({
         description={`${spin.quantity} spin${spin.quantity === 1 ? "" : "s"} on ${pool?.name ?? "this pool"}`}
       >
         <dl className="space-y-2 rounded-[16px] bg-[rgba(16,17,15,0.035)] p-4 text-[13px]">
-          <Row label="Spin price">
-            {`${formatEther(totalBaseWei)} ${chainConfig.nativeSymbol}`}
-          </Row>
-          <Row label="Random draw fee">
-            {`${formatEther(totalSurchargeWei)} ${chainConfig.nativeSymbol}`}
-          </Row>
+          <Row label="Spin price">{money.native(totalBaseWei)}</Row>
+          <Row label="Random draw fee">{money.native(totalSurchargeWei)}</Row>
           <div className="flex items-center justify-between border-t border-[rgba(20,24,18,0.1)] pt-2">
             <dt className="font-semibold text-ink">Leaving your wallet</dt>
-            <dd className="num font-semibold text-ink">
-              {`${formatEther(totalWei)} ${chainConfig.nativeSymbol}`}
+            <dd className="num text-right font-semibold text-ink">
+              {money.native(totalWei)}
+              {money.hasPrice ? (
+                <span className="block text-[11px] font-normal text-ink-3">
+                  {money.usd(totalWei)}
+                </span>
+              ) : null}
             </dd>
           </div>
         </dl>
+
+        {/* What this wallet has already spent here, at the moment of deciding
+            to spend more. Shown without comment or judgement — the number is
+            the point, and dressing it up either way would be the manipulative
+            version of the same panel. */}
+        {history && history.spins > 0 ? (
+          <dl className="mt-3 flex items-baseline justify-between gap-3 rounded-[14px] border border-[rgba(20,24,18,0.08)] px-3.5 py-3 text-[12.5px]">
+            <dt className="text-ink-2">
+              Spent here so far
+              <span className="mt-0.5 block text-[11px] text-ink-3">
+                {history.spins} {history.spins === 1 ? "spin" : "spins"}, all time
+                {BigInt(history.refundedWei) > 0n ? ", after refunds" : ""}
+              </span>
+            </dt>
+            <dd className="num shrink-0 text-right font-semibold text-ink">
+              {money.native(
+                BigInt(history.paidBaseWei) +
+                  BigInt(history.paidSurchargeWei) -
+                  BigInt(history.refundedWei),
+              )}
+              {money.hasPrice ? (
+                <span className="block text-[11px] font-normal text-ink-3">
+                  {money.usd(
+                    BigInt(history.paidBaseWei) +
+                      BigInt(history.paidSurchargeWei) -
+                      BigInt(history.refundedWei),
+                  )}
+                </span>
+              ) : null}
+            </dd>
+          </dl>
+        ) : null}
 
         {/* Someone with money already in flight is the most likely person to
             pay twice by mistake, so say plainly what this button does to it. */}
@@ -392,6 +446,20 @@ export function SpinControls({
           </Button>
         </div>
       </Dialog>
+
+      {/* Fires once the charge is real — a transaction in a block, not a
+          broadcast that could still fail. */}
+      <SpinReceipt
+        pool={pool}
+        quantity={spin.quantity}
+        txHash={spin.txHash ?? null}
+        confirmed={
+          spin.phase === "round-open" ||
+          spin.phase === "round-closed" ||
+          spin.phase === "randomness-pending" ||
+          spin.phase === "settled"
+        }
+      />
     </div>
   );
 }
