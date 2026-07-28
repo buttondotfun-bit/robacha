@@ -42,6 +42,13 @@ export const robinhoodChain = defineChain({
   blockExplorers: {
     default: { name: "Blockscout", url: EXPLORER_URL },
   },
+  // Multicall3 is deployed at its canonical address on this chain (verified on
+  // chain: 3809 bytes, aggregate3 answers). Without declaring it here viem
+  // refuses every `multicall`, which is what made My Bag report "the indexer is
+  // not reachable" for a wallet whose rewards were sitting on chain.
+  contracts: {
+    multicall3: { address: "0xcA11bde05977b3631167028862bE2a173976CA11" },
+  },
 });
 
 export const wagmiConfig = createConfig({

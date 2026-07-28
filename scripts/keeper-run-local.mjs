@@ -95,7 +95,8 @@ async function send(label, params) {
     console.log(`  ${label}: sent ${hash}`);
     return true;
   } catch (e) {
-    console.log(`  ${label}: skipped — ${String(e.message).split("\n")[0].slice(0, 110)}`);
+    console.error(e);
+    console.log(`  ${label}: skipped — ${String(e.message).split("\n")[0]}`);
     return false;
   }
 }
