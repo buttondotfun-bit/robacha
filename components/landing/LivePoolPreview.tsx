@@ -9,8 +9,8 @@ import { PageContainer } from "@/components/shared/primitives";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { GlassChip } from "@/components/ui/Glass";
 import { chainConfig } from "@/lib/config";
-import { formatCountdown, formatOdds, formatRange } from "@/lib/formatters";
-import { useNow } from "@/lib/use-activity";
+import { formatOdds, formatRange } from "@/lib/formatters";
+import { formatRoundClock, useLiveRound } from "@/lib/use-live-round";
 import { usePool } from "@/lib/use-pool";
 import { useTokenMarket } from "@/lib/use-token-market";
 
@@ -24,11 +24,7 @@ export function LivePoolPreview() {
   const { pool, unavailableReason, isLoading, refetch } = usePool();
   const market = useTokenMarket(pool?.entries.map((e) => e.token) ?? []);
 
-  const now = useNow();
-  const minutesToClose =
-    pool?.closesAt != null
-      ? Math.max(0, (pool.closesAt - now) / 60_000)
-      : null;
+  const round = useLiveRound();
 
   return (
     <section className="relative py-16 sm:py-20">
@@ -81,18 +77,26 @@ export function LivePoolPreview() {
                     label="Spin price"
                     value={`${pool.spinPriceDisplay} ${chainConfig.nativeSymbol}`}
                   />
+                  {/* The current round's clock. This used to read the pool
+                      version's end date under a "Closes in" label, which for an
+                      open-ended pool printed "Open-ended" — a value that
+                      contradicted its own label. */}
                   <Fact
-                    label="Closes in"
+                    label="Round closes in"
                     value={
-                      minutesToClose !== null
-                        ? formatCountdown(minutesToClose)
-                        : "Open-ended"
+                      round.status === "open" && round.msLeft !== null
+                        ? formatRoundClock(round.msLeft)
+                        : round.status === "closing"
+                          ? "Closing now"
+                          : round.status === "none"
+                            ? "Next spin starts one"
+                            : "—"
                     }
+                    accent={round.status === "open"}
                   />
                   <Fact
-                    label="Version"
-                    value={`v${pool.version}`}
-                    accent={pool.active}
+                    label="Spins per round"
+                    value={String(pool.maxEntriesPerRound)}
                   />
                 </dl>
 
