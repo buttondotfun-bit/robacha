@@ -85,6 +85,28 @@ export async function GET(
       .map((entry) => (entry.status === "success" ? (entry.result as RawReward) : null))
       .filter((entry): entry is RawReward => entry !== null);
 
+    // Which pool each reward belongs to. One read per distinct round, not per
+    // reward — a wallet with five rewards from one round should cost one call.
+    const roundIds = [...new Set(raw.map((reward) => Number(reward.roundId)))];
+    const roundPool = new Map<number, number>();
+    if (roundIds.length) {
+      const rounds = (await client.multicall({
+        contracts: roundIds.map((roundId) => ({
+          address: contracts.gacha as Address,
+          abi: ROBACHA_GACHA_ABI,
+          functionName: "getRound" as const,
+          args: [BigInt(roundId)],
+        })),
+        allowFailure: true,
+      })) as { status: "success" | "failure"; result?: unknown }[];
+
+      roundIds.forEach((roundId, index) => {
+        const entry = rounds[index];
+        if (entry?.status !== "success") return;
+        roundPool.set(roundId, Number((entry.result as { poolId: bigint }).poolId));
+      });
+    }
+
     // One metadata read per distinct token, not per reward.
     const tokens = [...new Set(raw.map((reward) => reward.token.toLowerCase()))];
     const metadata = (await client.multicall({
@@ -116,7 +138,9 @@ export async function GET(
       const meta = byToken.get(reward.token.toLowerCase());
       return {
         rewardId: reward.rewardId.toString(),
-        poolId: 0,
+        // Resolved from the reward's round rather than hardcoded; a literal 0
+        // rendered as "Pool #0", which is not a pool that exists.
+        poolId: roundPool.get(Number(reward.roundId)) ?? 0,
         roundId: Number(reward.roundId),
         spinEntryId: `${reward.roundId}:${reward.entryIndex}`,
         token: reward.token,
@@ -124,8 +148,9 @@ export async function GET(
         name: meta?.name ?? null,
         decimals: meta?.decimals ?? null,
         amountRaw: reward.amount.toString(),
-        // Rarity is a presentation label derived from tier probability rank;
-        // the client applies it from the pool it is already reading.
+        // Rarity is a label ranked by probability, which only the pool knows.
+        // The index travels; the client names it from the pool it already has.
+        tierIndex: Number(reward.tierIndex),
         rarity: null,
         claimed: reward.claimed,
         // These come from the indexer once it is running; a direct contract read

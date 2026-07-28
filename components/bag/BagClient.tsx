@@ -5,6 +5,7 @@ import { formatUnits } from "viem";
 import { TokenAvatar } from "@/components/brand/TokenAvatar";
 import { RarityChip } from "@/components/shared/RarityChip";
 import { ShareWin } from "@/components/rewards/ShareWin";
+import { ClaimButton } from "./ClaimButton";
 import { RefundPanel } from "./RefundPanel";
 import { UnavailableState } from "@/components/shared/UnavailableState";
 import { EmptyState } from "@/components/shared/primitives";
@@ -14,6 +15,7 @@ import { chainConfig, explorerUrl } from "@/lib/config";
 import { formatAmount, shortHash } from "@/lib/formatters";
 import { useHoldings } from "@/lib/use-holdings";
 import { useTokenMarket } from "@/lib/use-token-market";
+import { usePool } from "@/lib/use-pool";
 import { useWalletRewards } from "@/lib/use-wallet-rewards";
 import { useWallet } from "@/lib/use-wallet";
 
@@ -35,6 +37,10 @@ export function BagClient() {
     isLoading: rewardsLoading,
     refetch: refetchRewards,
   } = useWalletRewards();
+  // Rarity is a label ranked by tier probability, which only the pool knows.
+  // The reward carries its tier index; the pool names it.
+  const { pool } = usePool();
+
   const {
     holdings,
     isLoading: holdingsLoading,
@@ -87,6 +93,15 @@ export function BagClient() {
       <section>
         <header className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-section-title text-[19px]">Robacha rewards</h2>
+          {unclaimed.length > 1 ? (
+            <ClaimButton
+              rewardIds={unclaimed.map((r) => r.rewardId)}
+              label={`Claim all ${unclaimed.length}`}
+              size="md"
+              variant="primary"
+              onClaimed={refetchRewards}
+            />
+          ) : null}
           {unclaimed.length ? (
             <p className="num text-[12px] text-ink-2">
               {unclaimed.length} unclaimed
@@ -165,9 +180,11 @@ export function BagClient() {
                       {shortHash(reward.assignedTxHash)}
                     </p>
                   </div>
-                  {reward.rarity ? (
-                    <RarityChip rarity={reward.rarity} size="xs" />
-                  ) : null}
+                  {(() => {
+                    const rarity =
+                      reward.rarity ?? pool?.tiers[reward.tierIndex]?.rarity ?? null;
+                    return rarity ? <RarityChip rarity={rarity} size="xs" /> : null;
+                  })()}
                   <span
                     className={`num shrink-0 rounded-full px-2 py-0.5 text-[10.5px] ${
                       reward.claimed
@@ -177,6 +194,12 @@ export function BagClient() {
                   >
                     {reward.claimed ? "claimed" : "unclaimed"}
                   </span>
+                  {reward.claimed ? null : (
+                    <ClaimButton
+                      rewardIds={[reward.rewardId]}
+                      onClaimed={refetchRewards}
+                    />
+                  )}
                   <ShareWin reward={reward} />
                 </li>
               ))}

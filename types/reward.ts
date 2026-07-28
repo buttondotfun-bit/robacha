@@ -19,6 +19,12 @@ export interface WalletReward {
   decimals: number | null;
   /** Assigned amount, raw. */
   amountRaw: string;
+  /**
+   * Tier this reward was drawn from. Rarity is a label ranked by probability,
+   * which only the pool knows, so the index travels and the client applies the
+   * name.
+   */
+  tierIndex: number;
   rarity: Rarity | null;
   claimed: boolean;
   assignedTxHash: string;
