@@ -45,6 +45,13 @@ const State = {
 /** How many rounds back to inspect. Old rounds are terminal and never change. */
 const SCAN_DEPTH = 25n;
 const SETTLE_BATCH = 25;
+/**
+ * Actions attempted per invocation. Each now waits to be mined, so an
+ * unbounded loop could outlive the serverless timeout and be killed
+ * mid-sequence. Stopping early is safe: the run is idempotent and the next
+ * tick resumes from whatever is still outstanding.
+ */
+const MAX_ACTIONS_PER_RUN = 4;
 
 /**
  * Secret for a commitment index, derived rather than stored.
@@ -162,6 +169,10 @@ export async function GET(request: Request) {
         account,
       });
       const txHash = await wallet.writeContract(sim);
+      // Wait for it to land. Without this the next simulate/send reuses the
+      // same nonce, so only one transaction per invocation ever survives —
+      // which is why six ready rounds advanced one at a time.
+      await client.waitForTransactionReceipt({ hash: txHash });
       actions.push({ roundId, action, txHash });
     } catch (error) {
       actions.push({
@@ -216,6 +227,7 @@ export async function GET(request: Request) {
             account,
           });
           const txHash = await wallet.writeContract(postSim);
+          await client.waitForTransactionReceipt({ hash: txHash });
           actions.push({ roundId: 0, action: `postCommitments:${count}`, txHash });
         }
       } catch (err) {
@@ -243,6 +255,7 @@ export async function GET(request: Request) {
     })) as number;
 
     for (let id = from; id < nextRoundId; id += 1n) {
+      if (actions.filter((a) => a.txHash).length >= MAX_ACTIONS_PER_RUN) break;
       const round = (await client.readContract({
         address: gacha,
         abi: ROBACHA_GACHA_ABI,
@@ -313,6 +326,7 @@ export async function GET(request: Request) {
                 account,
               });
               const txHash = await wallet.writeContract(revealSim);
+              await client.waitForTransactionReceipt({ hash: txHash });
               actions.push({ roundId, action: "reveal", txHash });
               continue;
             } else {
@@ -343,6 +357,7 @@ export async function GET(request: Request) {
             account,
           });
           const txHash = await wallet.writeContract(sim);
+          await client.waitForTransactionReceipt({ hash: txHash });
           actions.push({ roundId, action: "settleEntries", txHash });
         } catch (error) {
           actions.push({
