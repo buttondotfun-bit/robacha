@@ -202,3 +202,14 @@ export const keeper = {
     return Boolean(this.privateKey && this.cronSecret && this.commitmentSeed);
   },
 };
+
+/**
+ * The AutoBuyer, which converts the reward reserve into prizes.
+ *
+ * It is also the fee router's `rewardReserveTreasury`, so 85% of every spin
+ * accrues to it already. Server-side only: the keeper is the thing that calls
+ * it, and nothing in the browser needs the address.
+ */
+export const autoBuyer = {
+  address: process.env.ROBACHA_AUTO_BUYER ?? null,
+};

@@ -7,6 +7,7 @@ import { keccak256, encodeAbiParameters } from "viem";
 import { chainConfig, contracts } from "@/lib/config";
 import { keeper, rpc } from "@/lib/env/server";
 import { publicClient, robinhoodChain } from "@/lib/server/chain";
+import { restockVault } from "@/lib/server/restock";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -180,6 +181,37 @@ export async function GET(request: Request) {
         action,
         skipped: error instanceof Error ? error.message.split("\n")[0] : "reverted",
       });
+    }
+  }
+
+  /** Simulate, send, wait — shared with the restock step. */
+  async function sendOnce(
+    label: string,
+    params: {
+      address: Address;
+      abi: readonly unknown[];
+      functionName: string;
+      args: readonly unknown[];
+    },
+  ): Promise<`0x${string}` | null> {
+    try {
+      const { request: sim } = await client.simulateContract({
+        address: params.address,
+        abi: params.abi as never,
+        functionName: params.functionName as never,
+        args: params.args as never,
+        account,
+      });
+      const hash = await wallet.writeContract(sim);
+      await client.waitForTransactionReceipt({ hash });
+      return hash;
+    } catch (error) {
+      actions.push({
+        roundId: 0,
+        action: label,
+        skipped: error instanceof Error ? error.message.split("\n")[0] : "reverted",
+      });
+      return null;
     }
   }
 
@@ -389,6 +421,21 @@ export async function GET(request: Request) {
           );
         }
       }
+    }
+
+    // Turn the accrued reward reserve back into prizes. Runs last so
+    // settling paid rounds always gets the run's budget first.
+    try {
+      const restock = await restockVault(client, account, sendOnce);
+      for (const r of restock) {
+        actions.push({ roundId: 0, action: r.action, txHash: r.txHash, skipped: r.skipped });
+      }
+    } catch (error) {
+      actions.push({
+        roundId: 0,
+        action: "restock",
+        skipped: error instanceof Error ? error.message.split("\n")[0] : "failed",
+      });
     }
 
     return NextResponse.json(
