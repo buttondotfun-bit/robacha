@@ -8,6 +8,7 @@ import { PendingSpins } from "@/components/gacha/PendingSpins";
 import { SpinAssistant } from "@/components/gacha/SpinAssistant";
 import { UpcomingMachines } from "@/components/rewards/UpcomingMachines";
 import { SpinControls } from "@/components/gacha/SpinControls";
+import { SpinResult } from "@/components/gacha/SpinResult";
 import { UnavailableState } from "@/components/shared/UnavailableState";
 import { Button } from "@/components/ui/Button";
 import { usePool } from "@/lib/use-pool";
@@ -27,6 +28,10 @@ export function AppClient() {
       {pool ? (
         <PoolBar pool={pool} className="mb-4" />
       ) : null}
+
+      {/* Watches for a round of ours that is due, hurries it along, and shows
+          the prizes once they exist on chain. */}
+      <SpinResult pool={pool} />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_352px]">
         <div className="min-w-0">
