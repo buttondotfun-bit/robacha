@@ -22,7 +22,10 @@ for (const line of readFileSync(new URL("../.env.local", import.meta.url), "utf8
 const RPC = env.ROBINHOOD_RPC_URL || "https://rpc.mainnet.chain.robinhood.com";
 const GACHA = env.ROBACHA_GACHA;
 const CR = env.NEXT_PUBLIC_ROBACHA_RANDOMNESS_SENDER_ADDRESS || env.ROBACHA_RANDOMNESS_SENDER;
-const KEEPER = "0x86C9DD84fd3b51f5f26c17C0713B92833Ddb46D8";
+// Whichever account actually signs keeper transactions. Set KEEPER_ADDRESS in
+// .env.local when it changes — hardcoding it once made this line report a
+// wallet that had stopped being the keeper, which is worse than omitting it.
+const KEEPER = env.KEEPER_ADDRESS || "0x86C9DD84fd3b51f5f26c17C0713B92833Ddb46D8";
 
 const STATE = [
   "None", "Open", "Closed", "RandomnessRequested", "CrossChainPending",
