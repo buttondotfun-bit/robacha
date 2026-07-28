@@ -6,6 +6,7 @@ import { GachaStage } from "@/components/gacha/GachaStage";
 import { PoolBar } from "@/components/gacha/PoolBar";
 import { PendingSpins } from "@/components/gacha/PendingSpins";
 import { SpinAssistant } from "@/components/gacha/SpinAssistant";
+import { UpcomingMachines } from "@/components/rewards/UpcomingMachines";
 import { SpinControls } from "@/components/gacha/SpinControls";
 import { UnavailableState } from "@/components/shared/UnavailableState";
 import { Button } from "@/components/ui/Button";
@@ -62,6 +63,7 @@ export function AppClient() {
             <SpinControls pool={pool} readiness={readiness} />
           </div>
           <SpinAssistant pool={pool} readiness={readiness} />
+          <UpcomingMachines variant="strip" />
           <div className="glass-panel overflow-hidden rounded-[24px]">
             <ActivityFeed maxHeight={380} />
           </div>

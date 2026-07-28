@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { RewardsExplorer } from "@/components/rewards/RewardsExplorer";
+import { UpcomingMachines } from "@/components/rewards/UpcomingMachines";
 import { PageContainer } from "@/components/shared/primitives";
 import { chainConfig } from "@/lib/config";
 
@@ -23,6 +24,7 @@ export default function RewardsPage() {
       </header>
 
       <RewardsExplorer />
+      <UpcomingMachines />
     </PageContainer>
   );
 }
