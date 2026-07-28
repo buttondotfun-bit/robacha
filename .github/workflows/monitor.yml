@@ -1,0 +1,72 @@
+# Watches for the failures nobody would otherwise notice.
+#
+# The keeper workflow next door makes rounds advance. This one checks that it
+# actually is — a dead keeper looks exactly like a quiet day from the outside,
+# and the last stall was found by a person trying to spin and noticing it did
+# not work.
+#
+# The alerting channel is the job status itself: GitHub emails the repository
+# owner when a scheduled workflow starts failing, and stops when it passes
+# again. That is free, needs no third-party service, and no secret — every
+# value /api/monitor returns is already public on chain.
+#
+# Only `critical` fails the job. Warnings are printed but do not alert, because
+# some of them (money refundable but not yet withdrawn) cannot be cleared by the
+# operator at all — they clear when a user acts. A permanently red check is one
+# nobody reads.
+name: monitor
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: monitor
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for conditions that need a human
+        env:
+          MONITOR_URL: ${{ vars.MONITOR_URL || 'https://www.robacha.fun/api/monitor' }}
+        run: |
+          code=$(curl -s -o monitor.json -w "%{http_code}" --max-time 60 "$MONITOR_URL")
+          echo "HTTP $code"
+
+          if [ "$code" != "200" ]; then
+            echo "::error::Monitor endpoint returned HTTP $code — the site itself may be down."
+            cat monitor.json || true
+            exit 1
+          fi
+
+          python3 - <<'PY'
+          import json, sys
+
+          with open("monitor.json") as fh:
+              data = json.load(fh)
+
+          status = data.get("status", "unknown")
+          alerts = data.get("alerts", [])
+
+          print(f"status: {status}")
+          for key, value in (data.get("facts") or {}).items():
+              print(f"  {key}: {value}")
+
+          critical = [a for a in alerts if a.get("severity") == "critical"]
+          warnings = [a for a in alerts if a.get("severity") != "critical"]
+
+          for alert in warnings:
+              print(f"::warning::{alert.get('check')}: {alert.get('detail')}")
+          for alert in critical:
+              print(f"::error::{alert.get('check')}: {alert.get('detail')}")
+
+          # An endpoint that could not evaluate its checks has not passed them.
+          if status == "unknown":
+              print("::error::Monitor could not run its checks.")
+              sys.exit(1)
+
+          sys.exit(1 if critical else 0)
+          PY

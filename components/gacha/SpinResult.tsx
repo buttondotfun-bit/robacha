@@ -10,6 +10,7 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import { Dialog } from "@/components/ui/Dialog";
 import { formatAmount } from "@/lib/formatters";
 import { RoundState, usePendingSpins } from "@/lib/use-pending-spins";
+import { useSettleNotification } from "@/lib/use-settle-notification";
 import type { ActivePool } from "@/lib/use-pool";
 import { useTokenMarket } from "@/lib/use-token-market";
 import { useWalletRewards } from "@/lib/use-wallet-rewards";
@@ -32,6 +33,7 @@ import type { WalletReward } from "@/types/reward";
 export function SpinResult({ pool }: { pool: ActivePool | null }) {
   const { pending } = usePendingSpins();
   const { rewards, refetch } = useWalletRewards();
+  const notify = useSettleNotification();
 
   const [watching, setWatching] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
@@ -60,6 +62,10 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
     setWatching(roundId);
     setOpen(true);
 
+    // Asked here rather than on page load: there is now a real reason, and the
+    // spin click is the user gesture browsers require.
+    if (notify.canAsk) void notify.request();
+
     // Fire and forget: the dialog's real signal is rewards appearing on chain,
     // not this response. If it fails the keeper still picks the round up.
     void fetch("/api/settle", {
@@ -87,8 +93,13 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
       setWon(fresh);
       fresh.forEach((r) => knownRewardIds.current!.add(r.rewardId));
       setWatching(null);
+      // Only fires if they have left the tab; no-op otherwise.
+      notify.notify(
+        fresh.length === 1 ? "Your spin settled" : `${fresh.length} prizes are yours`,
+        "Your round is done. Come and see what you pulled.",
+      );
     }
-  }, [rewards, watching]);
+  }, [rewards, watching, notify]);
 
   const market = useTokenMarket(won.map((w) => w.token));
 
@@ -114,6 +125,9 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
             Unsealing this round&rsquo;s number and handing out prizes. You
             don&rsquo;t need to stay on this page — everything lands in My Bag
             either way.
+            {notify.enabled
+              ? " We'll ping you the moment it's done, as long as this tab is still open."
+              : ""}
           </p>
         </div>
       ) : (

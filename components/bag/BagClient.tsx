@@ -7,6 +7,7 @@ import { RarityChip } from "@/components/shared/RarityChip";
 import { ShareWin } from "@/components/rewards/ShareWin";
 import { ClaimButton } from "./ClaimButton";
 import { RefundPanel } from "./RefundPanel";
+import { WalletHistory } from "./WalletHistory";
 import { UnavailableState } from "@/components/shared/UnavailableState";
 import { EmptyState } from "@/components/shared/primitives";
 import { Button, ButtonLink } from "@/components/ui/Button";
@@ -88,6 +89,9 @@ export function BagClient() {
       {/* Money owed comes first. Someone arriving here after being told their
           refund is waiting should see it before anything else. */}
       <RefundPanel />
+
+      {/* What this wallet has spent and won, before the itemised lists. */}
+      <WalletHistory />
 
       {/* Robacha rewards */}
       <section>

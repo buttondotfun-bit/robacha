@@ -15,6 +15,7 @@ import { WalletButton } from "./WalletButton";
 const MOBILE_ITEMS = [
   ...APP_NAV,
   { label: "FAQ", href: "/faq" },
+  { label: "Help", href: "/support" },
   { label: "Home", href: "/" },
 ];
 

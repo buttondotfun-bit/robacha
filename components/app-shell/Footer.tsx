@@ -19,6 +19,7 @@ const COLUMNS = [
     links: [
       { label: "How It Works", href: "/#how-it-works" },
       { label: "FAQ", href: "/faq" },
+      { label: "Help", href: "/support" },
       { label: "Docs", href: "/docs" },
     ],
   },
