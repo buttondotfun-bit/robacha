@@ -15,6 +15,7 @@ import {
 import { shortAddress, shortHash } from "@/lib/formatters";
 import { useSpin } from "@/lib/spin-store";
 import { usePendingSpins, RoundState } from "@/lib/use-pending-spins";
+import { useWalletCap } from "@/lib/use-wallet-cap";
 import { useWallet } from "@/lib/use-wallet";
 import { cn } from "@/lib/utils";
 import type { ActivePool, PoolReadiness } from "@/lib/use-pool";
@@ -48,6 +49,10 @@ export function SpinControls({
   const wallet = useWallet();
   const [confirming, setConfirming] = useState(false);
   const { pending } = usePendingSpins();
+
+  // Lifetime allowance for this pool version. A wallet at its cap used to see
+  // a live button and pay gas for a guaranteed WalletCapExceeded revert.
+  const walletCap = useWalletCap(pool);
 
   // Spins already paid for. Whether a new spin joins them or starts a fresh
   // round decides what the confirmation has to warn about.
@@ -98,10 +103,20 @@ export function SpinControls({
                       label: "Price Unavailable",
                       note: "We couldn’t load the spin price.",
                     }
-                  : { label: "Rob the Gacha", note: null };
+                  : walletCap.exhausted
+                    ? {
+                        label: "You've Used All Your Spins",
+                        note: `This wallet has used all ${walletCap.cap} of its spins on this pool. Anything you've won is still yours to claim.`,
+                      }
+                    : { label: "Rob the Gacha", note: null };
 
   const canSpin =
-    PUBLIC_PAID_SPINS_ENABLED && onRightNetwork && contractReady && baseWei > 0n && !busy;
+    PUBLIC_PAID_SPINS_ENABLED &&
+    onRightNetwork &&
+    contractReady &&
+    baseWei > 0n &&
+    !walletCap.exhausted &&
+    !busy;
   const label = busy ? SPIN_COPY[spin.phase].label : blocker.label;
   const txLink = spin.txHash ? explorerUrl("tx", spin.txHash) : null;
 
@@ -121,12 +136,24 @@ export function SpinControls({
         </span>
       </div>
 
+      {walletCap.cap > 0 && wallet.isConnected ? (
+        <p className="mt-1.5 text-[11.5px] text-ink-3">
+          {walletCap.exhausted
+            ? `You've used all ${walletCap.cap} of your spins on this pool.`
+            : `${walletCap.remaining} of ${walletCap.cap} spins left on this pool.`}
+        </p>
+      ) : null}
+
       <QuantitySelector
         className="mt-3"
         value={spin.quantity}
         onChange={spin.setQuantity}
-        max={pool?.maxQuantityPerTx}
-        disabled={busy || !contractReady}
+        // Never offer more than the wallet could actually buy.
+        max={Math.max(
+          1,
+          Math.min(pool?.maxQuantityPerTx ?? 1, walletCap.remaining),
+        )}
+        disabled={busy || !contractReady || walletCap.exhausted}
       />
 
       {/* Full cost and routing disclosure, before any signature is requested. */}
