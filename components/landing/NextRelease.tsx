@@ -2,46 +2,43 @@ import { LightField } from "@/components/shared/AmbientBackground";
 import { PageContainer, Pill, SectionHeader } from "@/components/shared/primitives";
 
 /**
- * What v2 changed, and the one thing still ahead of us.
+ * What the machine does today, and the one thing still ahead of it.
  *
- * Everything in CHANGES has shipped and is live on chain. The `from` values are
- * v1's configuration and the `to` values are v2's; both are immutable for their
- * version, which is what makes them safe to state here rather than read at
- * runtime.
+ * No version numbers here on purpose. The pool's on-chain version is shown
+ * where it is a fact — the hero and the live pool card read it from the
+ * registry — but a newcomer meeting "v2" in marketing copy only wonders what
+ * they missed. So this describes current behaviour rather than a changelog,
+ * and there is no before-and-after to imply an earlier release.
  *
- * Deliberately absent: a payout percentage. It moves with the price of every
- * reward token, so any number written here would be wrong within the hour. The
- * reward reserve share is stated instead — that one is fixed in the contract.
- *
- * The tokenised-stocks block below is the only forward-looking claim on this
- * page, and it is framed as exploration because that is what it is.
+ * Every figure below is fixed in the contract for the running pool, which is
+ * why it can be written here rather than read at runtime. Deliberately absent:
+ * a payout percentage — it moves with the price of every reward token, so any
+ * number written into the page is wrong within the hour. The reward reserve
+ * share is stated instead, because that one cannot change on a live pool.
  */
 const CHANGES = [
   {
     title: "Grab 5 at once",
-    body: "You used to be capped at 2 per transaction. Now it's 5 — enough to fill a whole round in one go and settle it immediately.",
-    from: "2 a go",
-    to: "5 a go",
+    body: "Up to five spins in a single transaction — enough to fill a whole round yourself and get your results straight away.",
+    stat: "5 a go",
     icon: <StackGlyph />,
   },
   {
     title: "Rounds finish fast",
-    body: "Rounds hold 5 spins instead of 25, and close after two minutes if they don't fill. Far less waiting around for strangers.",
-    from: "25 to fill",
-    to: "5 to fill",
+    body: "A round holds five spins and closes the moment it fills, or after two minutes if it doesn't. No waiting around for strangers.",
+    stat: "5 to fill",
     icon: <RoundGlyph />,
   },
   {
-    title: "The draw fee dropped",
-    body: "The small fee covering the random draw came down sharply when we moved the draw onto Robinhood Chain itself.",
-    from: "0.0007 ETH",
-    to: "0.0001 ETH",
+    title: "A tiny draw fee",
+    body: "A small fee rides along with each spin to cover the random draw. That's the whole cost of making it fair — we keep none of it.",
+    stat: "0.0001 ETH",
     icon: <LinkGlyph />,
   },
   {
     title: "Most of it goes to prizes",
-    body: "85% of every spin price is reserved for buying what goes in the machine. That split is fixed in the contract and can't be edited on this pool.",
-    to: "85% into prizes",
+    body: "85% of every spin price is reserved for buying what goes in the machine. That split is fixed in the contract and can't be edited once a pool is live.",
+    stat: "85% into prizes",
     icon: <CapsuleGlyph />,
   },
 ];
@@ -57,9 +54,9 @@ export function NextRelease() {
 
       <PageContainer width="wide" className="relative">
         <SectionHeader
-          eyebrow="Shipped in v2"
-          title="v2 is live."
-          description="Five pulls at a time. Rounds that finish in minutes. And a bigger share of every spin going straight into the prize machine."
+          eyebrow="How it plays"
+          title="Five pulls at a time. Results in minutes."
+          description="Most of what you spend goes straight back into the machine as prizes. Here's the whole shape of it."
           className="mb-4"
           action={
             <Pill tone="accent" dot>
@@ -88,19 +85,10 @@ export function NextRelease() {
                 {change.body}
               </p>
 
-              <div className="mt-5 flex items-center gap-2 border-t border-[rgba(20,24,18,0.07)] pt-4">
-                {change.from ? (
-                  <>
-                    <span className="num text-[12.5px] text-ink-3 line-through decoration-ink-3/40">
-                      {change.from}
-                    </span>
-                    <ArrowGlyph />
-                  </>
-                ) : null}
+              <div className="mt-5 border-t border-[rgba(20,24,18,0.07)] pt-4">
                 <span className="num text-[13px] font-semibold text-accent-ink">
-                  {change.to}
+                  {change.stat}
                 </span>
-
               </div>
             </li>
           ))}
@@ -225,21 +213,3 @@ function CapsuleGlyph() {
   );
 }
 
-function ArrowGlyph() {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      className="h-3.5 w-3.5 shrink-0 text-ink-3"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M3 8h9m0 0-3.2-3.2M12 8l-3.2 3.2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}

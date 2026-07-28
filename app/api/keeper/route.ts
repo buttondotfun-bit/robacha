@@ -101,7 +101,37 @@ export async function GET(request: Request) {
 
   const gacha = contracts.gacha as Address;
   const client = publicClient();
-  const account = privateKeyToAccount(keeper.privateKey as `0x${string}`);
+
+  /**
+   * Validate the key's SHAPE before viem sees it.
+   *
+   * `privateKeyToAccount` throws on anything malformed, and it used to run
+   * outside the try below — so a key pasted without its `0x`, or with a stray
+   * newline from a dashboard field, produced a bare 500 with no clue what was
+   * wrong. That is a miserable thing to debug from a CI log.
+   *
+   * Only the shape is checked and only the shape is reported. The key itself
+   * is never echoed, logged, or included in a response.
+   */
+  const rawKey = keeper.privateKey.trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(rawKey)) {
+    const hint = rawKey.startsWith("0x")
+      ? `expected 64 hex characters after 0x, got ${rawKey.length - 2}`
+      : "missing the 0x prefix";
+    return NextResponse.json(
+      { ok: false, error: `KEEPER_PRIVATE_KEY is malformed: ${hint}` },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+
+  if (keeper.commitmentSeed && !/^0x[0-9a-fA-F]{64}$/.test(keeper.commitmentSeed.trim())) {
+    return NextResponse.json(
+      { ok: false, error: "KEEPER_COMMITMENT_SEED is malformed: expected 0x followed by 64 hex characters" },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+
+  const account = privateKeyToAccount(rawKey as `0x${string}`);
   const wallet = createWalletClient({
     account,
     chain: robinhoodChain,

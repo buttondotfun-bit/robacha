@@ -144,6 +144,15 @@ export async function GET() {
     if (!keeper.cronSecret) missing.push("CRON_SECRET");
     if (!keeper.commitmentSeed) missing.push("KEEPER_COMMITMENT_SEED");
 
+    // Shape, never value. A key pasted without its 0x is present but useless,
+    // and that failure surfaced as an opaque 500 rather than anything a log
+    // could be read for.
+    const hex32 = /^0x[0-9a-fA-F]{64}$/;
+    const malformed: string[] = [];
+    if (keeper.privateKey && !hex32.test(keeper.privateKey.trim())) malformed.push("KEEPER_PRIVATE_KEY");
+    if (keeper.commitmentSeed && !hex32.test(keeper.commitmentSeed.trim())) malformed.push("KEEPER_COMMITMENT_SEED");
+    missing.push(...malformed.map((n) => `${n} (malformed — expected 0x + 64 hex)`));
+
     let detail: string;
     let ok = missing.length === 0;
 

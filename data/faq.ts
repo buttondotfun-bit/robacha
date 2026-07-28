@@ -34,7 +34,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
       {
         question: "How many spins can I buy at once?",
         answer:
-          "Two at a time right now. We're raising it to five in v2.",
+          "Five at a time. That's enough to fill an entire round on your own, so you get your results without waiting for anyone else to show up.",
       },
       {
         question: "What does it cost?",
