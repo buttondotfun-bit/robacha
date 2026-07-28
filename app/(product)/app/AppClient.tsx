@@ -57,16 +57,23 @@ export function AppClient() {
           )}
         </div>
 
+        {/* The rail holds only what pairs with the machine: what you already
+            have in flight, and what you are about to buy. Everything else is
+            reading material and was squeezing this column narrow. */}
         <div className="flex flex-col gap-4">
           <PendingSpins />
           <div className="glass-panel rounded-[24px] p-4">
             <SpinControls pool={pool} readiness={readiness} />
           </div>
-          <SpinAssistant pool={pool} readiness={readiness} />
-          <UpcomingMachines variant="strip" />
-          <div className="glass-panel overflow-hidden rounded-[24px]">
-            <ActivityFeed maxHeight={380} />
-          </div>
+        </div>
+      </div>
+
+      {/* Full width beneath the machine, three across on desktop. */}
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <SpinAssistant pool={pool} readiness={readiness} />
+        <UpcomingMachines variant="strip" />
+        <div className="glass-panel overflow-hidden rounded-[24px]">
+          <ActivityFeed maxHeight={380} />
         </div>
       </div>
     </>
