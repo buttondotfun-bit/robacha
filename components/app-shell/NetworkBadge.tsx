@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
+import { RobinhoodChainMark } from "@/components/brand/RobinhoodChainMark";
 import { GlassChip } from "@/components/ui/Glass";
 import { useWallet } from "@/lib/use-wallet";
 import { cn } from "@/lib/utils";
@@ -34,6 +35,7 @@ export function NetworkBadge({ className }: { className?: string }) {
       dot
       className={cn("h-9 whitespace-nowrap px-3 text-[12.5px]", className)}
     >
+      <RobinhoodChainMark className="h-3.5 w-auto opacity-80" title={null} />
       <span>{NETWORK_LABEL}</span>
     </GlassChip>
   );
@@ -52,6 +54,7 @@ export function ChainBadge({ className }: { className?: string }) {
         className="h-1.5 w-1.5 rounded-full bg-[#8ec500] shadow-[0_0_8px_rgba(142,197,0,0.9)]"
         aria-hidden="true"
       />
+      <RobinhoodChainMark className="h-3.5 w-auto opacity-80" title={null} />
       Built on {NETWORK_LABEL}
     </span>
   );

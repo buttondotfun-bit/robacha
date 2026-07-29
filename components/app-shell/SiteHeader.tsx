@@ -10,6 +10,7 @@ import { SITE_NAV, SOCIAL_LINKS } from "@/lib/constants";
 import { useScrolled } from "@/lib/use-scrolled";
 import { useVisibleNav } from "@/lib/use-visible-nav";
 import { cn } from "@/lib/utils";
+import { RobinhoodChainMark } from "@/components/brand/RobinhoodChainMark";
 import { NETWORK_LABEL } from "@/lib/web3";
 import { MobileNavigation } from "./MobileNavigation";
 
@@ -86,6 +87,7 @@ export function SiteHeader() {
           </a>
 
           <GlassChip dot className="hidden h-9 lg:inline-flex">
+            <RobinhoodChainMark className="h-3.5 w-auto opacity-80" title={null} />
             {NETWORK_LABEL}
           </GlassChip>
 

@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
 import { ButtonLink, IconButton } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { RobinhoodChainMark } from "@/components/brand/RobinhoodChainMark";
 import { NETWORK_LABEL } from "@/lib/web3";
 
 export interface NavItem {
@@ -141,6 +142,7 @@ export function MobileNavigation({
                   className="pulse-dot h-1.5 w-1.5 rounded-full bg-[#8ec500]"
                   aria-hidden="true"
                 />
+                <RobinhoodChainMark className="h-3.5 w-auto opacity-80" title={null} />
                 Built on {NETWORK_LABEL}
               </p>
             </motion.div>

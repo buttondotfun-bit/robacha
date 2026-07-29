@@ -2,6 +2,7 @@ import { RobachaLogo } from "@/components/brand/RobachaLogo";
 import { FooterNav } from "./FooterNav";
 import { GlassChip } from "@/components/ui/Glass";
 import { BRAND, RISK_NOTICE, SOCIAL_LINKS } from "@/lib/constants";
+import { RobinhoodChainMark } from "@/components/brand/RobinhoodChainMark";
 import { NETWORK_LABEL } from "@/lib/web3";
 
 const COLUMNS = [
@@ -55,6 +56,7 @@ export function Footer() {
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               <GlassChip dot className="h-8">
+                <RobinhoodChainMark className="h-3.5 w-auto opacity-80" title={null} />
                 {NETWORK_LABEL} · Live
               </GlassChip>
             </div>

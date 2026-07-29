@@ -42,8 +42,11 @@ export function HeroConsole() {
               <p className="text-[13.5px] font-semibold leading-none tracking-[-0.02em]">
                 {pool ? pool.name : "Reward machine"}
               </p>
+              {/* The name is already the line above, and the version number
+                  was dropped from marketing — so this identifies the pool
+                  without repeating either. */}
               <p className="num mt-1 text-[11px] leading-none text-ink-3">
-                {pool ? `Pool #${pool.poolId} · v${pool.version}` : chainConfig.name}
+                {pool ? `Pool #${pool.poolId}` : chainConfig.name}
               </p>
             </div>
           </div>

@@ -5,6 +5,7 @@ import { Accordion } from "@/components/ui/Accordion";
 import { ButtonLink } from "@/components/ui/Button";
 import { GlassChip } from "@/components/ui/Glass";
 import { FAQ_PREVIEW } from "@/data/faq";
+import { RobinhoodChainMark } from "@/components/brand/RobinhoodChainMark";
 import { NETWORK_LABEL } from "@/lib/web3";
 
 /**
@@ -39,6 +40,7 @@ export function FaqPreview() {
 
               <div className="mt-7 flex flex-wrap gap-2">
                 <GlassChip dot className="h-8">
+                  <RobinhoodChainMark className="h-3.5 w-auto opacity-80" title={null} />
                   {NETWORK_LABEL} · Live
                 </GlassChip>
               </div>
