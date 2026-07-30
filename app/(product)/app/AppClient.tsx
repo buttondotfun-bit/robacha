@@ -6,6 +6,7 @@ import { GachaStage } from "@/components/gacha/GachaStage";
 import { PoolBar } from "@/components/gacha/PoolBar";
 import { PendingSpins } from "@/components/gacha/PendingSpins";
 import { SpinAssistant } from "@/components/gacha/SpinAssistant";
+import { TokenLineup } from "@/components/landing/TokenLineup";
 import { UpcomingMachines } from "@/components/rewards/UpcomingMachines";
 import { SpinControls } from "@/components/gacha/SpinControls";
 import { SpinResult } from "@/components/gacha/SpinResult";
@@ -74,8 +75,9 @@ export function AppClient() {
       </div>
 
       {/* Full width beneath the machine, three across on desktop. */}
-      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <SpinAssistant pool={pool} readiness={readiness} />
+        <TokenLineup variant="strip" />
         <UpcomingMachines variant="strip" />
         <div className="glass-panel overflow-hidden rounded-[24px]">
           <ActivityFeed maxHeight={380} />

@@ -7,6 +7,7 @@ import { LivePoolPreview } from "@/components/landing/LivePoolPreview";
 import { NextRelease } from "@/components/landing/NextRelease";
 import { RewardTiers } from "@/components/landing/RewardTiers";
 import { Testimonials } from "@/components/landing/Testimonials";
+import { TokenLineup } from "@/components/landing/TokenLineup";
 import { WhyRobacha } from "@/components/landing/WhyRobacha";
 
 export default function LandingPage() {
@@ -16,6 +17,7 @@ export default function LandingPage() {
       <HowItWorks />
       <RewardTiers />
       <LivePoolPreview />
+      <TokenLineup />
       <NextRelease />
       <WhyRobacha />
       <Testimonials />
