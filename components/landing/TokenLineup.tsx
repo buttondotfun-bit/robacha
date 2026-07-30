@@ -85,9 +85,9 @@ export function TokenLineup({
           {upcoming.map((token) => (
             <li
               key={token.address}
-              className="flex items-center gap-2.5 rounded-[14px] bg-[rgba(16,17,15,0.035)] px-3 py-2.5"
+              className="flex items-center gap-2.5 rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.035)] px-3 py-2.5"
             >
-              <span className="h-7 w-7 shrink-0 overflow-hidden rounded-lg border border-[rgba(255,255,255,0.8)] opacity-80 [container-type:inline-size]">
+              <span className="h-7 w-7 shrink-0 overflow-hidden rounded-lg border border-[rgb(var(--edge-rgb)_/_0.8)] opacity-80 [container-type:inline-size]">
                 <TokenAvatar
                   address={token.address}
                   symbol={token.symbol}
@@ -128,7 +128,7 @@ export function TokenLineup({
                   key={entry.token}
                   className="glass-card flex items-center gap-3 rounded-[18px] p-4"
                 >
-                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.85)] [container-type:inline-size]">
+                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.85)] [container-type:inline-size]">
                     <TokenAvatar
                       address={entry.token}
                       symbol={entry.symbol}
@@ -167,7 +167,7 @@ export function TokenLineup({
                   key={token.address}
                   className="glass-card flex items-center gap-3 rounded-[18px] p-4"
                 >
-                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.85)] opacity-70 [container-type:inline-size]">
+                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.85)] opacity-70 [container-type:inline-size]">
                     <TokenAvatar
                       address={token.address}
                       symbol={token.symbol}
@@ -185,7 +185,7 @@ export function TokenLineup({
                     </p>
                   </div>
                   <span
-                    className="inline-flex items-center gap-1 rounded-full bg-[rgba(16,17,15,0.06)] px-2 py-0.5 text-[10.5px] font-medium text-ink-3"
+                    className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--ink-rgb)_/_0.06)] px-2 py-0.5 text-[10.5px] font-medium text-ink-3"
                     title={
                       token.allowlisted
                         ? "Approved as a reward token on the registry, not yet in a pool"

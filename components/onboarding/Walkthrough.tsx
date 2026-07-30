@@ -85,7 +85,7 @@ export function Walkthrough() {
       title="How this works"
       description={`${step + 1} of ${STEPS.length}`}
     >
-      <div className="flex gap-3.5 rounded-[16px] bg-[rgba(16,17,15,0.035)] p-4">
+      <div className="flex gap-3.5 rounded-[16px] bg-[rgb(var(--ink-rgb)_/_0.035)] p-4">
         <span className="glass-micro grid h-9 w-9 shrink-0 place-items-center rounded-xl">
           <Icon className="h-4 w-4" aria-hidden="true" />
         </span>
@@ -110,7 +110,7 @@ export function Walkthrough() {
                   ? "w-5 bg-ink"
                   : index < step
                     ? "w-1.5 bg-ink-3"
-                    : "w-1.5 bg-[rgba(16,17,15,0.15)]"
+                    : "w-1.5 bg-[rgb(var(--ink-rgb)_/_0.15)]"
               }`}
             />
           ))}

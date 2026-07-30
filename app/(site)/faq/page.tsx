@@ -33,7 +33,7 @@ export default function FaqPage() {
             <li key={group.id}>
               <a
                 href={`#${group.id}`}
-                className="inline-flex h-8 items-center rounded-full border border-[rgba(255,255,255,0.8)] bg-white/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgba(20,24,18,0.14)] hover:text-ink"
+                className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-white/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] hover:text-ink"
               >
                 {group.title}
               </a>
@@ -76,7 +76,7 @@ export default function FaqPage() {
             </ButtonLink>
           </div>
 
-          <div className="mt-6 border-t border-[rgba(20,24,18,0.08)] pt-5">
+          <div className="mt-6 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-5">
             <p className="micro mb-3 flex items-center gap-1.5">
               <MessageCircle className="h-3 w-3" aria-hidden="true" />
               Community
@@ -88,7 +88,7 @@ export default function FaqPage() {
                     href={social.href}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex h-8 items-center rounded-full border border-[rgba(255,255,255,0.8)] bg-white/60 px-3 text-[12.5px] text-ink-2 transition-colors hover:text-ink"
+                    className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-white/60 px-3 text-[12.5px] text-ink-2 transition-colors hover:text-ink"
                   >
                     {social.label}
                     <span className="sr-only"> — {social.handle}</span>
@@ -98,7 +98,7 @@ export default function FaqPage() {
             </ul>
           </div>
 
-          <p className="mt-6 border-t border-[rgba(20,24,18,0.08)] pt-5 text-[11.5px] leading-relaxed text-ink-3">
+          <p className="mt-6 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-5 text-[11.5px] leading-relaxed text-ink-3">
             {RISK_NOTICE} Nothing on this page is financial advice.
           </p>
         </div>

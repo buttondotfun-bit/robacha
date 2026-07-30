@@ -13,7 +13,7 @@ export function AmbientBackground() {
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
     >
       {/* Warm base wash */}
-      <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_-10%,#ffffff_0%,#f7f9f3_38%,#f2f5ec_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_-10%,var(--wash-1)_0%,var(--wash-2)_38%,var(--wash-3)_100%)]" />
 
       {/* Technical grid, fading out toward the bottom */}
       <div className="cross-grid absolute inset-0 opacity-70 [mask-image:linear-gradient(to_bottom,#000_0%,#000_55%,transparent_92%)]" />
@@ -32,7 +32,7 @@ export function AmbientBackground() {
       <div className="absolute bottom-[-8%] right-[6%] h-[640px] w-[760px] rounded-full bg-[radial-gradient(circle,rgba(204,255,0,0.10)_0%,rgba(204,255,0,0.035)_44%,transparent_72%)] blur-[18px]" />
 
       {/* Soft spotlight from above */}
-      <div className="absolute inset-x-0 top-0 h-[420px] bg-[linear-gradient(to_bottom,rgba(255,255,255,0.9),transparent)]" />
+      <div className="absolute inset-x-0 top-0 h-[420px] bg-[linear-gradient(to_bottom,var(--wash-top),transparent)]" />
 
       {/* Grain */}
       <div className="noise-overlay opacity-30" />
@@ -99,14 +99,14 @@ export function OrbitalRings({
       style={{ height: size, width: size }}
     >
       <div className="orbit-slow absolute inset-0">
-        <div className="absolute inset-0 rounded-full border border-[rgba(16,17,15,0.05)]" />
+        <div className="absolute inset-0 rounded-full border border-[rgb(var(--ink-rgb)_/_0.05)]" />
         <div className="absolute left-1/2 top-0 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-[rgba(204,255,0,0.75)] shadow-[0_0_10px_rgba(204,255,0,0.8)]" />
       </div>
       <div className="orbit-reverse absolute inset-[11%]">
-        <div className="absolute inset-0 rounded-full border border-[rgba(16,17,15,0.045)]" />
+        <div className="absolute inset-0 rounded-full border border-[rgb(var(--ink-rgb)_/_0.045)]" />
         <div className="absolute right-0 top-1/2 h-1 w-1 -translate-y-1/2 rounded-full bg-[rgba(255,119,172,0.8)] shadow-[0_0_8px_rgba(255,119,172,0.7)]" />
       </div>
-      <div className="absolute inset-[23%] rounded-full border border-dashed border-[rgba(16,17,15,0.05)]" />
+      <div className="absolute inset-[23%] rounded-full border border-dashed border-[rgb(var(--ink-rgb)_/_0.05)]" />
     </div>
   );
 }

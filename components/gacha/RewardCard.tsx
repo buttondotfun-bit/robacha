@@ -32,7 +32,7 @@ export function RewardCard({
       className={cn(
         "glass-reflection relative flex h-full w-full flex-col overflow-hidden rounded-[18px] transition-[box-shadow] duration-300",
         active
-          ? "rarity-glass shadow-[0_1px_1px_rgba(255,255,255,0.7)_inset,0_0_0_3px_rgba(204,255,0,0.3),0_24px_48px_-24px_rgba(16,17,15,0.5)]"
+          ? "rarity-glass shadow-[0_1px_1px_rgb(var(--edge-rgb)_/_0.7)_inset,0_0_0_3px_rgba(204,255,0,0.3),0_24px_48px_-24px_rgb(var(--ink-rgb)_/_0.5)]"
           : "glass-card",
         className,
       )}
@@ -47,7 +47,7 @@ export function RewardCard({
       </div>
 
       <div className="relative px-2.5 pt-2">
-        <div className="overflow-hidden rounded-xl border border-[rgba(255,255,255,0.8)] shadow-[0_4px_12px_-6px_rgba(16,17,15,0.32)] [container-type:inline-size]">
+        <div className="overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.8)] shadow-[0_4px_12px_-6px_rgb(var(--ink-rgb)_/_0.32)] [container-type:inline-size]">
           <span className="block aspect-square w-full">
             <TokenAvatar
               logoUrl={logoUrl}
@@ -75,7 +75,7 @@ export function RewardCard({
               {formatOdds(entry.oddsPercent)}
             </span>
           </div>
-          <div className="mt-1.5 flex items-center justify-between gap-1 border-t border-[rgba(20,24,18,0.08)] pt-1.5">
+          <div className="mt-1.5 flex items-center justify-between gap-1 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-1.5">
             <span className="num text-[10.5px] font-medium text-ink">
               {entry.minDisplay !== null && entry.maxDisplay !== null
                 ? formatRange(entry.minDisplay, entry.maxDisplay)
@@ -84,7 +84,7 @@ export function RewardCard({
             <span
               className={cn(
                 "h-1.5 w-1.5 shrink-0 rounded-full",
-                soldOut ? "bg-[rgba(16,17,15,0.2)]" : "bg-[#8ec500]",
+                soldOut ? "bg-[rgb(var(--ink-rgb)_/_0.2)]" : "bg-[#8ec500]",
               )}
               aria-hidden="true"
               title={soldOut ? "Out of stock" : "In stock"}

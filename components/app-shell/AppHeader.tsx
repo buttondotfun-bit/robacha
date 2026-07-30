@@ -9,6 +9,7 @@ import { useVisibleNav } from "@/lib/use-visible-nav";
 import { useScrolled } from "@/lib/use-scrolled";
 import { cn } from "@/lib/utils";
 import { MobileNavigation } from "./MobileNavigation";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { NetworkBadge } from "./NetworkBadge";
 import { WalletButton } from "./WalletButton";
 
@@ -62,8 +63,8 @@ export function AppHeader() {
                 className={cn(
                   "whitespace-nowrap rounded-full px-3 py-1.5 text-[13.5px] font-medium transition-colors",
                   active
-                    ? "bg-[rgba(255,255,255,0.82)] text-ink shadow-[0_1px_0_rgba(255,255,255,0.9)_inset,0_2px_6px_-2px_rgba(16,17,15,0.12)]"
-                    : "text-ink-2 hover:bg-[rgba(255,255,255,0.55)] hover:text-ink",
+                    ? "bg-[rgb(var(--edge-rgb)_/_0.82)] text-ink shadow-[0_1px_0_rgb(var(--edge-rgb)_/_0.9)_inset,0_2px_6px_-2px_rgb(var(--ink-rgb)_/_0.12)]"
+                    : "text-ink-2 hover:bg-[rgb(var(--edge-rgb)_/_0.55)] hover:text-ink",
                 )}
               >
                 {item.label}
@@ -74,6 +75,9 @@ export function AppHeader() {
 
         <div className="ml-auto flex items-center gap-2">
           <span className="hidden sm:block">
+            <span className="hidden md:block">
+              <ThemeToggle />
+            </span>
             <NetworkBadge />
           </span>
           <a
@@ -82,7 +86,7 @@ export function AppHeader() {
             rel="noreferrer"
             aria-label={`ROBACHA on X (${SOCIAL_LINKS[0].handle})`}
             title={`ROBACHA on X · ${SOCIAL_LINKS[0].handle}`}
-            className="hidden h-9 w-9 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:bg-[rgba(255,255,255,0.6)] hover:text-ink sm:grid"
+            className="hidden h-9 w-9 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink sm:grid"
           >
             <XIcon />
           </a>

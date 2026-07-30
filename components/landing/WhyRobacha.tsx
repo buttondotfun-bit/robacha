@@ -90,7 +90,7 @@ export function WhyRobacha() {
                     <span className="w-[68px] shrink-0 text-[11px] text-ink-2">
                       {RARITY_LABEL[tier.rarity]}
                     </span>
-                    <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[rgba(16,17,15,0.06)]">
+                    <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[rgb(var(--ink-rgb)_/_0.06)]">
                       <span
                         className="rarity-dot block h-full rounded-full"
                         style={{ width: `${tier.probabilityPercent}%` }}
@@ -149,8 +149,8 @@ function TokenOrbit() {
       className="pointer-events-none absolute -right-16 -top-10 hidden h-[340px] w-[340px] sm:block"
     >
       <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(204,255,0,0.18),transparent_66%)]" />
-      <div className="absolute inset-[8%] rounded-full border border-[rgba(16,17,15,0.06)]" />
-      <div className="absolute inset-[24%] rounded-full border border-dashed border-[rgba(16,17,15,0.07)]" />
+      <div className="absolute inset-[8%] rounded-full border border-[rgb(var(--ink-rgb)_/_0.06)]" />
+      <div className="absolute inset-[24%] rounded-full border border-dashed border-[rgb(var(--ink-rgb)_/_0.07)]" />
 
       <div className="orbit-slow absolute inset-0">
         {positions.map((index) => {
@@ -160,7 +160,7 @@ function TokenOrbit() {
           return (
             <span
               key={index}
-              className="glass-card absolute h-11 w-11 overflow-hidden rounded-full border border-[rgba(255,255,255,0.85)] shadow-[0_6px_16px_-8px_rgba(16,17,15,0.5)] [container-type:inline-size]"
+              className="glass-card absolute h-11 w-11 overflow-hidden rounded-full border border-[rgb(var(--edge-rgb)_/_0.85)] shadow-[0_6px_16px_-8px_rgb(var(--ink-rgb)_/_0.5)] [container-type:inline-size]"
               style={{
                 // Fixed precision: Node and the browser serialise the same float
                 // differently, which React reports as a hydration mismatch.

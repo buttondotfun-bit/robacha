@@ -97,7 +97,7 @@ export function LeaderboardClient() {
           <h2 className="text-section-title text-[19px]">Most spins</h2>
         </header>
         <div className="glass-panel overflow-hidden rounded-[24px] px-4">
-          <ul className="divide-y divide-[rgba(20,24,18,0.06)]">
+          <ul className="divide-y divide-[rgb(var(--line-rgb)_/_0.06)]">
             {board.mostSpins.map((row, index) => (
               <li
                 key={row.user}
@@ -122,7 +122,7 @@ export function LeaderboardClient() {
         return (
           <section key={tokenBoard.token}>
             <header className="mb-3 flex items-center gap-2.5">
-              <span className="h-7 w-7 shrink-0 overflow-hidden rounded-lg border border-[rgba(255,255,255,0.8)] [container-type:inline-size]">
+              <span className="h-7 w-7 shrink-0 overflow-hidden rounded-lg border border-[rgb(var(--edge-rgb)_/_0.8)] [container-type:inline-size]">
                 <TokenAvatar
                   address={tokenBoard.token}
                   symbol={tokenBoard.symbol}
@@ -137,7 +137,7 @@ export function LeaderboardClient() {
             </header>
 
             <div className="glass-panel overflow-hidden rounded-[24px] px-4">
-              <ul className="divide-y divide-[rgba(20,24,18,0.06)]">
+              <ul className="divide-y divide-[rgb(var(--line-rgb)_/_0.06)]">
                 {tokenBoard.entries.map((entry, index) => {
                   const amount =
                     tokenBoard.decimals !== null
@@ -195,7 +195,7 @@ function Rank({ index }: { index: number }) {
         "num grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold",
         index === 0
           ? "bg-[rgba(204,255,0,0.5)] text-ink"
-          : "bg-[rgba(16,17,15,0.06)] text-ink-2",
+          : "bg-[rgb(var(--ink-rgb)_/_0.06)] text-ink-2",
       )}
       aria-label={`Rank ${index + 1}`}
     >

@@ -100,7 +100,7 @@ export function LivePoolPreview() {
                   />
                 </dl>
 
-                <div className="mt-7 border-t border-[rgba(20,24,18,0.08)] pt-5">
+                <div className="mt-7 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-5">
                   <p className="micro mb-3">Your odds</p>
                   <ul className="flex flex-wrap gap-1.5">
                     {pool.tiers.map((tier) => (
@@ -140,7 +140,7 @@ export function LivePoolPreview() {
                       data-rarity={entry.rarity}
                       className="glass-quiet flex items-center gap-3 rounded-2xl p-2.5"
                     >
-                      <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.8)] [container-type:inline-size]">
+                      <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.8)] [container-type:inline-size]">
                         <TokenAvatar
                           address={entry.token}
                           symbol={entry.symbol}

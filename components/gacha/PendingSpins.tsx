@@ -74,7 +74,7 @@ function PendingRow({ row }: { row: PendingSpin }) {
         "rounded-[14px] px-3.5 py-3",
         row.withdrawable
           ? "border border-[#d8ecb0] bg-accent-soft"
-          : "bg-[rgba(16,17,15,0.035)]",
+          : "bg-[rgb(var(--ink-rgb)_/_0.035)]",
       )}
     >
       <div className="flex items-baseline justify-between gap-3">

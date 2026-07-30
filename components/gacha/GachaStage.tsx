@@ -81,11 +81,11 @@ export function GachaStage({
           decorative, none of it load-bearing, and none of it claims anything. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-11 rounded-t-[28px] border-b border-[rgba(20,24,18,0.07)] bg-[linear-gradient(180deg,rgba(255,255,255,0.85),rgba(255,255,255,0.25))]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-11 rounded-t-[28px] border-b border-[rgb(var(--line-rgb)_/_0.07)] bg-[linear-gradient(180deg,rgb(var(--edge-rgb)_/_0.85),rgb(var(--edge-rgb)_/_0.25))]"
       >
-        <span className="absolute left-1/2 top-[18px] h-[5px] w-16 -translate-x-1/2 rounded-full bg-[rgba(20,24,18,0.14)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.18)]" />
-        <span className="absolute left-5 top-[15px] h-2.5 w-2.5 rounded-full bg-[rgba(20,24,18,0.1)]" />
-        <span className="absolute right-5 top-[15px] h-2.5 w-2.5 rounded-full bg-[rgba(20,24,18,0.1)]" />
+        <span className="absolute left-1/2 top-[18px] h-[5px] w-16 -translate-x-1/2 rounded-full bg-[rgb(var(--line-rgb)_/_0.14)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.18)]" />
+        <span className="absolute left-5 top-[15px] h-2.5 w-2.5 rounded-full bg-[rgb(var(--line-rgb)_/_0.1)]" />
+        <span className="absolute right-5 top-[15px] h-2.5 w-2.5 rounded-full bg-[rgb(var(--line-rgb)_/_0.1)]" />
       </div>
       <div
         aria-hidden="true"
@@ -130,7 +130,7 @@ export function GachaStage({
                 </div>
                 <RarityChip rarity={focused.rarity} size="xs" />
               </div>
-              <dl className="mt-2 grid grid-cols-3 gap-2 border-t border-[rgba(20,24,18,0.08)] pt-2">
+              <dl className="mt-2 grid grid-cols-3 gap-2 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-2">
                 {readout.map((item) => (
                   <div key={item.label}>
                     <dt className="text-[10px] uppercase tracking-[0.06em] text-ink-3">
@@ -163,7 +163,7 @@ export function GachaStage({
             machine with an inside and an outside. */}
         <div
           aria-hidden="true"
-          className="mx-auto mt-4 h-6 max-w-[220px] rounded-b-[14px] rounded-t-[4px] border border-t-0 border-[rgba(20,24,18,0.09)] bg-[linear-gradient(180deg,rgba(16,17,15,0.07),rgba(16,17,15,0.02))] shadow-[inset_0_3px_8px_rgba(16,17,15,0.12)]"
+          className="mx-auto mt-4 h-6 max-w-[220px] rounded-b-[14px] rounded-t-[4px] border border-t-0 border-[rgb(var(--line-rgb)_/_0.09)] bg-[linear-gradient(180deg,rgb(var(--ink-rgb)_/_0.07),rgb(var(--ink-rgb)_/_0.02))] shadow-[inset_0_3px_8px_rgb(var(--ink-rgb)_/_0.12)]"
         />
       </div>
     </div>

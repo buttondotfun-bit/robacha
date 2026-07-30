@@ -55,7 +55,7 @@ export function HeroConsole() {
             className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-medium ${
               pool
                 ? "bg-[rgba(204,255,0,0.35)] text-accent-ink"
-                : "bg-[rgba(16,17,15,0.06)] text-ink-3"
+                : "bg-[rgb(var(--ink-rgb)_/_0.06)] text-ink-3"
             }`}
           >
             {isLoading ? (
@@ -71,7 +71,7 @@ export function HeroConsole() {
         </div>
 
         {/* Capsule chamber */}
-        <div className="relative mt-4 overflow-hidden rounded-[22px] border border-[rgba(255,255,255,0.8)] bg-[linear-gradient(165deg,rgba(255,255,255,0.85),rgba(247,248,243,0.5))] p-4">
+        <div className="relative mt-4 overflow-hidden rounded-[22px] border border-[rgb(var(--edge-rgb)_/_0.8)] bg-[linear-gradient(165deg,rgb(var(--edge-rgb)_/_0.85),rgba(247,248,243,0.5))] p-4">
           {pool && slots.length ? (
             <ul className="space-y-2">
               {slots.map((entry) => (
@@ -80,7 +80,7 @@ export function HeroConsole() {
                   data-rarity={entry.rarity}
                   className="glass-card flex items-center gap-3 rounded-2xl p-2.5"
                 >
-                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.85)] [container-type:inline-size]">
+                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.85)] [container-type:inline-size]">
                     <TokenAvatar
                       address={entry.token}
                       symbol={entry.symbol}
@@ -150,8 +150,8 @@ function EmptyChamber({ reason }: { reason: string }) {
   return (
     <div className="flex flex-col items-center justify-center px-4 py-8 text-center">
       <div aria-hidden="true" className="relative h-24 w-24">
-        <span className="absolute inset-0 rounded-full border border-dashed border-[rgba(16,17,15,0.12)]" />
-        <span className="absolute inset-[18%] rounded-full border border-[rgba(16,17,15,0.08)]" />
+        <span className="absolute inset-0 rounded-full border border-dashed border-[rgb(var(--ink-rgb)_/_0.12)]" />
+        <span className="absolute inset-[18%] rounded-full border border-[rgb(var(--ink-rgb)_/_0.08)]" />
         <span className="absolute inset-[36%] rounded-full bg-[radial-gradient(circle,rgba(204,255,0,0.28),transparent_70%)]" />
       </div>
       <p className="mt-4 max-w-[34ch] text-[12.5px] leading-relaxed text-ink-2">

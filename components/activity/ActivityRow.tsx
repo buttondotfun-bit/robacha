@@ -94,7 +94,7 @@ export function ActivityRow({
       )}
     >
       {event.token ? (
-        <span className="h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.8)] [container-type:inline-size]">
+        <span className="h-9 w-9 shrink-0 overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.8)] [container-type:inline-size]">
           <TokenAvatar
             address={event.token}
             symbol={event.tokenSymbol ?? null}
@@ -141,7 +141,7 @@ export function ActivityRow({
       </div>
 
       {event.status === "pending" ? (
-        <span className="num shrink-0 rounded-full bg-[rgba(16,17,15,0.06)] px-2 py-0.5 text-[10px] text-ink-3">
+        <span className="num shrink-0 rounded-full bg-[rgb(var(--ink-rgb)_/_0.06)] px-2 py-0.5 text-[10px] text-ink-3">
           pending
         </span>
       ) : null}

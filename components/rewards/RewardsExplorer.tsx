@@ -168,7 +168,7 @@ export function RewardsExplorer() {
               data-rarity={entry.rarity}
               className="glass-card glass-reflection glass-highlight relative flex flex-col overflow-hidden rounded-[22px] p-2.5"
             >
-              <div className="relative overflow-hidden rounded-[16px] border border-[rgba(255,255,255,0.85)] [container-type:inline-size]">
+              <div className="relative overflow-hidden rounded-[16px] border border-[rgb(var(--edge-rgb)_/_0.85)] [container-type:inline-size]">
                 <span className="block aspect-square w-full">
                   <TokenAvatar
                     address={entry.token}
@@ -192,7 +192,7 @@ export function RewardsExplorer() {
                   <RarityChip rarity={entry.rarity} size="xs" />
                 </div>
 
-                <dl className="mt-auto space-y-1 border-t border-[rgba(20,24,18,0.08)] pt-2.5 text-[11.5px]">
+                <dl className="mt-auto space-y-1 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-2.5 text-[11.5px]">
                   <div className="flex items-baseline justify-between gap-2">
                     <dt className="shrink-0 text-ink-3">Reward</dt>
                     <dd className="num truncate font-medium text-ink">

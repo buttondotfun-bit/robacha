@@ -85,7 +85,7 @@ export function NextRelease() {
                 {change.body}
               </p>
 
-              <div className="mt-5 border-t border-[rgba(20,24,18,0.07)] pt-4">
+              <div className="mt-5 border-t border-[rgb(var(--line-rgb)_/_0.07)] pt-4">
                 <span className="num text-[13px] font-semibold text-accent-ink">
                   {change.stat}
                 </span>

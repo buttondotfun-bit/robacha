@@ -122,7 +122,7 @@ export function Dialog({
           onKeyDown={onKeyDown}
         >
           <motion.div
-            className="absolute inset-0 bg-[rgba(16,17,15,0.24)] backdrop-blur-[3px]"
+            className="absolute inset-0 bg-[rgb(var(--ink-rgb)_/_0.24)] backdrop-blur-[3px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -187,7 +187,7 @@ export function Dialog({
             </div>
 
             {footer ? (
-              <div className="border-t border-[rgba(20,24,18,0.08)] bg-[rgba(250,252,246,0.5)] px-5 py-4">
+              <div className="border-t border-[rgb(var(--line-rgb)_/_0.08)] bg-[rgba(250,252,246,0.5)] px-5 py-4">
                 {footer}
               </div>
             ) : null}

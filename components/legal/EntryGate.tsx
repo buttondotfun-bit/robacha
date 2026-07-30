@@ -103,7 +103,7 @@ function Check({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-[14px] bg-[rgba(16,17,15,0.035)] px-4 py-3.5 transition-colors hover:bg-[rgba(16,17,15,0.055)]">
+    <label className="flex cursor-pointer items-start gap-3 rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.035)] px-4 py-3.5 transition-colors hover:bg-[rgb(var(--ink-rgb)_/_0.055)]">
       <input
         type="checkbox"
         checked={checked}

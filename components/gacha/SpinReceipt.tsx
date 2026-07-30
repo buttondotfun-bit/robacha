@@ -85,10 +85,10 @@ export function SpinReceipt({
       title="Receipt"
       description={`${receipt.quantity} spin${receipt.quantity === 1 ? "" : "s"} on ${receipt.poolName}`}
     >
-      <dl className="space-y-2.5 rounded-[16px] bg-[rgba(16,17,15,0.035)] p-4 text-[13px]">
+      <dl className="space-y-2.5 rounded-[16px] bg-[rgb(var(--ink-rgb)_/_0.035)] p-4 text-[13px]">
         <Line label="Spin price" value={money.native(receipt.baseWei)} />
         <Line label="Random draw fee" value={money.native(receipt.surchargeWei)} />
-        <div className="flex items-baseline justify-between gap-3 border-t border-[rgba(20,24,18,0.1)] pt-2.5">
+        <div className="flex items-baseline justify-between gap-3 border-t border-[rgb(var(--line-rgb)_/_0.1)] pt-2.5">
           <dt className="font-semibold text-ink">Charged</dt>
           <dd className="num text-right font-semibold text-ink">
             {money.native(total)}
@@ -99,7 +99,7 @@ export function SpinReceipt({
             ) : null}
           </dd>
         </div>
-        <p className="border-t border-[rgba(20,24,18,0.1)] pt-2.5 text-[11px] leading-relaxed text-ink-3">
+        <p className="border-t border-[rgb(var(--line-rgb)_/_0.1)] pt-2.5 text-[11px] leading-relaxed text-ink-3">
           Your wallet also paid a network fee to {chainConfig.name}. That one is
           set by the chain, not by us — your wallet&rsquo;s history has the exact
           figure.

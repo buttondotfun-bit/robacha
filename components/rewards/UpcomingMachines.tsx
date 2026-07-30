@@ -64,15 +64,15 @@ export function UpcomingMachines({
                   pool behind this to describe. */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none relative h-[112px] select-none overflow-hidden rounded-[14px] bg-[rgba(16,17,15,0.04)]"
+                className="pointer-events-none relative h-[112px] select-none overflow-hidden rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.04)]"
               >
                 <div className="absolute inset-0 blur-[7px]">
-                  <span className="absolute left-4 top-4 h-9 w-9 rounded-xl bg-[rgba(16,17,15,0.16)]" />
-                  <span className="absolute left-16 top-5 h-3 w-24 rounded-full bg-[rgba(16,17,15,0.13)]" />
-                  <span className="absolute left-16 top-11 h-2.5 w-16 rounded-full bg-[rgba(16,17,15,0.09)]" />
+                  <span className="absolute left-4 top-4 h-9 w-9 rounded-xl bg-[rgb(var(--ink-rgb)_/_0.16)]" />
+                  <span className="absolute left-16 top-5 h-3 w-24 rounded-full bg-[rgb(var(--ink-rgb)_/_0.13)]" />
+                  <span className="absolute left-16 top-11 h-2.5 w-16 rounded-full bg-[rgb(var(--ink-rgb)_/_0.09)]" />
                   <span className="absolute left-4 top-[72px] h-3 w-28 rounded-full bg-[rgba(204,255,0,0.4)]" />
-                  <span className="absolute right-5 top-6 h-5 w-14 rounded-full bg-[rgba(16,17,15,0.11)]" />
-                  <span className="absolute right-5 top-[70px] h-3 w-10 rounded-full bg-[rgba(16,17,15,0.1)]" />
+                  <span className="absolute right-5 top-6 h-5 w-14 rounded-full bg-[rgb(var(--ink-rgb)_/_0.11)]" />
+                  <span className="absolute right-5 top-[70px] h-3 w-10 rounded-full bg-[rgb(var(--ink-rgb)_/_0.1)]" />
                 </div>
 
                 <div className="absolute inset-0 grid place-items-center">
@@ -87,7 +87,7 @@ export function UpcomingMachines({
                 {m.name}
               </h3>
               <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">{m.theme}</p>
-              <p className="mt-3 border-t border-[rgba(20,24,18,0.07)] pt-3 text-[11.5px] text-ink-3">
+              <p className="mt-3 border-t border-[rgb(var(--line-rgb)_/_0.07)] pt-3 text-[11.5px] text-ink-3">
                 Nothing loaded in yet.
               </p>
             </li>
@@ -120,12 +120,12 @@ function UpcomingStrip() {
         {UPCOMING.map((m) => (
           <li
             key={m.name}
-            className="relative overflow-hidden rounded-[14px] bg-[rgba(16,17,15,0.04)] px-3 py-3"
+            className="relative overflow-hidden rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.04)] px-3 py-3"
           >
             {/* Same idea as the full cards: shapes, not numbers. */}
             <div aria-hidden="true" className="absolute inset-0 blur-[6px]">
-              <span className="absolute left-3 top-3 h-6 w-6 rounded-lg bg-[rgba(16,17,15,0.14)]" />
-              <span className="absolute left-11 top-4 h-2.5 w-16 rounded-full bg-[rgba(16,17,15,0.11)]" />
+              <span className="absolute left-3 top-3 h-6 w-6 rounded-lg bg-[rgb(var(--ink-rgb)_/_0.14)]" />
+              <span className="absolute left-11 top-4 h-2.5 w-16 rounded-full bg-[rgb(var(--ink-rgb)_/_0.11)]" />
               <span className="absolute left-3 bottom-3 h-2.5 w-20 rounded-full bg-[rgba(204,255,0,0.35)]" />
             </div>
             <div className="relative flex items-center gap-1.5">

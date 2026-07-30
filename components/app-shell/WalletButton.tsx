@@ -67,7 +67,7 @@ export function WalletButton({ className }: { className?: string }) {
         className="glass-chip inline-flex h-10 items-center gap-2 rounded-full px-3 pr-3.5 text-sm font-medium text-ink"
       >
         <span
-          className="h-5 w-5 shrink-0 rounded-full border border-[rgba(255,255,255,0.8)] shadow-[0_1px_3px_rgba(16,17,15,0.18)]"
+          className="h-5 w-5 shrink-0 rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] shadow-[0_1px_3px_rgb(var(--ink-rgb)_/_0.18)]"
           style={{
             background: `conic-gradient(from 140deg, #ff9ec4, #ccff00, #a9d3f5, #ff9ec4)`,
           }}
@@ -98,7 +98,7 @@ export function WalletButton({ className }: { className?: string }) {
             </p>
           </div>
 
-          <div className="my-1 h-px bg-[rgba(20,24,18,0.08)]" />
+          <div className="my-1 h-px bg-[rgb(var(--line-rgb)_/_0.08)]" />
 
           <button
             type="button"
@@ -109,7 +109,7 @@ export function WalletButton({ className }: { className?: string }) {
                 setTimeout(() => setCopied(false), 1_400);
               });
             }}
-            className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgba(255,255,255,0.6)] hover:text-ink"
+            className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink"
           >
             <Copy className="h-3.5 w-3.5" aria-hidden="true" />
             {copied ? "Address copied" : "Copy address"}
@@ -121,7 +121,7 @@ export function WalletButton({ className }: { className?: string }) {
               href={addressLink}
               target="_blank"
               rel="noreferrer noopener"
-              className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgba(255,255,255,0.6)] hover:text-ink"
+              className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink"
             >
               <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
               View on explorer
@@ -132,13 +132,13 @@ export function WalletButton({ className }: { className?: string }) {
             role="menuitem"
             href="/bag"
             onClick={() => setOpen(false)}
-            className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgba(255,255,255,0.6)] hover:text-ink"
+            className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink"
           >
             <Wallet className="h-3.5 w-3.5" aria-hidden="true" />
             View My Bag
           </Link>
 
-          <div className="my-1 h-px bg-[rgba(20,24,18,0.08)]" />
+          <div className="my-1 h-px bg-[rgb(var(--line-rgb)_/_0.08)]" />
 
           <button
             type="button"
@@ -147,7 +147,7 @@ export function WalletButton({ className }: { className?: string }) {
               void wallet.disconnect();
               setOpen(false);
             }}
-            className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgba(255,255,255,0.6)] hover:text-ink"
+            className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink"
           >
             <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
             Disconnect

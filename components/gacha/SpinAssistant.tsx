@@ -168,7 +168,7 @@ export function SpinAssistant({
               ? "border border-[#eadfc4] bg-[#fdfaf2]"
               : answer.tone === "good"
                 ? "border border-[#d8ecb0] bg-accent-soft"
-                : "bg-[rgba(16,17,15,0.035)]",
+                : "bg-[rgb(var(--ink-rgb)_/_0.035)]",
           )}
         >
           <div className="flex items-start justify-between gap-3">

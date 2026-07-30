@@ -26,7 +26,7 @@ export function ContractDirectory() {
       <div className="glass-card overflow-x-auto rounded-[18px]">
         <table className="w-full min-w-[560px] text-left text-[13px]">
           <thead>
-            <tr className="border-b border-[rgba(20,24,18,0.08)]">
+            <tr className="border-b border-[rgb(var(--line-rgb)_/_0.08)]">
               <th scope="col" className="micro px-4 py-3 font-medium">Contract</th>
               <th scope="col" className="micro px-4 py-3 font-medium">Responsibility</th>
               <th scope="col" className="micro px-4 py-3 font-medium">Address</th>
@@ -40,7 +40,7 @@ export function ContractDirectory() {
               return (
                 <tr
                   key={row.key}
-                  className="border-b border-[rgba(20,24,18,0.05)] last:border-b-0"
+                  className="border-b border-[rgb(var(--line-rgb)_/_0.05)] last:border-b-0"
                 >
                   <td className="px-4 py-3 font-medium text-ink">{row.name}</td>
                   <td className="px-4 py-3 text-[12.5px] text-ink-2">{row.role}</td>

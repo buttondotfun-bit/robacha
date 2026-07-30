@@ -16,18 +16,18 @@ const VARIANTS: Record<Variant, string> = {
     "text-ink border border-[rgba(150,190,0,0.55)]",
     "bg-[linear-gradient(168deg,rgba(226,255,120,0.96)_0%,rgba(204,255,0,0.98)_46%,rgba(186,232,0,0.98)_100%)]",
     "shadow-[var(--shadow-neon)]",
-    "hover:-translate-y-0.5 hover:shadow-[0_1px_0_rgba(255,255,255,0.6)_inset,0_8px_22px_-6px_rgba(160,200,0,0.62),0_18px_44px_-20px_rgba(120,150,0,0.5)]",
+    "hover:-translate-y-0.5 hover:shadow-[0_1px_0_rgb(var(--edge-rgb)_/_0.6)_inset,0_8px_22px_-6px_rgba(160,200,0,0.62),0_18px_44px_-20px_rgba(120,150,0,0.5)]",
   ].join(" "),
   // Frosted white glass with a bright rim.
   secondary: [
-    "glass-chip text-ink border-[rgba(255,255,255,0.8)]",
-    "hover:-translate-y-0.5 hover:bg-[rgba(255,255,255,0.78)]",
-    "hover:shadow-[0_1px_0_rgba(255,255,255,0.8)_inset,0_8px_20px_-8px_rgba(16,17,15,0.18)]",
+    "glass-chip text-ink border-[rgb(var(--edge-rgb)_/_0.8)]",
+    "hover:-translate-y-0.5 hover:bg-[rgb(var(--edge-rgb)_/_0.78)]",
+    "hover:shadow-[0_1px_0_rgb(var(--edge-rgb)_/_0.8)_inset,0_8px_20px_-8px_rgb(var(--ink-rgb)_/_0.18)]",
   ].join(" "),
   ghost:
-    "text-ink-2 border border-transparent hover:text-ink hover:bg-[rgba(255,255,255,0.55)] hover:backdrop-blur-md",
+    "text-ink-2 border border-transparent hover:text-ink hover:bg-[rgb(var(--edge-rgb)_/_0.55)] hover:backdrop-blur-md",
   quiet:
-    "glass-quiet text-ink-2 hover:text-ink hover:bg-[rgba(255,255,255,0.6)]",
+    "glass-quiet text-ink-2 hover:text-ink hover:bg-[rgb(var(--edge-rgb)_/_0.6)]",
   danger:
     "border border-[rgba(190,120,120,0.4)] bg-[rgba(253,243,243,0.72)] text-[#8f3434] backdrop-blur-md hover:bg-[rgba(251,237,237,0.85)]",
 };
@@ -43,7 +43,7 @@ function Sheen() {
   return (
     <span
       aria-hidden="true"
-      className="pointer-events-none absolute inset-y-0 -left-full w-1/2 bg-[linear-gradient(100deg,transparent,rgba(255,255,255,0.65),transparent)] opacity-0 transition-opacity duration-200 group-hover/btn:opacity-100 group-hover/btn:[animation:robacha-sheen_0.9s_ease-out]"
+      className="pointer-events-none absolute inset-y-0 -left-full w-1/2 bg-[linear-gradient(100deg,transparent,rgb(var(--edge-rgb)_/_0.65),transparent)] opacity-0 transition-opacity duration-200 group-hover/btn:opacity-100 group-hover/btn:[animation:robacha-sheen_0.9s_ease-out]"
     />
   );
 }
@@ -167,7 +167,7 @@ export function IconButton({
       title={label}
       className={cn(
         "glass-chip grid shrink-0 place-items-center rounded-full text-ink-2 transition-[transform,color,background-color] duration-200",
-        "hover:text-ink hover:bg-[rgba(255,255,255,0.78)] active:scale-95",
+        "hover:text-ink hover:bg-[rgb(var(--edge-rgb)_/_0.78)] active:scale-95",
         size === "sm" ? "h-8 w-8" : "h-10 w-10",
         className,
       )}

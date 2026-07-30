@@ -50,8 +50,8 @@ export function ShareSpin({
       title={`Share your spin on X and tag ${HANDLE}`}
       className={cn(
         "inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full",
-        "border border-[rgba(20,24,18,0.1)] bg-white/70 px-3 text-[12.5px] font-medium text-ink-2",
-        "transition-colors hover:border-[rgba(20,24,18,0.2)] hover:text-ink",
+        "border border-[rgb(var(--line-rgb)_/_0.1)] bg-white/70 px-3 text-[12.5px] font-medium text-ink-2",
+        "transition-colors hover:border-[rgb(var(--line-rgb)_/_0.2)] hover:text-ink",
         className,
       )}
     >

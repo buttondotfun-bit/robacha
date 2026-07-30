@@ -77,7 +77,7 @@ export function ActivityFeed({
       </div>
 
       <div
-        className="rail-scroll min-h-0 flex-1 divide-y divide-[rgba(20,24,18,0.07)] overflow-y-auto border-t border-[rgba(20,24,18,0.08)]"
+        className="rail-scroll min-h-0 flex-1 divide-y divide-[rgb(var(--line-rgb)_/_0.07)] overflow-y-auto border-t border-[rgb(var(--line-rgb)_/_0.08)]"
         style={{ maxHeight }}
       >
         {isLoading ? (

@@ -69,7 +69,7 @@ export function VerifyClient() {
         <label htmlFor="round" className="sr-only">
           Round number
         </label>
-        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[14px] bg-[rgba(16,17,15,0.04)] px-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.04)] px-3">
           <Search className="h-4 w-4 shrink-0 text-ink-3" aria-hidden="true" />
           <input
             id="round"
@@ -117,7 +117,7 @@ export function VerifyClient() {
                         ? "bg-accent-soft text-accent-ink"
                         : item.passed === false
                           ? "bg-[#fdecec] text-[#8f3434]"
-                          : "bg-[rgba(16,17,15,0.06)] text-ink-3",
+                          : "bg-[rgb(var(--ink-rgb)_/_0.06)] text-ink-3",
                     )}
                   >
                     {item.passed === true ? (
@@ -147,7 +147,7 @@ export function VerifyClient() {
                 which means it could not have been picked to suit any result.
               </p>
             ) : (
-              <p className="mt-5 rounded-[14px] bg-[rgba(16,17,15,0.05)] px-4 py-3 text-[12.5px] leading-relaxed text-ink-2">
+              <p className="mt-5 rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.05)] px-4 py-3 text-[12.5px] leading-relaxed text-ink-2">
                 Not every step could be confirmed. The raw values are below —
                 check them yourself, and tell us what you find.
               </p>
@@ -181,7 +181,7 @@ export function VerifyClient() {
 
             {showRaw ? (
               <>
-                <p className="mt-4 rounded-[12px] bg-[rgba(16,17,15,0.04)] px-3 py-2.5 text-[11.5px] leading-relaxed text-ink-2">
+                <p className="mt-4 rounded-[12px] bg-[rgb(var(--ink-rgb)_/_0.04)] px-3 py-2.5 text-[11.5px] leading-relaxed text-ink-2">
                   <span className="num">
                     keccak256(abi.encode(secret, chainId, randomnessContract,
                     roundId, entrantEntropy))
@@ -200,7 +200,7 @@ export function VerifyClient() {
                   {Object.entries(proof.values).map(([key, value]) => (
                     <div
                       key={key}
-                      className="flex flex-col gap-0.5 border-t border-[rgba(20,24,18,0.07)] pt-2 sm:flex-row sm:items-baseline sm:gap-3"
+                      className="flex flex-col gap-0.5 border-t border-[rgb(var(--line-rgb)_/_0.07)] pt-2 sm:flex-row sm:items-baseline sm:gap-3"
                     >
                       <dt className="num shrink-0 text-[11px] text-ink-3 sm:w-52">{key}</dt>
                       <dd className="num min-w-0 break-all text-[11.5px] text-ink">

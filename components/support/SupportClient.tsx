@@ -97,7 +97,7 @@ export function SupportClient() {
             <ExternalLink className="h-3 w-3" aria-hidden="true" />
           </a>
 
-          <p className="border-t border-[rgba(20,24,18,0.08)] pt-4 text-[11.5px] leading-relaxed text-ink-3">
+          <p className="border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4 text-[11.5px] leading-relaxed text-ink-3">
             Everything this platform does is on chain, so you can also verify
             any of it yourself without us — every round, entry and payout is
             public.
@@ -143,7 +143,7 @@ function StuckRow({
   }
 
   return (
-    <li className="rounded-[16px] bg-[rgba(16,17,15,0.035)] px-4 py-3.5">
+    <li className="rounded-[16px] bg-[rgb(var(--ink-rgb)_/_0.035)] px-4 py-3.5">
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-[13px] font-semibold">{row.label}</p>
         <span className="num shrink-0 text-[11px] text-ink-3">

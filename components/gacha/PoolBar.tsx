@@ -38,7 +38,7 @@ export function PoolBar({
             {pool.name || `Pool #${pool.poolId}`}
           </p>
         </div>
-        <span className="hidden h-8 w-px bg-[rgba(20,24,18,0.08)] lg:block" />
+        <span className="hidden h-8 w-px bg-[rgb(var(--line-rgb)_/_0.08)] lg:block" />
       </div>
 
       <div className="min-w-0 flex-1">

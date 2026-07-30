@@ -25,7 +25,7 @@ export function Accordion({
 
   return (
     <div
-      className={cn("divide-y divide-[rgba(20,24,18,0.08)]", className)}
+      className={cn("divide-y divide-[rgb(var(--line-rgb)_/_0.08)]", className)}
     >
       {items.map((item, index) => {
         const isOpen = open === index;
@@ -37,7 +37,7 @@ export function Accordion({
             className={cn(
               "-mx-3 rounded-2xl px-3 transition-colors duration-200",
               // The active row lights up from within the glass.
-              isOpen && "bg-[rgba(255,255,255,0.5)]",
+              isOpen && "bg-[rgb(var(--edge-rgb)_/_0.5)]",
             )}
           >
             <h3>

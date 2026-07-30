@@ -69,7 +69,7 @@ export function RoundFill({
             key={index}
             className={cn(
               "h-2 w-5 rounded-full transition-colors duration-300",
-              lit ? "bg-[#8ec500]" : "bg-[rgba(16,17,15,0.1)]",
+              lit ? "bg-[#8ec500]" : "bg-[rgb(var(--ink-rgb)_/_0.1)]",
             )}
           />
         ))}

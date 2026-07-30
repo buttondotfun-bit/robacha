@@ -1,3 +1,4 @@
+import { THEME_INIT_SCRIPT } from "@/lib/use-theme";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/app-shell/Providers";
@@ -90,12 +91,21 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      // The head script rewrites data-theme before React hydrates, so the
+      // server's markup and the client's first render differ by design.
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Blocking, before first paint. Without it a dark-mode visitor sees a
+            white flash on every navigation, which is the one thing that makes
+            a dark mode feel broken. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col bg-canvas text-ink">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-[10px] focus:border focus:border-[rgba(20,24,18,0.08)] focus:bg-white/70 focus:px-4 focus:py-2 focus:text-sm focus:font-medium"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-[10px] focus:border focus:border-[rgb(var(--line-rgb)_/_0.08)] focus:bg-surface focus:px-4 focus:py-2 focus:text-sm focus:font-medium"
         >
           Skip to content
         </a>

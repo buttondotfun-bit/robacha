@@ -178,7 +178,7 @@ export function SpinControls({
       />
 
       {/* Full cost and routing disclosure, before any signature is requested. */}
-      <dl className="mt-4 space-y-2 border-t border-[rgba(20,24,18,0.08)] pt-3.5 text-[13px]">
+      <dl className="mt-4 space-y-2 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-3.5 text-[13px]">
         <Row label="Spin price">
           {baseWei > 0n ? money.format(totalBaseWei) : "Unavailable"}
         </Row>
@@ -188,7 +188,7 @@ export function SpinControls({
         <Row label="Network fee">
           <span className="text-[12px] text-ink-3">Your wallet works this out when you sign</span>
         </Row>
-        <div className="flex items-center justify-between border-t border-[rgba(20,24,18,0.08)] pt-2">
+        <div className="flex items-center justify-between border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-2">
           <dt className="font-semibold text-ink">Total</dt>
           <dd className="num text-right font-semibold text-ink">
             {baseWei > 0n ? money.format(totalWei) : "Unavailable"}
@@ -204,7 +204,7 @@ export function SpinControls({
       </dl>
 
       {pool ? (
-        <dl className="mt-3 space-y-1.5 rounded-2xl bg-[rgba(16,17,15,0.03)] p-3 text-[11.5px]">
+        <dl className="mt-3 space-y-1.5 rounded-2xl bg-[rgb(var(--ink-rgb)_/_0.03)] p-3 text-[11.5px]">
           <p className="micro mb-1.5">Where your spin price goes</p>
           <Row small label="Into prizes">
             {(pool.rewardReserveBps / 100).toFixed(2)}%
@@ -357,10 +357,10 @@ export function SpinControls({
         title="Confirm your spin"
         description={`${spin.quantity} spin${spin.quantity === 1 ? "" : "s"} on ${pool?.name ?? "this pool"}`}
       >
-        <dl className="space-y-2 rounded-[16px] bg-[rgba(16,17,15,0.035)] p-4 text-[13px]">
+        <dl className="space-y-2 rounded-[16px] bg-[rgb(var(--ink-rgb)_/_0.035)] p-4 text-[13px]">
           <Row label="Spin price">{money.native(totalBaseWei)}</Row>
           <Row label="Random draw fee">{money.native(totalSurchargeWei)}</Row>
-          <div className="flex items-center justify-between border-t border-[rgba(20,24,18,0.1)] pt-2">
+          <div className="flex items-center justify-between border-t border-[rgb(var(--line-rgb)_/_0.1)] pt-2">
             <dt className="font-semibold text-ink">Leaving your wallet</dt>
             <dd className="num text-right font-semibold text-ink">
               {money.native(totalWei)}
@@ -378,7 +378,7 @@ export function SpinControls({
             the point, and dressing it up either way would be the manipulative
             version of the same panel. */}
         {history && history.spins > 0 ? (
-          <dl className="mt-3 flex items-baseline justify-between gap-3 rounded-[14px] border border-[rgba(20,24,18,0.08)] px-3.5 py-3 text-[12.5px]">
+          <dl className="mt-3 flex items-baseline justify-between gap-3 rounded-[14px] border border-[rgb(var(--line-rgb)_/_0.08)] px-3.5 py-3 text-[12.5px]">
             <dt className="text-ink-2">
               Spent here so far
               <span className="mt-0.5 block text-[11px] text-ink-3">

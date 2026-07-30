@@ -50,7 +50,7 @@ export function DocsNav({ sections }: { sections: DocSection[] }) {
                   "block whitespace-nowrap rounded-[10px] px-3 py-2 text-[13px] transition-colors lg:whitespace-normal",
                   isActive
                     ? "bg-[rgba(204,255,0,0.28)] font-medium text-accent-ink"
-                    : "text-ink-2 hover:bg-[rgba(16,17,15,0.04)] hover:text-ink",
+                    : "text-ink-2 hover:bg-[rgb(var(--ink-rgb)_/_0.04)] hover:text-ink",
                 )}
               >
                 {section.title}

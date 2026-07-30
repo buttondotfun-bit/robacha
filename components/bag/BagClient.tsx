@@ -143,20 +143,20 @@ export function BagClient() {
               }
             />
           ) : rewardsLoading ? (
-            <div className="divide-y divide-[rgba(20,24,18,0.06)] px-4">
+            <div className="divide-y divide-[rgb(var(--line-rgb)_/_0.06)] px-4">
               {Array.from({ length: 3 }).map((_, index) => (
                 <RowSkeleton key={index} />
               ))}
             </div>
           ) : rewards.length ? (
-            <ul className="divide-y divide-[rgba(20,24,18,0.06)] px-4">
+            <ul className="divide-y divide-[rgb(var(--line-rgb)_/_0.06)] px-4">
               {rewards.map((reward) => (
                 <li
                   key={reward.rewardId}
                   data-rarity={reward.rarity ?? undefined}
                   className="flex items-center gap-3 py-3"
                 >
-                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.8)] [container-type:inline-size]">
+                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.8)] [container-type:inline-size]">
                     <TokenAvatar
                       address={reward.token}
                       symbol={reward.symbol}
@@ -192,7 +192,7 @@ export function BagClient() {
                   <span
                     className={`num shrink-0 rounded-full px-2 py-0.5 text-[10.5px] ${
                       reward.claimed
-                        ? "bg-[rgba(16,17,15,0.06)] text-ink-3"
+                        ? "bg-[rgb(var(--ink-rgb)_/_0.06)] text-ink-3"
                         : "bg-[rgba(204,255,0,0.35)] text-ink"
                     }`}
                   >
@@ -249,13 +249,13 @@ export function BagClient() {
               }
             />
           ) : holdingsLoading ? (
-            <div className="divide-y divide-[rgba(20,24,18,0.06)] px-4">
+            <div className="divide-y divide-[rgb(var(--line-rgb)_/_0.06)] px-4">
               {Array.from({ length: 3 }).map((_, index) => (
                 <RowSkeleton key={index} />
               ))}
             </div>
           ) : holdings.length ? (
-            <ul className="divide-y divide-[rgba(20,24,18,0.06)] px-4">
+            <ul className="divide-y divide-[rgb(var(--line-rgb)_/_0.06)] px-4">
               {holdings.map((holding) => {
                 const url = explorerUrl("token", holding.token.token);
                 return (
@@ -263,7 +263,7 @@ export function BagClient() {
                     key={holding.token.token}
                     className="flex items-center gap-3 py-3"
                   >
-                    <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.8)] [container-type:inline-size]">
+                    <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.8)] [container-type:inline-size]">
                       <TokenAvatar
                         address={holding.token.token}
                         symbol={holding.token.symbol}

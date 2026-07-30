@@ -67,11 +67,11 @@ export function HowItWorks() {
           >
             <defs>
               <linearGradient id="robacha-path" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="rgba(16,17,15,0)" />
-                <stop offset="14%" stopColor="rgba(16,17,15,0.13)" />
+                <stop offset="0%" stopColor="rgb(var(--ink-rgb) / 0)" />
+                <stop offset="14%" stopColor="rgb(var(--ink-rgb) / 0.13)" />
                 <stop offset="50%" stopColor="rgba(140,180,0,0.6)" />
-                <stop offset="86%" stopColor="rgba(16,17,15,0.13)" />
-                <stop offset="100%" stopColor="rgba(16,17,15,0)" />
+                <stop offset="86%" stopColor="rgb(var(--ink-rgb) / 0.13)" />
+                <stop offset="100%" stopColor="rgb(var(--ink-rgb) / 0)" />
               </linearGradient>
             </defs>
             {/* Columns are quarters, so icon centres sit at 12.5% + 25%·i */}
@@ -90,7 +90,7 @@ export function HowItWorks() {
                 cx={12.5 + 25 * i - 12.5}
                 cy={ICON_RADIUS + STEP_DROP * (i - 0.5)}
                 r="2"
-                fill="rgba(16,17,15,0.14)"
+                fill="rgb(var(--ink-rgb) / 0.14)"
               />
             ))}
           </svg>
@@ -98,7 +98,7 @@ export function HowItWorks() {
           {/* Mobile: a vertical glass timeline. */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute bottom-6 left-[27px] top-6 w-px bg-[linear-gradient(180deg,transparent,rgba(16,17,15,0.12)_10%,rgba(16,17,15,0.12)_90%,transparent)] lg:hidden"
+            className="pointer-events-none absolute bottom-6 left-[27px] top-6 w-px bg-[linear-gradient(180deg,transparent,rgb(var(--ink-rgb)_/_0.12)_10%,rgb(var(--ink-rgb)_/_0.12)_90%,transparent)] lg:hidden"
           />
 
           <ol className="relative grid gap-6 lg:grid-cols-4 lg:items-start lg:gap-5">
@@ -114,7 +114,7 @@ export function HowItWorks() {
                 {/* inline-block so the number badge anchors to the icon, not
                     to the full column width. */}
                 <div className="relative inline-block shrink-0 lg:mb-5">
-                  <span className="glass-card relative grid h-14 w-14 place-items-center rounded-2xl text-ink shadow-[0_1px_1px_rgba(255,255,255,0.8)_inset,0_10px_24px_-14px_rgba(16,17,15,0.45)]">
+                  <span className="glass-card relative grid h-14 w-14 place-items-center rounded-2xl text-ink shadow-[0_1px_1px_rgb(var(--edge-rgb)_/_0.8)_inset,0_10px_24px_-14px_rgb(var(--ink-rgb)_/_0.45)]">
                     {step.icon}
                   </span>
                   <span className="glass-micro absolute -right-2 -top-2 grid h-6 w-6 place-items-center rounded-full text-[10px] font-semibold">

@@ -97,7 +97,7 @@ export function WalletHistory() {
           </p>
         ) : null}
 
-        <div className="mt-5 border-t border-[rgba(20,24,18,0.08)] pt-4">
+        <div className="mt-5 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4">
           <p className="micro mb-3">
             Prizes won ({history.rewardCount})
             {history.unclaimedCount > 0 ? ` · ${history.unclaimedCount} unclaimed` : ""}
@@ -121,9 +121,9 @@ export function WalletHistory() {
                 return (
                   <li
                     key={row.token}
-                    className="flex items-center gap-3 rounded-[14px] bg-[rgba(16,17,15,0.035)] px-3 py-2.5"
+                    className="flex items-center gap-3 rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.035)] px-3 py-2.5"
                   >
-                    <span className="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-[rgba(255,255,255,0.8)] [container-type:inline-size]">
+                    <span className="h-8 w-8 shrink-0 overflow-hidden rounded-lg border border-[rgb(var(--edge-rgb)_/_0.8)] [container-type:inline-size]">
                       <TokenAvatar
                         address={row.token}
                         symbol={meta?.symbol ?? null}

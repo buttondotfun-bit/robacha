@@ -122,7 +122,7 @@ export function AdminClient() {
                 key={t.address}
                 className={cn(
                   "flex flex-wrap items-center justify-between gap-3 rounded-[14px] px-3.5 py-3",
-                  t.solvent ? "bg-[rgba(16,17,15,0.035)]" : "border border-[#eadfc4] bg-[#fdfaf2]",
+                  t.solvent ? "bg-[rgb(var(--ink-rgb)_/_0.035)]" : "border border-[#eadfc4] bg-[#fdfaf2]",
                 )}
               >
                 <div className="min-w-0">
@@ -168,7 +168,7 @@ export function AdminClient() {
                 key={r.roundId}
                 className={cn(
                   "flex flex-wrap items-center justify-between gap-3 rounded-[14px] px-3.5 py-3",
-                  r.nextAction ? "border border-[#d8ecb0] bg-accent-soft" : "bg-[rgba(16,17,15,0.035)]",
+                  r.nextAction ? "border border-[#d8ecb0] bg-accent-soft" : "bg-[rgb(var(--ink-rgb)_/_0.035)]",
                 )}
               >
                 <div className="min-w-0">
@@ -247,7 +247,7 @@ export function AdminClient() {
             {s.fees.map((f) => (
               <li
                 key={f.address}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] bg-[rgba(16,17,15,0.035)] px-3.5 py-3"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.035)] px-3.5 py-3"
               >
                 <div className="min-w-0">
                   <p className="num text-[13px] font-medium text-ink">{fmtEth(f.accrued)}</p>

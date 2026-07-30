@@ -114,7 +114,7 @@ export function PoolAnalytics() {
               {pools.map((pool, index) => (
                 <tr
                   key={`${pool.poolId}-${pool.version}`}
-                  className="border-t border-[rgba(20,24,18,0.07)]"
+                  className="border-t border-[rgb(var(--line-rgb)_/_0.07)]"
                 >
                   <td className="py-2.5">
                     <span className="num font-medium text-ink">

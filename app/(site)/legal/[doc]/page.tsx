@@ -74,20 +74,20 @@ export default async function LegalPage({
 
       <nav
         aria-label="Other legal documents"
-        className="mt-12 flex flex-wrap gap-1.5 border-t border-[rgba(20,24,18,0.08)] pt-6"
+        className="mt-12 flex flex-wrap gap-1.5 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-6"
       >
         {LEGAL_SLUGS.filter((slug) => slug !== entry.slug).map((slug) => (
           <Link
             key={slug}
             href={`/legal/${slug}`}
-            className="inline-flex h-8 items-center rounded-full border border-[rgba(255,255,255,0.8)] bg-white/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgba(20,24,18,0.14)] hover:text-ink"
+            className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-white/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] hover:text-ink"
           >
             {LEGAL_DOCS[slug].title}
           </Link>
         ))}
         <Link
           href="/faq"
-          className="inline-flex h-8 items-center rounded-full border border-[rgba(255,255,255,0.8)] bg-white/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgba(20,24,18,0.14)] hover:text-ink"
+          className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-white/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] hover:text-ink"
         >
           FAQ
         </Link>

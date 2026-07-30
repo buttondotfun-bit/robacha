@@ -60,7 +60,7 @@ export function Testimonials() {
                     alt=""
                     width={40}
                     height={40}
-                    className="h-10 w-10 shrink-0 rounded-full border border-[rgba(255,255,255,0.85)] object-cover"
+                    className="h-10 w-10 shrink-0 rounded-full border border-[rgb(var(--edge-rgb)_/_0.85)] object-cover"
                   />
                   <div className="min-w-0 flex-1">
                     <p className="flex items-center gap-1 truncate text-[13.5px] font-semibold tracking-[-0.02em]">

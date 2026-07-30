@@ -215,7 +215,7 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
       {!settled ? (
         <div
           data-rarity={best ?? undefined}
-          className="relative grid place-items-center overflow-hidden rounded-[16px] bg-[rgba(16,17,15,0.035)] px-4 py-7"
+          className="relative grid place-items-center overflow-hidden rounded-[16px] bg-[rgb(var(--ink-rgb)_/_0.035)] px-4 py-7"
         >
           {/* Rattles for exactly as long as the chain actually takes. The
               motion reports real waiting; it does not manufacture any. */}
@@ -251,7 +251,7 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
                 style={{ "--reveal-index": index } as React.CSSProperties}
                 className="reward-reveal glass-card flex items-center gap-3 rounded-[16px] border border-transparent p-3"
               >
-                <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.85)] [container-type:inline-size]">
+                <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.85)] [container-type:inline-size]">
                   <TokenAvatar
                     address={r.token}
                     symbol={r.symbol}
@@ -310,10 +310,10 @@ function Capsule({ className }: { className?: string }) {
           </linearGradient>
         </defs>
         {/* Bottom half stays neutral so the coloured half reads as the lid. */}
-        <path d="M8 40a32 32 0 0 0 64 0Z" fill="rgba(16,17,15,0.14)" />
+        <path d="M8 40a32 32 0 0 0 64 0Z" fill="rgb(var(--ink-rgb) / 0.14)" />
         <path d="M8 40a32 32 0 0 1 64 0Z" fill="url(#capsule-top)" />
-        <rect x="6" y="36.5" width="68" height="7" rx="3.5" fill="rgba(255,255,255,0.85)" />
-        <ellipse cx="28" cy="24" rx="9" ry="6" fill="rgba(255,255,255,0.45)" />
+        <rect x="6" y="36.5" width="68" height="7" rx="3.5" fill="rgb(var(--edge-rgb) / 0.85)" />
+        <ellipse cx="28" cy="24" rx="9" ry="6" fill="rgb(var(--edge-rgb) / 0.45)" />
       </svg>
       <span className="sr-only">Opening your capsule</span>
     </span>

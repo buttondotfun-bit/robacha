@@ -76,7 +76,7 @@ export function FinalCta() {
                 className="absolute left-1/2 top-1/2 h-[120px] w-[120px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,119,172,0.4),transparent_66%)] blur-md"
               />
               <RobachaCapsuleRing
-                className="relative drop-shadow-[0_10px_24px_rgba(16,17,15,0.22)]"
+                className="relative drop-shadow-[0_10px_24px_rgb(var(--ink-rgb)_/_0.22)]"
                 style={{ height: 72, width: 72 }}
               />
             </span>

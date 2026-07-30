@@ -59,7 +59,7 @@ export function MobileNavigation({
         {open ? (
           <div className="fixed inset-0 z-[90]">
             <motion.div
-              className="absolute inset-0 bg-[rgba(16,17,15,0.22)] backdrop-blur-sm"
+              className="absolute inset-0 bg-[rgb(var(--ink-rgb)_/_0.22)] backdrop-blur-sm"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -103,8 +103,8 @@ export function MobileNavigation({
                       className={cn(
                         "rounded-2xl px-3.5 py-3 text-[16px] font-medium tracking-[-0.02em] transition-colors",
                         active
-                          ? "bg-[rgba(255,255,255,0.75)] text-ink shadow-[0_1px_0_rgba(255,255,255,0.9)_inset]"
-                          : "text-ink-2 hover:bg-[rgba(255,255,255,0.5)] hover:text-ink",
+                          ? "bg-[rgb(var(--edge-rgb)_/_0.75)] text-ink shadow-[0_1px_0_rgb(var(--edge-rgb)_/_0.9)_inset]"
+                          : "text-ink-2 hover:bg-[rgb(var(--edge-rgb)_/_0.5)] hover:text-ink",
                       )}
                     >
                       {item.label}

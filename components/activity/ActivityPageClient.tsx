@@ -93,14 +93,14 @@ export function ActivityPageClient() {
               }
             />
           ) : isLoading ? (
-            <div className="divide-y divide-[rgba(20,24,18,0.06)] px-4">
+            <div className="divide-y divide-[rgb(var(--line-rgb)_/_0.06)] px-4">
               {Array.from({ length: 6 }).map((_, index) => (
                 <RowSkeleton key={index} />
               ))}
             </div>
           ) : events.length ? (
             <>
-              <ul className="divide-y divide-[rgba(20,24,18,0.06)] px-4">
+              <ul className="divide-y divide-[rgb(var(--line-rgb)_/_0.06)] px-4">
                 {events.map((event) => (
                   <li key={event.id}>
                     <ActivityRow event={event} now={now} variant="table" />
@@ -108,7 +108,7 @@ export function ActivityPageClient() {
                 ))}
               </ul>
               {events.length >= limit ? (
-                <div className="border-t border-[rgba(20,24,18,0.06)] p-4 text-center">
+                <div className="border-t border-[rgb(var(--line-rgb)_/_0.06)] p-4 text-center">
                   <Button
                     variant="secondary"
                     size="md"

@@ -46,7 +46,7 @@ export default function DocsPage() {
             <section
               key={section.id}
               id={section.id}
-              className="scroll-mt-28 border-t border-[rgba(20,24,18,0.08)] py-9 first:border-t-0 first:pt-0"
+              className="scroll-mt-28 border-t border-[rgb(var(--line-rgb)_/_0.08)] py-9 first:border-t-0 first:pt-0"
             >
               <h2 className="text-section-title text-[24px]">{section.title}</h2>
               <p className="mt-2 text-[13.5px] text-ink-3">{section.summary}</p>
@@ -62,7 +62,7 @@ export default function DocsPage() {
             </section>
           ))}
 
-          <footer className="border-t border-[rgba(20,24,18,0.08)] pt-8">
+          <footer className="border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-8">
             <p className="text-[12.5px] leading-relaxed text-ink-3">
               {RISK_NOTICE}
             </p>
@@ -99,7 +99,7 @@ function Block({ block }: { block: DocBlock }) {
               className="relative pl-5 text-[14.5px] leading-relaxed text-ink-2"
             >
               <span
-                className="absolute left-0 top-[0.62em] h-1.5 w-1.5 rounded-full bg-[rgba(16,17,15,0.24)]"
+                className="absolute left-0 top-[0.62em] h-1.5 w-1.5 rounded-full bg-[rgb(var(--ink-rgb)_/_0.24)]"
                 aria-hidden="true"
               />
               {item}
@@ -134,7 +134,7 @@ function Block({ block }: { block: DocBlock }) {
         <div className="glass-card overflow-x-auto rounded-[18px]">
           <table className="w-full min-w-[420px] text-left text-[13.5px]">
             <thead>
-              <tr className="border-b border-[rgba(20,24,18,0.08)]">
+              <tr className="border-b border-[rgb(var(--line-rgb)_/_0.08)]">
                 {block.head.map((cell) => (
                   <th
                     key={cell}
@@ -150,7 +150,7 @@ function Block({ block }: { block: DocBlock }) {
               {block.rows.map((row, index) => (
                 <tr
                   key={index}
-                  className="border-b border-[rgba(20,24,18,0.05)] last:border-b-0"
+                  className="border-b border-[rgb(var(--line-rgb)_/_0.05)] last:border-b-0"
                 >
                   {row.map((cell, cellIndex) => (
                     <td
@@ -175,7 +175,7 @@ function Block({ block }: { block: DocBlock }) {
           className={`flex max-w-[68ch] gap-3 rounded-[16px] border px-4 py-3.5 ${
             warn
               ? "border-[rgba(190,140,60,0.32)] bg-[rgba(255,248,235,0.72)]"
-              : "border-[rgba(20,24,18,0.08)] bg-[rgba(255,255,255,0.55)]"
+              : "border-[rgb(var(--line-rgb)_/_0.08)] bg-[rgb(var(--edge-rgb)_/_0.55)]"
           }`}
         >
           <Icon

@@ -28,7 +28,7 @@ export function ClaimReminder() {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[84px] z-30 px-4 lg:bottom-6">
-      <div className="pointer-events-auto mx-auto flex max-w-[560px] items-center gap-3 rounded-[18px] border border-[#d8ecb0] bg-accent-soft px-4 py-3 shadow-[0_8px_24px_rgba(20,24,18,0.1)]">
+      <div className="pointer-events-auto mx-auto flex max-w-[560px] items-center gap-3 rounded-[18px] border border-[#d8ecb0] bg-accent-soft px-4 py-3 shadow-[0_8px_24px_rgb(var(--line-rgb)_/_0.1)]">
         <Gift className="h-4 w-4 shrink-0 text-accent-ink" aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <p className="text-[13px] font-semibold text-accent-ink">

@@ -22,7 +22,7 @@ export function SearchInput({
       <input
         id={id}
         type="search"
-        className="h-10 w-full glass-card rounded-[14px] pl-9 pr-3 text-sm text-ink placeholder:text-ink-3 transition-colors hover:border-[rgba(20,24,18,0.14)] focus:border-ink/30"
+        className="h-10 w-full glass-card rounded-[14px] pl-9 pr-3 text-sm text-ink placeholder:text-ink-3 transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] focus:border-ink/30"
         {...props}
       />
     </div>
@@ -57,7 +57,7 @@ export function Select<T extends string>({
         id={id}
         value={value}
         onChange={(event) => onChange(event.target.value as T)}
-        className="h-10 w-full appearance-none glass-card rounded-[14px] pl-3 pr-9 text-sm font-medium text-ink transition-colors hover:border-[rgba(20,24,18,0.14)] focus:border-ink/30"
+        className="h-10 w-full appearance-none glass-card rounded-[14px] pl-3 pr-9 text-sm font-medium text-ink transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] focus:border-ink/30"
         {...props}
       >
         {options.map((option) => (

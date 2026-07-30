@@ -11,6 +11,7 @@ import { useScrolled } from "@/lib/use-scrolled";
 import { useVisibleNav } from "@/lib/use-visible-nav";
 import { cn } from "@/lib/utils";
 import { RobinhoodChainMark } from "@/components/brand/RobinhoodChainMark";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { NETWORK_LABEL } from "@/lib/web3";
 import { MobileNavigation } from "./MobileNavigation";
 
@@ -65,7 +66,7 @@ export function SiteHeader() {
                   "relative whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-medium transition-colors",
                   active
                     ? "text-ink"
-                    : "text-ink-2 hover:bg-[rgba(255,255,255,0.6)] hover:text-ink",
+                    : "text-ink-2 hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink",
                 )}
               >
                 {item.label}
@@ -81,10 +82,14 @@ export function SiteHeader() {
             rel="noreferrer"
             aria-label={`ROBACHA on X (${SOCIAL_LINKS[0].handle})`}
             title={`ROBACHA on X · ${SOCIAL_LINKS[0].handle}`}
-            className="hidden h-9 w-9 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:bg-[rgba(255,255,255,0.6)] hover:text-ink sm:grid"
+            className="hidden h-9 w-9 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink sm:grid"
           >
             <XIcon />
           </a>
+
+          <span className="hidden lg:block">
+            <ThemeToggle />
+          </span>
 
           <GlassChip dot className="hidden h-9 lg:inline-flex">
             <RobinhoodChainMark className="h-3.5 w-auto opacity-80" title={null} />

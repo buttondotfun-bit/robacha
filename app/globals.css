@@ -50,7 +50,33 @@
 /* ------------------------------------------------------------------
    Glass material tokens. One place to retune the whole system.
 ------------------------------------------------------------------ */
+/* ------------------------------------------------------------------
+   Theme channels.
+   Three colours were written as literals in 185 places across the
+   components: near-black fills, hairlines, and white surface edges.
+   Those are the three things a theme has to swap, so they are channels
+   now — the components ask for "ink at 3.5%" and the theme decides what
+   ink is. Without this a dark toggle would flip the panels and leave
+   every inline fill light, which is worse than no dark mode.
+------------------------------------------------------------------ */
 :root {
+  --ink-rgb: 16 17 15;
+  --line-rgb: 20 24 18;
+  --edge-rgb: 255 255 255;
+  --surface-rgb: 255 255 255;
+  --surface-tint-rgb: 250 252 246;
+  /* The page itself, behind every panel. */
+  --wash-1: #ffffff;
+  --wash-2: #f7f9f3;
+  --wash-3: #f2f5ec;
+  --wash-top: rgb(255 255 255 / 0.9);
+
+  /* Headline gradient. Deep-to-mid green, tuned for a near-white page. */
+  --accent-grad-1: #2f3d00;
+  --accent-grad-2: #6f9200;
+  --accent-grad-3: #9bcc00;
+  --accent-grad-4: #5c7a00;
+
   --glass-nav-bg: rgba(255, 255, 255, 0.62);
   --glass-panel-bg: rgba(255, 255, 255, 0.48);
   --glass-card-bg: rgba(255, 255, 255, 0.52);
@@ -185,9 +211,9 @@
     background:
       linear-gradient(
         160deg,
-        rgba(255, 255, 255, 0.62) 0%,
-        rgba(255, 255, 255, 0.34) 46%,
-        rgba(250, 252, 246, 0.42) 100%
+        rgb(var(--surface-rgb) / 0.62) 0%,
+        rgb(var(--surface-rgb) / 0.34) 46%,
+        rgb(var(--surface-tint-rgb) / 0.42) 100%
       );
     -webkit-backdrop-filter: blur(var(--blur-panel)) saturate(170%);
     backdrop-filter: blur(var(--blur-panel)) saturate(170%);
@@ -204,9 +230,9 @@
     background:
       linear-gradient(
         158deg,
-        rgba(255, 255, 255, 0.66) 0%,
-        rgba(255, 255, 255, 0.4) 55%,
-        rgba(249, 251, 245, 0.46) 100%
+        rgb(var(--surface-rgb) / 0.66) 0%,
+        rgb(var(--surface-rgb) / 0.4) 55%,
+        rgb(var(--surface-tint-rgb) / 0.46) 100%
       );
     -webkit-backdrop-filter: blur(var(--blur-card)) saturate(160%);
     backdrop-filter: blur(var(--blur-card)) saturate(160%);
@@ -242,7 +268,7 @@
       box-shadow 0.16s var(--ease-out-soft);
   }
   .glass-chip:hover {
-    background: rgba(255, 255, 255, 0.72);
+    background: rgb(var(--surface-rgb) / 0.72);
   }
   .glass-chip:active {
     transform: scale(0.97);
@@ -507,10 +533,10 @@
   .text-gradient-accent {
     background: linear-gradient(
       100deg,
-      #2f3d00 0%,
-      #6f9200 30%,
-      #9bcc00 55%,
-      #5c7a00 100%
+      var(--accent-grad-1) 0%,
+      var(--accent-grad-2) 30%,
+      var(--accent-grad-3) 55%,
+      var(--accent-grad-4) 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
@@ -670,7 +696,7 @@
   .glass-chip,
   .glass-quiet,
   .glass-input {
-    background: rgba(255, 255, 255, 0.94);
+    background: rgb(var(--surface-rgb) / 0.94);
   }
 }
 
@@ -807,6 +833,89 @@
 .takeover {
   animation: takeover-in 460ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
+
+/* ------------------------------------------------------------------
+   Dark. Deliberately not an inversion — pure black with white text
+   would flatten the glass system that everything here is built on.
+   The canvas sits just off black, panels are raised rather than
+   lighter-tinted, and the accent stays exactly where it is because it
+   is the brand and it reads on both.
+------------------------------------------------------------------ */
+:root[data-theme="dark"] {
+  --ink-rgb: 238 241 234;
+  --line-rgb: 226 232 220;
+  /* Not white here. The components use this channel for raised edges *and*
+     for fills, and white fills on a dark canvas produced glaring slabs — the
+     machine's top rail became a bright bar across the page. The subtle light
+     highlight that separates surfaces comes from --glass-edge and the inset
+     shadows instead, which is where it belongs. */
+  --edge-rgb: 52 57 49;
+  --surface-rgb: 52 57 49;
+  --surface-tint-rgb: 40 44 38;
+  --wash-1: #171a16;
+  --wash-2: #121410;
+  --wash-3: #0e100d;
+  /* Barely there. At 0.9 the light value became a white sheet over the page. */
+  --wash-top: rgb(255 255 255 / 0.04);
+
+  /* Inverted range: the light end has to carry the word on a dark canvas. */
+  --accent-grad-1: #a8d92b;
+  --accent-grad-2: #ccff00;
+  --accent-grad-3: #e6ff7a;
+  --accent-grad-4: #9bcc00;
+
+  --color-canvas: #101210;
+  --color-canvas-2: #161815;
+  --color-surface: #1c1f1b;
+
+  --color-ink: #eef1ea;
+  --color-ink-2: #a8ada2;
+  --color-ink-3: #7c8177;
+
+  --color-line: #2a2e27;
+  --color-line-strong: #383d33;
+
+  --color-accent-soft: #2c3a08;
+  --color-accent-ink: #ccff00;
+
+  --color-bubble-soft: #3a2029;
+
+  --glass-nav-bg: rgba(32, 36, 31, 0.72);
+  --glass-panel-bg: rgba(28, 31, 27, 0.58);
+  --glass-card-bg: rgba(34, 38, 32, 0.6);
+  --glass-chip-bg: rgba(38, 42, 36, 0.62);
+  --glass-quiet-bg: rgba(24, 27, 23, 0.6);
+
+  --glass-edge: rgba(255, 255, 255, 0.08);
+  --glass-edge-soft: rgba(255, 255, 255, 0.05);
+  --glass-hairline: rgba(238, 241, 234, 0.08);
+  --glass-hairline-strong: rgba(238, 241, 234, 0.14);
+
+  --glow-green: rgba(204, 255, 0, 0.14);
+  --glow-pink: rgba(255, 119, 172, 0.1);
+  --glow-cool: rgba(151, 178, 255, 0.09);
+
+  /* Shadows do almost nothing on a dark canvas; the inset highlight is
+     what separates surfaces, so it carries the weight instead. */
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px -6px rgba(0, 0, 0, 0.5);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.05) inset,
+    0 2px 6px -2px rgba(0, 0, 0, 0.4), 0 12px 28px -18px rgba(0, 0, 0, 0.7);
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 4px 14px -6px rgba(0, 0, 0, 0.45), 0 28px 60px -34px rgba(0, 0, 0, 0.8);
+  --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.07) inset,
+    0 8px 22px -8px rgba(0, 0, 0, 0.5), 0 40px 80px -44px rgba(0, 0, 0, 0.85);
+  --shadow-nav: 0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 2px 8px -2px rgba(0, 0, 0, 0.4), 0 18px 40px -26px rgba(0, 0, 0, 0.7);
+  --shadow-neon: 0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 4px 14px -4px rgba(160, 200, 0, 0.45), 0 12px 30px -16px rgba(120, 150, 0, 0.35);
+}
+
+/* Rarity washes are near-white in light; they need real surfaces in dark. */
+:root[data-theme="dark"] [data-rarity="common"] { --rarity-bg: rgba(52, 56, 48, 0.6); --rarity-fg: #b9bfb1; }
+:root[data-theme="dark"] [data-rarity="uncommon"] { --rarity-bg: rgba(30, 56, 30, 0.55); --rarity-fg: #8ed48c; }
+:root[data-theme="dark"] [data-rarity="rare"] { --rarity-bg: rgba(28, 46, 68, 0.55); --rarity-fg: #8dbde8; }
+:root[data-theme="dark"] [data-rarity="epic"] { --rarity-bg: rgba(48, 34, 74, 0.55); --rarity-fg: #bda2ea; }
+:root[data-theme="dark"] [data-rarity="legendary"] { --rarity-bg: rgba(68, 50, 18, 0.55); --rarity-fg: #e3b45f; }
 
 @media (prefers-reduced-motion: reduce) {
   html {

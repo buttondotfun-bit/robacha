@@ -91,7 +91,7 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="relative mt-10 border-t border-[rgba(20,24,18,0.08)] pt-6">
+        <div className="relative mt-10 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-6">
           <p className="max-w-[80ch] text-[12px] leading-relaxed text-ink-3">
             {RISK_NOTICE} ROBACHA is an independent project built for{" "}
             {NETWORK_LABEL}. It is not affiliated with, endorsed by, or operated
