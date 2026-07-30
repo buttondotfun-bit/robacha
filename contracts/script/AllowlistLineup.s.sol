@@ -31,12 +31,15 @@ interface IERC20Symbol {
  * changes a label from "Lined up" to "Approved" and nothing else. It does not
  * make the token pullable and the interface will not claim it does.
  *
- * A caveat that applies to both of these in particular: the AutoBuyer can only
- * restock through one hardcoded Uniswap V2 router, and PONS returns about 68%
- * of market value through it while TENDIES returns effectively nothing. They
- * can be allowlisted and even placed in a pool, but they cannot be restocked
+ * A caveat that separates these three. The AutoBuyer can only restock through
+ * one hardcoded Uniswap V2 router, and against it PONS returns about 68% of
+ * market value while TENDIES returns effectively nothing — both can be
+ * allowlisted and even placed in a pool, but neither can be restocked
  * automatically out of the reward reserve until the AutoBuyer takes a route per
- * token. Stocking them today means funding the vault by hand.
+ * token, so stocking them today means funding the vault by hand. HOODRAT does
+ * not have that problem: its pair holds roughly 88 ETH against 34.9m tokens and
+ * a test buy keeps about 99.7% of market value, which makes it the only one of
+ * the three that could go into a pool and sustain itself.
  *
  * Addresses are verified below by reading `symbol()` back before writing
  * anything — several tickers on this chain have multiple contracts using them,
@@ -45,12 +48,13 @@ interface IERC20Symbol {
 contract AllowlistLineup is Script {
     address constant PONS = 0x39dBED3a2bd333467115dE45665cC57F813C4571;
     address constant TENDIES = 0x45242320DBB855EeA8Fd36804C6487E10E97FCF9;
+    address constant HOODRAT = 0x8e62F281f282686fCa6dCB39288069a93fC23F1c;
 
     function run() external {
         IRegistry registry = IRegistry(vm.envAddress("ROBACHA_POOL_REGISTRY"));
 
-        address[2] memory tokens = [PONS, TENDIES];
-        string[2] memory expected = ["PONS", "TENDIES"];
+        address[3] memory tokens = [PONS, TENDIES, HOODRAT];
+        string[3] memory expected = ["PONS", "TENDIES", "HOODRAT"];
 
         // Check every address before opening a broadcast, so a mismatch stops
         // the run rather than half-applying it.

@@ -40,7 +40,14 @@ export const LINEUP: LineupToken[] = [
     name: "Tendies",
     address: "0x45242320DBB855EeA8Fd36804C6487E10E97FCF9",
   },
-  // HOODRAT is deliberately absent. Six contracts on Robinhood Chain use that
-  // ticker, with liquidity from about $6k to $4.2m, and none of them has been
-  // confirmed as the intended one. Add it here once the address is settled.
+  {
+    // Chosen deliberately from six contracts on this chain sharing the ticker.
+    // symbol() reads HOODRAT and name() reads Hoodrat on this one, and unlike
+    // PONS and TENDIES its pair on the AutoBuyer's router is deep enough to
+    // restock through — about 88 ETH against 34.9m tokens, keeping ~99.7% of
+    // market value on a test buy.
+    symbol: "HOODRAT",
+    name: "Hoodrat",
+    address: "0x8e62F281f282686fCa6dCB39288069a93fC23F1c",
+  },
 ];
