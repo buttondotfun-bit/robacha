@@ -67,8 +67,25 @@ const ROUND_SETTLED = parseAbiItem(
   "event RoundSettled(uint256 indexed roundId, uint256 routedBaseWei, uint256 routedSurchargeWei, uint16 refundedEntries)",
 );
 
-/** Blocks scanned when no archive endpoint narrows the question. */
-const DEFAULT_WINDOW = 50_000n;
+/**
+ * How far back to scan.
+ *
+ * This was 50,000 blocks, which on a chain producing one every ~0.10s is about
+ * 1.4 hours of history — so the feed read "Nothing has happened yet" while 46
+ * real spins sat just outside the window, and the product looked abandoned.
+ *
+ * The caution was misplaced. Every query below filters by event topic, and the
+ * five of them together return the whole chain in about 400ms; the earlier
+ * rate-limiting came from polling frequency, which the cache now handles. So
+ * the window is the entire history: this contract's whole life is smaller than
+ * the old window was long.
+ *
+ * That will not hold forever. Log volume grows with use, and the honest fix at
+ * that point is the indexer (tasks #30-32), not a bigger number here. Until
+ * then a full scan is both correct and cheap, and `limit` caps what is
+ * returned regardless of how much is found.
+ */
+const FULL_HISTORY = 0n;
 
 export async function GET(request: Request) {
   if (!contracts.gacha) {
@@ -103,7 +120,7 @@ export async function GET(request: Request) {
   try {
     const head = await client.getBlockNumber();
     const confirmedTo = head > BigInt(CONFIRMATIONS) ? head - BigInt(CONFIRMATIONS) : 0n;
-    const fromBlock = confirmedTo > DEFAULT_WINDOW ? confirmedTo - DEFAULT_WINDOW : 0n;
+    const fromBlock = FULL_HISTORY;
 
     const address = contracts.gacha as Address;
     const range = { address, fromBlock, toBlock: confirmedTo };

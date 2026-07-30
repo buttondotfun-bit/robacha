@@ -20,8 +20,14 @@ const HANDLE = SOCIAL_LINKS[0].handle; // @robachadotfun
  * Deliberately a plain link, not an API call: it opens X with the text
  * pre-filled and the person posts it themselves. Nothing is published on
  * anyone's behalf, and no account is ever connected.
+ *
+ * The link points at /win/<rewardId> rather than the app, so the post unfurls
+ * into a generated card of the actual pull. Nobody screenshots a sentence, and
+ * X will not accept a bare image URL — it reads Open Graph tags from whatever
+ * page is linked, which is what that route exists to provide. The card itself
+ * is rendered from the reward id alone, so a shared one cannot be forged.
  */
-export function shareText(reward: WalletReward, appUrl: string): string {
+export function shareText(reward: WalletReward, shareUrl: string): string {
   const amount =
     reward.decimals !== null
       ? Number(formatUnits(BigInt(reward.amountRaw), reward.decimals))
@@ -41,7 +47,7 @@ export function shareText(reward: WalletReward, appUrl: string): string {
     ``,
     `${rarity} on ${chainConfig.name}.`,
     ``,
-    appUrl,
+    shareUrl,
   ].join("\n");
 }
 
@@ -55,10 +61,12 @@ export function ShareWin({
   // Built at click time so it picks up the deployed origin rather than a
   // hardcoded domain that would be wrong on preview builds.
   function open() {
-    const appUrl =
-      typeof window === "undefined" ? "" : `${window.location.origin}/app`;
+    const shareUrl =
+      typeof window === "undefined"
+        ? ""
+        : `${window.location.origin}/win/${reward.rewardId}`;
     const url = new URL("https://x.com/intent/tweet");
-    url.searchParams.set("text", shareText(reward, appUrl));
+    url.searchParams.set("text", shareText(reward, shareUrl));
     window.open(url.toString(), "_blank", "noopener,noreferrer");
   }
 

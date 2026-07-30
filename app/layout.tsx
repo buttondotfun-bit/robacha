@@ -20,10 +20,25 @@ const DESCRIPTION =
   "Spin live reward pools and receive trending memecoin rewards across Robinhood Chain with ROBACHA.";
 const OG_TITLE = "ROBACHA — Rob the Gacha";
 
+/**
+ * Origin that relative metadata URLs resolve against.
+ *
+ * This was a non-routable placeholder from before the domain existed, which
+ * was right at the time and is now a bug: shared pulls resolve their card
+ * image against it, so every unfurl would point at a host that does not exist
+ * and no preview would ever render.
+ *
+ * Env first so preview deployments describe themselves rather than production.
+ * VERCEL_PROJECT_PRODUCTION_URL comes without a scheme, hence the prefix.
+ */
+const SITE_ORIGIN =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "https://www.robacha.fun");
+
 export const metadata: Metadata = {
-  // Placeholder origin. Replace once the real domain is registered — no
-  // domain is invented here beyond a clearly non-routable example host.
-  metadataBase: new URL("https://robacha.example"),
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
     default: TITLE,
     template: "%s — ROBACHA",

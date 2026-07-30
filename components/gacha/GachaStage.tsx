@@ -9,6 +9,7 @@ import { useSpin } from "@/lib/spin-store";
 import type { SpinPhase } from "@/types/reward";
 import type { ActivePool } from "@/lib/use-pool";
 import { RewardCarousel } from "./RewardCarousel";
+import { RoundFill } from "./RoundFill";
 
 
 /**
@@ -71,6 +72,21 @@ export function GachaStage({
       <span className="noise-overlay" aria-hidden="true" />
       <div className="cross-grid absolute inset-0" aria-hidden="true" />
       <div className="dot-grid absolute inset-0 opacity-50" aria-hidden="true" />
+
+      {/* Machine casing.
+          The one element on the page that should feel like a physical object
+          was the flattest thing on it — a glass rectangle indistinguishable
+          from every other panel. These are the cues that say "machine": a
+          brushed top rail, a coin slot, and a dispensing chute below. All
+          decorative, none of it load-bearing, and none of it claims anything. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-11 rounded-t-[28px] border-b border-[rgba(20,24,18,0.07)] bg-[linear-gradient(180deg,rgba(255,255,255,0.85),rgba(255,255,255,0.25))]"
+      >
+        <span className="absolute left-1/2 top-[18px] h-[5px] w-16 -translate-x-1/2 rounded-full bg-[rgba(20,24,18,0.14)] shadow-[inset_0_1px_2px_rgba(0,0,0,0.18)]" />
+        <span className="absolute left-5 top-[15px] h-2.5 w-2.5 rounded-full bg-[rgba(20,24,18,0.1)]" />
+        <span className="absolute right-5 top-[15px] h-2.5 w-2.5 rounded-full bg-[rgba(20,24,18,0.1)]" />
+      </div>
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-[38%] h-[520px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full transition-[background] duration-700"
@@ -80,7 +96,7 @@ export function GachaStage({
         }}
       />
 
-      <div className="relative px-3 pb-5 pt-9 sm:px-6 sm:pt-12">
+      <div className="relative px-3 pb-5 pt-14 sm:px-6 sm:pt-16">
         <RewardCarousel
           entries={entries}
           activeIndex={activeIndex}
@@ -138,6 +154,17 @@ export function GachaStage({
             </button>
           </div>
         ) : null}
+
+        {/* The one honest source of urgency this product has: a real count
+            toward a real threshold. */}
+        <RoundFill pool={pool} className="mx-auto mt-3 max-w-[520px]" />
+
+        {/* The chute prizes would fall out of. Purely a cue that this is a
+            machine with an inside and an outside. */}
+        <div
+          aria-hidden="true"
+          className="mx-auto mt-4 h-6 max-w-[220px] rounded-b-[14px] rounded-t-[4px] border border-t-0 border-[rgba(20,24,18,0.09)] bg-[linear-gradient(180deg,rgba(16,17,15,0.07),rgba(16,17,15,0.02))] shadow-[inset_0_3px_8px_rgba(16,17,15,0.12)]"
+        />
       </div>
     </div>
   );

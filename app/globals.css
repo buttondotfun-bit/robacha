@@ -750,6 +750,64 @@
   animation: reward-shine 2600ms ease-in-out calc(var(--reveal-index, 0) * 110ms + 300ms) infinite;
 }
 
+/* ------------------------------------------------------------------
+   The pull. A gacha where nothing gacha happens is just a receipt, and
+   that is what this was: a spinner, then a list. The capsule below
+   rattles while settlement is genuinely in flight, so the suspense is
+   real waiting rather than padding — when the chain answers, it opens.
+------------------------------------------------------------------ */
+@keyframes capsule-rattle {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  25%      { transform: translateY(-6px) rotate(4deg); }
+  50%      { transform: translateY(0) rotate(-3deg); }
+  75%      { transform: translateY(-3px) rotate(6deg); }
+}
+
+@keyframes capsule-drop {
+  0%   { transform: translateY(-120px) scale(0.8); opacity: 0; }
+  60%  { transform: translateY(6px) scale(1.04); opacity: 1; }
+  80%  { transform: translateY(-4px) scale(0.99); }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes capsule-crack {
+  0%   { transform: scale(1) rotate(0deg); }
+  40%  { transform: scale(1.18) rotate(-6deg); }
+  70%  { transform: scale(0.94) rotate(5deg); }
+  100% { transform: scale(0) rotate(12deg); opacity: 0; }
+}
+
+@keyframes burst-ring {
+  from { transform: scale(0.4); opacity: 0.7; }
+  to   { transform: scale(2.4); opacity: 0; }
+}
+
+.capsule {
+  animation: capsule-drop 620ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.capsule--waiting {
+  animation:
+    capsule-drop 620ms cubic-bezier(0.22, 1, 0.36, 1) backwards,
+    capsule-rattle 900ms ease-in-out 620ms infinite;
+}
+.capsule--opening {
+  animation: capsule-crack 420ms cubic-bezier(0.5, -0.4, 0.6, 1.4) forwards;
+}
+
+.burst-ring {
+  animation: burst-ring 700ms ease-out forwards;
+}
+
+/* The takeover. Legendary previously landed with exactly the weight of a
+   common — a slightly glowier row in the same dialog. */
+@keyframes takeover-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.takeover {
+  animation: takeover-in 460ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -763,6 +821,11 @@
   }
   .pulse-dot,
   .reward-reveal,
+  .capsule,
+  .capsule--waiting,
+  .capsule--opening,
+  .burst-ring,
+  .takeover,
   .legendary-sweep,
   .orbit-slow,
   .orbit-reverse,

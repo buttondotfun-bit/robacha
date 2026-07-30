@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Volume2, VolumeX } from "lucide-react";
 import { formatUnits } from "viem";
 import { TokenAvatar } from "@/components/brand/TokenAvatar";
 import { ShareWin } from "@/components/rewards/ShareWin";
@@ -11,6 +11,8 @@ import { Dialog } from "@/components/ui/Dialog";
 import { formatAmount } from "@/lib/formatters";
 import { RoundState, usePendingSpins } from "@/lib/use-pending-spins";
 import { useSettleNotification } from "@/lib/use-settle-notification";
+import { useSound } from "@/lib/sound";
+import { cn } from "@/lib/utils";
 import type { ActivePool } from "@/lib/use-pool";
 import { useTokenMarket } from "@/lib/use-token-market";
 import { useWalletRewards } from "@/lib/use-wallet-rewards";
@@ -34,10 +36,19 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
   const { pending } = usePendingSpins();
   const { rewards, refetch } = useWalletRewards();
   const notify = useSettleNotification();
+  const sound = useSound();
 
   const [watching, setWatching] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
   const [won, setWon] = useState<WalletReward[]>([]);
+
+  /**
+   * Where the capsule is up to. `waiting` rattles for exactly as long as the
+   * chain actually takes, `opening` is the crack, and `revealed` counts the
+   * prizes shown so far so they land one at a time rather than all at once.
+   */
+  const [stage, setStage] = useState<"waiting" | "opening" | "revealed">("waiting");
+  const [shown, setShown] = useState(0);
   const nudged = useRef<Set<number>>(new Set());
   const knownRewardIds = useRef<Set<string> | null>(null);
 
@@ -61,6 +72,9 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
     nudged.current.add(roundId);
     setWatching(roundId);
     setOpen(true);
+    setStage("waiting");
+    setShown(0);
+    sound.crank();
 
     // Asked here rather than on page load: there is now a real reason, and the
     // spin click is the user gesture browsers require.
@@ -75,7 +89,7 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
     })
       .catch(() => {})
       .finally(() => void refetch());
-  }, [settleable, refetch]);
+  }, [settleable, refetch, sound, notify]);
 
   // Poll for the reward rows while a watched round is in flight.
   useEffect(() => {
@@ -101,27 +115,121 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
     }
   }, [rewards, watching, notify]);
 
+  /**
+   * Crack, then unveil one prize at a time.
+   *
+   * Someone who buys five spins used to get five rows appearing at once, which
+   * is one moment for five purchases. Staggering turns it into five. The pacing
+   * is fixed and short — it starts only once the rewards genuinely exist on
+   * chain, so it delays the telling, never the settling.
+   *
+   * Anyone who has asked for reduced motion skips straight to the list: the
+   * capsule is flourish, and its opening animation is what removes it from the
+   * screen, so leaving that disabled mid-sequence would strand it.
+   */
+  useEffect(() => {
+    if (won.length === 0) return;
+
+    const reducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reducedMotion) {
+      setStage("revealed");
+      setShown(won.length);
+      return;
+    }
+
+    const timers: number[] = [];
+    setStage("opening");
+    sound.crack();
+
+    timers.push(
+      window.setTimeout(() => {
+        setStage("revealed");
+        won.forEach((reward, index) => {
+          timers.push(
+            window.setTimeout(() => {
+              setShown((count) => Math.max(count, index + 1));
+              sound.reveal(
+                reward.rarity ?? pool?.tiers[reward.tierIndex]?.rarity ?? null,
+              );
+            }, index * 520),
+          );
+        });
+      }, 420),
+    );
+
+    return () => timers.forEach((id) => window.clearTimeout(id));
+    // Deliberately keyed on the round, not on `won` identity: refetches replace
+    // the array and would otherwise restart the sequence mid-reveal.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [won[0]?.rewardId]);
+
   const market = useTokenMarket(won.map((w) => w.token));
 
   if (!open) return null;
 
-  const settled = won.length > 0;
+  const settled = won.length > 0 && stage === "revealed";
+
+  // The best thing in the round decides how loud the whole reveal is.
+  const RANK = ["common", "uncommon", "rare", "epic", "legendary"];
+  const best = won.reduce<string | null>((top, reward) => {
+    const rarity = reward.rarity ?? pool?.tiers[reward.tierIndex]?.rarity ?? null;
+    if (!rarity) return top;
+    if (!top) return rarity;
+    return RANK.indexOf(rarity) > RANK.indexOf(top) ? rarity : top;
+  }, null);
+  const isBig = best === "legendary" || best === "epic";
 
   return (
     <Dialog
       open={open}
       onClose={() => setOpen(false)}
-      title={settled ? "Here's what you pulled" : "Opening your capsules…"}
+      title={settled ? (isBig ? "Look what you pulled." : "Here's what you pulled") : "Opening your capsules…"}
       description={
         settled
           ? `${won.length} ${won.length === 1 ? "prize" : "prizes"} from round #${won[0]?.roundId}`
           : "Your round is full and settling now. This usually takes a few seconds."
       }
     >
+      {/* Sound is off until asked for, and the switch lives where the sound
+          would happen rather than buried in a settings page. */}
+      <button
+        type="button"
+        onClick={() => sound.setEnabled(!sound.enabled)}
+        aria-pressed={sound.enabled}
+        className="glass-chip absolute right-14 top-4 z-20 grid h-8 w-8 place-items-center rounded-full text-ink-3 hover:text-ink"
+        title={sound.enabled ? "Turn sound off" : "Turn sound on"}
+      >
+        {sound.enabled ? (
+          <Volume2 className="h-3.5 w-3.5" aria-hidden="true" />
+        ) : (
+          <VolumeX className="h-3.5 w-3.5" aria-hidden="true" />
+        )}
+        <span className="sr-only">
+          {sound.enabled ? "Turn reveal sound off" : "Turn reveal sound on"}
+        </span>
+      </button>
+
       {!settled ? (
-        <div className="flex items-center gap-3 rounded-[16px] bg-[rgba(16,17,15,0.035)] px-4 py-5">
-          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-ink-3" aria-hidden="true" />
-          <p className="text-[12.5px] leading-relaxed text-ink-2">
+        <div
+          data-rarity={best ?? undefined}
+          className="relative grid place-items-center overflow-hidden rounded-[16px] bg-[rgba(16,17,15,0.035)] px-4 py-7"
+        >
+          {/* Rattles for exactly as long as the chain actually takes. The
+              motion reports real waiting; it does not manufacture any. */}
+          <Capsule
+            className={stage === "opening" ? "capsule--opening" : "capsule--waiting"}
+          />
+          {stage === "opening" ? (
+            <span
+              aria-hidden="true"
+              className="burst-ring pointer-events-none absolute h-24 w-24 rounded-full border-2 border-[rgb(var(--rarity-glow)_/_0.6)]"
+            />
+          ) : null}
+
+          <p className="mt-4 max-w-[46ch] text-center text-[12.5px] leading-relaxed text-ink-2">
             Unsealing this round&rsquo;s number and handing out prizes. You
             don&rsquo;t need to stay on this page — everything lands in My Bag
             either way.
@@ -131,8 +239,8 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
           </p>
         </div>
       ) : (
-        <ul className="space-y-2">
-          {won.map((r, index) => {
+        <ul className={cn("space-y-2", isBig && "takeover")}>
+          {won.slice(0, shown).map((r, index) => {
             const rarity = r.rarity ?? pool?.tiers[r.tierIndex]?.rarity ?? null;
             return (
               <li
@@ -183,5 +291,31 @@ export function SpinResult({ pool }: { pool: ActivePool | null }) {
         )}
       </div>
     </Dialog>
+  );
+}
+
+/**
+ * The capsule. Two halves, a seam and a highlight — drawn rather than shipped
+ * as an image so it can take the rarity colour of whatever is inside it
+ * without needing one file per tier.
+ */
+function Capsule({ className }: { className?: string }) {
+  return (
+    <span className={cn("capsule relative grid h-20 w-20 place-items-center", className)}>
+      <svg viewBox="0 0 80 80" className="h-20 w-20" aria-hidden="true">
+        <defs>
+          <linearGradient id="capsule-top" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgb(var(--rarity-glow) / 0.95)" />
+            <stop offset="100%" stopColor="rgb(var(--rarity-glow) / 0.65)" />
+          </linearGradient>
+        </defs>
+        {/* Bottom half stays neutral so the coloured half reads as the lid. */}
+        <path d="M8 40a32 32 0 0 0 64 0Z" fill="rgba(16,17,15,0.14)" />
+        <path d="M8 40a32 32 0 0 1 64 0Z" fill="url(#capsule-top)" />
+        <rect x="6" y="36.5" width="68" height="7" rx="3.5" fill="rgba(255,255,255,0.85)" />
+        <ellipse cx="28" cy="24" rx="9" ry="6" fill="rgba(255,255,255,0.45)" />
+      </svg>
+      <span className="sr-only">Opening your capsule</span>
+    </span>
   );
 }
