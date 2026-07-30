@@ -75,7 +75,13 @@ export function TokenLineup({
           until they show as loaded.
         </p>
 
-        <ul className="mt-3 space-y-2">
+        {/* auto-fit rather than breakpoints: this strip renders both in a
+            352px column and across the full width beneath the machine, and
+            those are container widths, not viewport widths. */}
+        <ul
+          className="mt-3 grid gap-2"
+          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))" }}
+        >
           {upcoming.map((token) => (
             <li
               key={token.address}
