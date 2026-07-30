@@ -7,6 +7,7 @@ import {
   ROBACHA_GACHA_ABI,
 } from "@/lib/abi";
 import { AdminAction } from "@/components/admin/AdminAction";
+import { PoolAnalytics } from "@/components/admin/PoolAnalytics";
 import { EmptyState, PageContainer, Pill, StatCard } from "@/components/shared/primitives";
 import { Button } from "@/components/ui/Button";
 import { chainConfig, contracts, explorerUrl } from "@/lib/config";
@@ -98,6 +99,14 @@ export function AdminClient() {
         <StatCard label="Held in escrow" value={fmtEth(s.totalEscrow)} hint="User funds mid-round" />
         <StatCard label="Owed as refunds" value={fmtEth(s.totalRefundable)} hint="Withdrawable by users" />
       </div>
+
+      {/* ---- participation ---- */}
+      <Panel
+        title="Who's using it"
+        note="Counted from contract logs, all time. Wallets rather than spins — thirty spins from six wallets and thirty from thirty are the same number describing very different things."
+      >
+        <PoolAnalytics />
+      </Panel>
 
       {/* ---- vault ---- */}
       <Panel
