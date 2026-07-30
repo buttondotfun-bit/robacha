@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ExternalLink, Loader2, Sparkles, Wallet } from "lucide-react";
 import { CurrencyToggle } from "@/components/shared/CurrencyToggle";
 import { ErrorState } from "@/components/shared/primitives";
@@ -270,6 +271,12 @@ export function SpinControls({
               See the prize vault
             </a>
           ) : null}
+          <Link
+            href="/verify"
+            className="underline decoration-dotted underline-offset-2 hover:text-ink-2"
+          >
+            Check a past round yourself
+          </Link>
         </p>
       ) : null}
 
