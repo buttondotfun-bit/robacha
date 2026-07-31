@@ -40,12 +40,25 @@ function subscribe(onChange: () => void) {
   };
 }
 
+/**
+ * Light unless the visitor has said otherwise.
+ *
+ * Deliberately not "system". The site is designed light first and that is the
+ * version everyone should meet, so a dark OS does not silently decide what a
+ * first-time visitor sees. Dark and system are both still one click away, and
+ * once either is chosen it is remembered.
+ *
+ * Because absence now means light, "system" has to be stored explicitly rather
+ * than represented by an empty key — see setChoice.
+ */
 function readChoice(): ThemeChoice {
   try {
     const stored = window.localStorage.getItem(KEY);
-    return stored === "light" || stored === "dark" ? stored : "system";
+    return stored === "light" || stored === "dark" || stored === "system"
+      ? stored
+      : "light";
   } catch {
-    return "system";
+    return "light";
   }
 }
 
@@ -62,12 +75,12 @@ function snapshot(): string {
 }
 
 /**
- * The server cannot know the device preference, so it renders light and the
- * head script corrects the document before paint. Reporting "system:light"
- * here keeps the first client render identical to the server's.
+ * The server renders light, which is also the default, so a first-time visitor
+ * needs no correction at all. The head script only has work to do for someone
+ * who has previously chosen dark or system.
  */
 function serverSnapshot(): string {
-  return "system:light";
+  return "light:light";
 }
 
 export function useTheme() {
@@ -83,8 +96,10 @@ export function useTheme() {
 
   const setChoice = useCallback((next: ThemeChoice) => {
     try {
-      if (next === "system") window.localStorage.removeItem(KEY);
-      else window.localStorage.setItem(KEY, next);
+      // Every choice is written, including "system". An empty key now means
+      // light, so clearing it would silently undo a request to follow the
+      // device rather than record it.
+      window.localStorage.setItem(KEY, next);
     } catch {
       /* private mode; the choice just will not persist */
     }
@@ -101,4 +116,4 @@ export function useTheme() {
  * or throwing here would be worse than the flash it prevents. Hence the
  * try/catch — storage access throws outright in some privacy modes.
  */
-export const THEME_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("${KEY}");var d=c==="dark"||(c!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches);var r=document.documentElement;r.dataset.theme=d?"dark":"light";r.style.colorScheme=d?"dark":"light"}catch(e){}})()`;
+export const THEME_INIT_SCRIPT = `(function(){try{var c=localStorage.getItem("${KEY}");var d=c==="dark"||(c==="system"&&window.matchMedia("(prefers-color-scheme: dark)").matches);var r=document.documentElement;r.dataset.theme=d?"dark":"light";r.style.colorScheme=d?"dark":"light"}catch(e){}})()`;

@@ -7,8 +7,11 @@ import { cn } from "@/lib/utils";
 /**
  * Light / system / dark.
  *
- * System sits in the middle because it is the default and the middle is where
- * a default belongs in a three-way switch — the two ends are the overrides.
+ * Light is the default: the site is designed light first and that is the
+ * version every visitor should meet, so a dark operating system does not
+ * silently decide what someone sees on their first visit. System sits in the
+ * middle as the bridge between the two explicit ends, and choosing it is
+ * remembered like any other choice.
  *
  * Labelled by icon with real accessible names rather than a bare sun that
  * changes meaning depending on state, which is the usual version of this
