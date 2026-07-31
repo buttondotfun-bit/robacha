@@ -1,4 +1,5 @@
 import { RobachaCapsuleRing } from "@/components/brand/RobachaLogo";
+import { CapsuleGlyph } from "./CapsuleGlyph";
 
 /**
  * The capsule, large, as the hero of the mint page.
@@ -32,6 +33,20 @@ export function CapsulePreview({ rarity = "grail" }: { rarity?: string }) {
             "radial-gradient(circle, rgb(var(--rarity-glow) / 0.34) 0%, transparent 68%)",
         }}
       />
+
+      {/* The other tiers, small and set back, so the hero reads as one capsule
+          out of a collection rather than a lone object. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <span data-rarity="common" className="absolute left-[9%] top-[16%] opacity-40">
+          <CapsuleGlyph id="float-a" className="h-12 w-12 -rotate-12" />
+        </span>
+        <span data-rarity="rare" className="absolute right-[11%] top-[24%] opacity-45">
+          <CapsuleGlyph id="float-b" className="h-10 w-10 rotate-12" />
+        </span>
+        <span data-rarity="legendary" className="absolute bottom-[20%] left-[15%] opacity-40">
+          <CapsuleGlyph id="float-c" className="h-9 w-9 rotate-6" />
+        </span>
+      </div>
 
       <div className="relative grid h-full place-items-center p-8">
         <svg

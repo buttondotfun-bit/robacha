@@ -1,4 +1,16 @@
-import { ArrowUpRight, Check, Lock, Shuffle, Sparkles, Wallet } from "lucide-react";
+import {
+  ArrowUpRight,
+  Check,
+  Coins,
+  HelpCircle,
+  Layers,
+  Lock,
+  PiggyBank,
+  Shuffle,
+  Sparkles,
+  Trophy,
+  Wallet,
+} from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
 import { PageContainer, SectionHeader } from "@/components/shared/primitives";
 import { ButtonLink } from "@/components/ui/Button";
@@ -15,6 +27,7 @@ import {
 } from "@/data/nft";
 import { cn } from "@/lib/utils";
 import { NETWORK_LABEL } from "@/lib/web3";
+import { CapsuleGlyph } from "./CapsuleGlyph";
 import { CapsulePreview } from "./CapsulePreview";
 import { MintCountdown } from "./MintCountdown";
 
@@ -33,6 +46,9 @@ import { MintCountdown } from "./MintCountdown";
  * invents supply, payouts or a rolling timer would spend that to buy urgency it
  * does not need.
  */
+/** One per fact, in the order they are written. */
+const FACT_ICONS = [Layers, Wallet, Trophy, Coins, PiggyBank, HelpCircle];
+
 export function NftTeaser() {
   const x = SOCIAL_LINKS[0];
 
@@ -183,7 +199,14 @@ export function NftTeaser() {
                     ) : null}
                   </div>
 
-                  <p className="num mt-4 text-[30px] font-semibold leading-none tracking-[-0.03em]">
+                  {/* The same capsule as the hero, at tier colour. Ties the
+                      four cards to the object they describe. */}
+                  <CapsuleGlyph
+                    id={tier.key}
+                    className="mt-4 h-14 w-14 drop-shadow-[0_6px_14px_rgb(var(--rarity-glow)_/_0.35)]"
+                  />
+
+                  <p className="num mt-3 text-[30px] font-semibold leading-none tracking-[-0.03em]">
                     {tier.supply}
                   </p>
                   <p className="num mt-1 text-[11px] text-ink-3">
@@ -252,6 +275,34 @@ export function NftTeaser() {
           />
 
           <div className="glass-panel overflow-hidden rounded-[24px] p-5">
+            {/* The split, drawn. Same shape as the odds bar on the landing
+                page, so the two read as the same kind of disclosure. */}
+            <div className="mb-5">
+              <div className="flex h-3 w-full overflow-hidden rounded-full">
+                <span
+                  className="h-full bg-[#8ec500]"
+                  style={{ width: `${NFT_VAULT_SHARE * 100}%` }}
+                  aria-hidden="true"
+                />
+                <span className="h-full w-[12%] bg-[rgb(var(--ink-rgb)_/_0.28)]" aria-hidden="true" />
+                <span className="h-full w-[3%] bg-[rgb(var(--ink-rgb)_/_0.14)]" aria-hidden="true" />
+              </div>
+              <ul className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-[11.5px] text-ink-2">
+                <li className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-[#8ec500]" aria-hidden="true" />
+                  Into prizes <span className="num text-ink">85%</span>
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-[rgb(var(--ink-rgb)_/_0.28)]" aria-hidden="true" />
+                  To ROBACHA <span className="num text-ink">12%</span>
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-[rgb(var(--ink-rgb)_/_0.14)]" aria-hidden="true" />
+                  Running costs <span className="num text-ink">3%</span>
+                </li>
+              </ul>
+            </div>
+
             <div className="overflow-x-auto">
               <table className="w-full min-w-[520px] border-collapse text-[13px]">
                 <thead>
@@ -299,6 +350,19 @@ export function NftTeaser() {
 
             <div className="mt-5 grid gap-4 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-5 sm:grid-cols-2">
               <div>
+                <div className="mb-3 flex items-end gap-2" aria-hidden="true">
+                  {["g1", "g2", "g3"].map((id) => (
+                    <span key={id} data-rarity="grail">
+                      <CapsuleGlyph
+                        id={id}
+                        className="h-10 w-10 drop-shadow-[0_6px_14px_rgb(var(--rarity-glow)_/_0.4)]"
+                      />
+                    </span>
+                  ))}
+                  <span className="num pb-1 text-[11px] text-ink-3">
+                    three, forever
+                  </span>
+                </div>
                 <p className="micro">Why that matters</p>
                 <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">
                   Only 25 capsules of the {NFT_TOTAL_SUPPLY} can be spent
@@ -333,16 +397,24 @@ export function NftTeaser() {
           />
 
           <div className="grid gap-4 sm:grid-cols-2">
-            {NFT_FACTS.map((fact) => (
-              <div key={fact.question} className="glass-card rounded-[20px] p-5">
-                <h3 className="text-[14px] font-semibold tracking-[-0.02em]">
-                  {fact.question}
-                </h3>
-                <p className="mt-2 text-[12.5px] leading-relaxed text-ink-2">
-                  {fact.answer}
-                </p>
-              </div>
-            ))}
+            {NFT_FACTS.map((fact, index) => {
+              const Icon = FACT_ICONS[index] ?? HelpCircle;
+              return (
+                <div key={fact.question} className="glass-card flex gap-3.5 rounded-[20px] p-5">
+                  <span className="glass-micro grid h-9 w-9 shrink-0 place-items-center rounded-xl">
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="text-[14px] font-semibold tracking-[-0.02em]">
+                      {fact.question}
+                    </h3>
+                    <p className="mt-2 text-[12.5px] leading-relaxed text-ink-2">
+                      {fact.answer}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           <p className="mt-6 max-w-[80ch] text-[11.5px] leading-relaxed text-ink-3">
