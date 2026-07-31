@@ -49,7 +49,7 @@ export function RewardTiers() {
             <span className="noise-overlay" aria-hidden="true" />
             <div className="relative">
               <p className="micro mb-4">
-                Published odds · pool #{pool?.poolId} v{pool?.version}
+                Published odds · pool #{pool?.poolId}
               </p>
               <RarityDistribution bands={bands} height={14} />
 

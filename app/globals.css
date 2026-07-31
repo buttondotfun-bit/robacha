@@ -65,6 +65,8 @@
   --edge-rgb: 255 255 255;
   --surface-rgb: 255 255 255;
   --surface-tint-rgb: 250 252 246;
+  /* Specular highlight along a surface's top edge. */
+  --sheen-rgb: 255 255 255;
   /* The page itself, behind every panel. */
   --wash-1: #ffffff;
   --wash-2: #f7f9f3;
@@ -273,8 +275,8 @@
     backdrop-filter: blur(var(--blur-chip)) saturate(150%);
     border: 1px solid var(--glass-edge-soft);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.7) inset,
-      0 2px 6px -2px rgba(16, 17, 15, 0.08);
+      0 1px 0 rgb(var(--sheen-rgb) / 0.7) inset,
+      0 2px 6px -2px rgb(var(--ink-rgb) / 0.08);
     transition:
       transform 0.16s var(--ease-out-soft),
       background-color 0.16s var(--ease-out-soft),
@@ -288,22 +290,22 @@
   }
 
   .glass-input {
-    background: rgba(255, 255, 255, 0.55);
+    background: rgb(var(--surface-rgb) / 0.55);
     -webkit-backdrop-filter: blur(var(--blur-chip)) saturate(150%);
     backdrop-filter: blur(var(--blur-chip)) saturate(150%);
     border: 1px solid var(--glass-edge-soft);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.65) inset,
-      0 1px 3px rgba(16, 17, 15, 0.04);
+      0 1px 0 rgb(var(--sheen-rgb) / 0.65) inset,
+      0 1px 3px rgb(var(--ink-rgb) / 0.04);
     transition: border-color 0.16s var(--ease-out-soft), background-color 0.16s;
   }
   .glass-input:hover {
-    background: rgba(255, 255, 255, 0.68);
+    background: rgb(var(--surface-rgb) / 0.68);
   }
   .glass-input:focus-within,
   .glass-input:focus {
-    border-color: rgba(16, 17, 15, 0.22);
-    background: rgba(255, 255, 255, 0.78);
+    border-color: rgb(var(--ink-rgb) / 0.22);
+    background: rgb(var(--surface-rgb) / 0.78);
   }
 
   /* ============================================================
@@ -334,9 +336,9 @@
     pointer-events: none;
     background: linear-gradient(
       145deg,
-      rgba(255, 255, 255, 0.7) 0%,
-      rgba(255, 255, 255, 0.16) 26%,
-      rgba(255, 255, 255, 0) 52%
+      rgb(var(--sheen-rgb) / 0.7) 0%,
+      rgb(var(--sheen-rgb) / 0.16) 26%,
+      rgb(var(--sheen-rgb) / 0) 52%
     );
     opacity: 0.85;
   }
@@ -353,7 +355,7 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.95),
+      rgb(var(--sheen-rgb) / 0.95),
       transparent
     );
   }
@@ -394,7 +396,7 @@
     transition: opacity 0.3s var(--ease-out-soft);
     background: radial-gradient(
       340px circle at var(--mx, 50%) var(--my, 0%),
-      rgba(255, 255, 255, 0.55),
+      rgb(var(--sheen-rgb) / 0.55),
       transparent 62%
     );
   }
@@ -441,15 +443,15 @@
     background:
       linear-gradient(
         158deg,
-        rgba(255, 255, 255, 0.66) 0%,
-        rgba(255, 255, 255, 0.36) 50%,
+        rgb(var(--surface-rgb) / 0.66) 0%,
+        rgb(var(--surface-rgb) / 0.36) 50%,
         rgb(var(--rarity-glow) / 0.14) 100%
       );
     -webkit-backdrop-filter: blur(var(--blur-card)) saturate(165%);
     backdrop-filter: blur(var(--blur-card)) saturate(165%);
     border: 1px solid var(--rarity-bd);
     box-shadow:
-      0 1px 1px rgba(255, 255, 255, 0.65) inset,
+      0 1px 1px rgb(var(--sheen-rgb) / 0.65) inset,
       0 12px 30px -18px rgb(var(--rarity-glow) / 0.55);
   }
 
@@ -865,6 +867,9 @@
   --edge-rgb: 52 57 49;
   --surface-rgb: 52 57 49;
   --surface-tint-rgb: 40 44 38;
+  /* Kept white so edges still catch light, but every rule using it bakes its
+     own alpha, so the visible ones are toned down individually below. */
+  --sheen-rgb: 255 255 255;
   --wash-1: #171a16;
   --wash-2: #121410;
   --wash-3: #0e100d;
@@ -931,6 +936,30 @@
 :root[data-theme="dark"] [data-rarity="rare"] { --rarity-bg: rgba(28, 46, 68, 0.55); --rarity-fg: #8dbde8; }
 :root[data-theme="dark"] [data-rarity="epic"] { --rarity-bg: rgba(48, 34, 74, 0.55); --rarity-fg: #bda2ea; }
 :root[data-theme="dark"] [data-rarity="legendary"] { --rarity-bg: rgba(68, 50, 18, 0.55); --rarity-fg: #e3b45f; }
+
+:root[data-theme="dark"] .glass-reflection::before {
+  opacity: 0.16;
+}
+
+:root[data-theme="dark"] .rarity-glass {
+  box-shadow:
+    0 1px 1px rgb(var(--sheen-rgb) / 0.06) inset,
+    0 12px 30px -18px rgb(var(--rarity-glow) / 0.5);
+}
+
+/*
+ * The dark micro-surface exists to stand out from a pale page. On a dark page
+ * the way to keep that job is to invert it, not to leave it dark and let it
+ * disappear into the background it was meant to sit on top of.
+ */
+:root[data-theme="dark"] .glass-micro {
+  background: rgb(var(--ink-rgb) / 0.9);
+  border: 1px solid rgb(var(--ink-rgb) / 0.14);
+  color: rgb(16 18 16 / 0.94);
+  box-shadow:
+    0 1px 0 rgb(var(--sheen-rgb) / 0.18) inset,
+    0 6px 18px -8px rgb(0 0 0 / 0.6);
+}
 
 @media (prefers-reduced-motion: reduce) {
   html {
