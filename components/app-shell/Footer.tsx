@@ -14,6 +14,7 @@ const COLUMNS = [
       { label: "My Bag", href: "/bag", walletOnly: true },
       { label: "Activity", href: "/activity", walletOnly: true },
       { label: "Leaderboard", href: "/leaderboard" },
+      { label: "NFTs", href: "/nft" },
     ],
   },
   {

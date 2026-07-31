@@ -26,6 +26,7 @@ export interface NavLink {
 
 export const SITE_NAV: readonly NavLink[] = [
   { label: "How It Works", href: "/#how-it-works" },
+  { label: "NFTs", href: "/nft" },
   { label: "Rewards", href: "/rewards", walletOnly: true },
   { label: "Activity", href: "/activity", walletOnly: true },
   { label: "Docs", href: "/docs" },
