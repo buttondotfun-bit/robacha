@@ -10,8 +10,11 @@ import { RobachaCapsuleRing } from "@/components/brand/RobachaLogo";
  * machine already uses, so the drop reads as part of the same product.
  *
  * Labelled as a placeholder on the page, not hidden in a caption nobody reads.
+ *
+ * Defaults to a Grail. Three of the five hundred are Grails and the collection
+ * is built around them, so that is the one worth putting at size.
  */
-export function CapsulePreview({ rarity = "legendary" }: { rarity?: string }) {
+export function CapsulePreview({ rarity = "grail" }: { rarity?: string }) {
   return (
     <div
       data-rarity={rarity}
@@ -35,7 +38,7 @@ export function CapsulePreview({ rarity = "legendary" }: { rarity?: string }) {
           viewBox="0 0 200 200"
           className="h-full w-full max-h-[340px] max-w-[340px] drop-shadow-[0_24px_48px_rgb(var(--ink-rgb)_/_0.28)]"
           role="img"
-          aria-label="Robacha capsule, placeholder artwork"
+          aria-label={`Robacha ${rarity} capsule, placeholder artwork`}
         >
           <defs>
             <linearGradient id="cap-lid" x1="0" y1="0" x2="0.3" y2="1">

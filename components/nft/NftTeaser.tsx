@@ -1,6 +1,5 @@
 import { ArrowUpRight, Check, Lock, Shuffle, Sparkles, Wallet } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
-import { RarityChip } from "@/components/shared/RarityChip";
 import { PageContainer, SectionHeader } from "@/components/shared/primitives";
 import { ButtonLink } from "@/components/ui/Button";
 import { SOCIAL_LINKS } from "@/lib/constants";
@@ -9,7 +8,9 @@ import {
   NFT_MINT_PRICE_USD,
   NFT_PHASES,
   NFT_TIERS,
+  NFT_TOTAL_SUPPLY,
 } from "@/data/nft";
+import { cn } from "@/lib/utils";
 import { NETWORK_LABEL } from "@/lib/web3";
 import { CapsulePreview } from "./CapsulePreview";
 import { MintCountdown } from "./MintCountdown";
@@ -48,22 +49,27 @@ export function NftTeaser() {
               <span className="glass-chip inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[12px] font-medium text-ink-2">
                 {NETWORK_LABEL}
               </span>
+              <span className="num glass-chip inline-flex h-8 items-center rounded-full px-3 text-[12px] font-medium text-ink-2">
+                {NFT_TOTAL_SUPPLY} total
+              </span>
             </div>
 
             <h1 className="text-page-title mt-4">Robacha Capsules.</h1>
 
             <p className="mt-3 max-w-[54ch] text-[15px] leading-relaxed text-ink-2">
-              A collection built to be used, not just held. Mint a capsule and
-              it&rsquo;s yours on {NETWORK_LABEL} — trade it like any NFT, or,
-              if you pull a legendary, hand it back to the machine and spin it
-              for a draw from a bigger pool than a standard spin reaches.
+              {NFT_TOTAL_SUPPLY} capsules, built to be used rather than just
+              held. Mint one and it&rsquo;s yours on {NETWORK_LABEL} — trade it
+              like any NFT, or, if you pull a Legendary, hand it back to the
+              machine and spin it against a deeper pool. Three of the{" "}
+              {NFT_TOTAL_SUPPLY} are Grails, and those draw from the deepest
+              pool the machine can hold.
             </p>
 
             <ul className="mt-5 space-y-2">
               {[
+                `${NFT_TOTAL_SUPPLY} capsules, fixed in the contract — no reruns`,
                 "Yours in your own wallet — we can't move it or take it back",
-                "Freely tradable from the moment it mints",
-                "Legendary capsules can be spun for a bigger pull",
+                "25 of them can be spent in the machine. 3 of those are Grails",
               ].map((line) => (
                 <li key={line} className="flex items-start gap-2.5">
                   <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-ink" aria-hidden="true" />
@@ -127,33 +133,72 @@ export function NftTeaser() {
         <PageContainer width="wide">
           <SectionHeader
             eyebrow="The collection"
-            title="Three tiers, one of them with a second life."
-            description="Capsules use the same rarity ladder as the machine, so a capsule reads exactly the way a pull does."
+            title="Four tiers. Three Grails."
+            description={`${NFT_TOTAL_SUPPLY} capsules laid over the machine's own 70 / 25 / 5 ladder, so a capsule reads exactly the way a pull does. The top 5% splits again — and only three land at the top of it.`}
             className="mb-6"
           />
 
-          <ul className="grid gap-4 sm:grid-cols-3">
-            {NFT_TIERS.map((tier) => (
-              <li
-                key={tier.key}
-                data-rarity={tier.key}
-                className="rarity-glass glass-highlight relative overflow-hidden rounded-[20px] p-5"
-              >
-                <RarityChip rarity={tier.key} size="sm" />
-                <h3 className="mt-3 text-[16px] font-semibold tracking-[-0.02em]">
-                  {tier.name}
-                </h3>
-                <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">
-                  {tier.blurb}
-                </p>
-              </li>
-            ))}
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {NFT_TIERS.map((tier) => {
+              const share = (tier.supply / NFT_TOTAL_SUPPLY) * 100;
+              return (
+                <li
+                  key={tier.key}
+                  data-rarity={tier.key}
+                  className={cn(
+                    "rarity-glass glass-highlight relative overflow-hidden rounded-[20px] p-5",
+                    // The whole collection is built around three capsules, so
+                    // the tier that holds them is not one card among four.
+                    tier.key === "grail" && "ring-2 ring-[rgb(var(--rarity-glow)_/_0.45)]",
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span
+                      className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium"
+                      style={{
+                        background: "var(--rarity-bg)",
+                        color: "var(--rarity-fg)",
+                        border: "1px solid var(--rarity-bd)",
+                      }}
+                    >
+                      <span
+                        className="h-1.5 w-1.5 rounded-full"
+                        style={{ background: "var(--rarity-dot)" }}
+                        aria-hidden="true"
+                      />
+                      {tier.name}
+                    </span>
+                    {tier.spendable ? (
+                      <span
+                        className="num text-[10px] uppercase tracking-[0.06em]"
+                        style={{ color: "var(--rarity-fg)" }}
+                        title="Can be spent in the machine"
+                      >
+                        Spendable
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <p className="num mt-4 text-[30px] font-semibold leading-none tracking-[-0.03em]">
+                    {tier.supply}
+                  </p>
+                  <p className="num mt-1 text-[11px] text-ink-3">
+                    {share < 1 ? share.toFixed(1) : share.toFixed(0)}% of the collection
+                  </p>
+
+                  <p className="mt-3 text-[12.5px] leading-relaxed text-ink-2">
+                    {tier.blurb}
+                  </p>
+                </li>
+              );
+            })}
           </ul>
 
           <p className="mt-4 text-[11.5px] leading-relaxed text-ink-3">
-            Supply for each tier is fixed in the contract when it deploys, and
-            we&rsquo;ll link you straight to it — the same way the live
-            pool&rsquo;s odds are published rather than described.
+            350 + 125 + 22 + 3 = {NFT_TOTAL_SUPPLY}. Every one of those numbers
+            is fixed in the contract when it deploys, and we&rsquo;ll link you
+            straight at it — the same way the live pool&rsquo;s odds are
+            published rather than described.
           </p>
         </PageContainer>
       </section>

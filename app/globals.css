@@ -165,6 +165,15 @@
   --rarity-dot: #c9922b;
   --rarity-glow: 201 146 43;
 }
+/* Above legendary. Only three exist, so it gets the brand's own pink rather
+   than one more step along the same gradient. */
+[data-rarity="grail"] {
+  --rarity-fg: #9d2f5e;
+  --rarity-bg: rgba(255, 239, 245, 0.78);
+  --rarity-bd: rgba(242, 111, 164, 0.4);
+  --rarity-dot: #f26fa4;
+  --rarity-glow: 242 111 164;
+}
 
 @layer base {
   html {
@@ -936,6 +945,7 @@
 :root[data-theme="dark"] [data-rarity="rare"] { --rarity-bg: rgba(28, 46, 68, 0.55); --rarity-fg: #8dbde8; }
 :root[data-theme="dark"] [data-rarity="epic"] { --rarity-bg: rgba(48, 34, 74, 0.55); --rarity-fg: #bda2ea; }
 :root[data-theme="dark"] [data-rarity="legendary"] { --rarity-bg: rgba(68, 50, 18, 0.55); --rarity-fg: #e3b45f; }
+:root[data-theme="dark"] [data-rarity="grail"] { --rarity-bg: rgba(74, 28, 46, 0.6); --rarity-fg: #ff9ec4; }
 
 :root[data-theme="dark"] .glass-reflection::before {
   opacity: 0.16;
