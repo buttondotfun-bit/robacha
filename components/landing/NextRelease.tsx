@@ -100,7 +100,7 @@ export function NextRelease() {
             it is. */}
         <div className="mt-6 overflow-hidden rounded-[20px] border border-[#e2f5a8] bg-accent-soft px-5 py-5 sm:px-6">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex h-6 items-center rounded-full bg-white/70 px-2.5 text-[11px] font-medium text-accent-ink">
+            <span className="inline-flex h-6 items-center rounded-full bg-surface/70 px-2.5 text-[11px] font-medium text-accent-ink">
               Up next
             </span>
             <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-accent-ink/70">

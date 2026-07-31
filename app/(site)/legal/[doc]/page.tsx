@@ -80,14 +80,14 @@ export default async function LegalPage({
           <Link
             key={slug}
             href={`/legal/${slug}`}
-            className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-white/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] hover:text-ink"
+            className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-surface/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] hover:text-ink"
           >
             {LEGAL_DOCS[slug].title}
           </Link>
         ))}
         <Link
           href="/faq"
-          className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-white/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] hover:text-ink"
+          className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-surface/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] hover:text-ink"
         >
           FAQ
         </Link>

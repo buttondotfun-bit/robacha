@@ -39,7 +39,7 @@ export function CurrencyToggle({ className }: { className?: string }) {
             aria-pressed={active}
             className={cn(
               "rounded-full px-2 py-0.5 text-[10.5px] font-medium transition-colors",
-              active ? "bg-white text-ink shadow-sm" : "text-ink-3 hover:text-ink-2",
+              active ? "bg-surface text-ink shadow-sm" : "text-ink-3 hover:text-ink-2",
             )}
           >
             {label}

@@ -48,6 +48,8 @@ export function TokenLogo({
         // aspect-square supplies the intrinsic ratio that <Image fill> needs.
         // The SVG fallback carried its own viewBox ratio; a plain box does not,
         // and h-full inside an auto-height parent resolves to zero.
+        // Not themed on purpose — see TokenAvatar: token art assumes a light
+        // plate, so a dark one would hide transparent logos.
         "relative block aspect-square w-full overflow-hidden bg-white/70",
         radius,
         className,

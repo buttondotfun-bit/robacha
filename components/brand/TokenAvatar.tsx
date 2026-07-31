@@ -63,6 +63,9 @@ export function TokenAvatar({
         role="img"
         aria-label={symbol ? `${symbol} logo` : "Token logo"}
         className={cn(
+          // Not themed on purpose: this is a plate behind third-party token
+          // artwork, and most of those logos are transparent PNGs drawn for a
+          // light background. Flipping it would make some unreadable.
           "relative block h-full w-full overflow-hidden bg-white/70",
           radius,
           className,

@@ -61,7 +61,7 @@ export function Tabs<T extends string>({
               "flex shrink-0 items-center gap-1.5 rounded-[9px] font-medium transition-colors",
               size === "sm" ? "h-7 px-2.5 text-[12px]" : "h-8 px-3 text-[13px]",
               active
-                ? "bg-white/85 text-ink shadow-[0_1px_0_rgb(var(--edge-rgb)_/_0.9)_inset,0_2px_6px_-2px_rgb(var(--ink-rgb)_/_0.12)]"
+                ? "bg-surface/85 text-ink shadow-[0_1px_0_rgb(var(--edge-rgb)_/_0.9)_inset,0_2px_6px_-2px_rgb(var(--ink-rgb)_/_0.12)]"
                 : "text-ink-2 hover:text-ink",
             )}
           >

@@ -76,7 +76,7 @@ export function ShareWin({
       onClick={open}
       title={`Share this pull on X and tag ${HANDLE}`}
       className={cn(
-        "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-[rgb(var(--line-rgb)_/_0.1)] bg-white/70 px-3 text-[12px] font-medium text-ink-2",
+        "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border border-[rgb(var(--line-rgb)_/_0.1)] bg-surface/70 px-3 text-[12px] font-medium text-ink-2",
         "transition-colors hover:border-[rgb(var(--line-rgb)_/_0.2)] hover:text-ink",
         className,
       )}

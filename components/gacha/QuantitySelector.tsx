@@ -76,7 +76,7 @@ export function QuantitySelector({
               className={cn(
                 "num h-9 w-9 rounded-[9px] text-[13px] font-semibold transition-colors disabled:opacity-40",
                 value === shortcut
-                  ? "bg-white/85 text-ink shadow-[0_1px_0_rgb(var(--edge-rgb)_/_0.9)_inset,0_2px_6px_-2px_rgb(var(--ink-rgb)_/_0.12)]"
+                  ? "bg-surface/85 text-ink shadow-[0_1px_0_rgb(var(--edge-rgb)_/_0.9)_inset,0_2px_6px_-2px_rgb(var(--ink-rgb)_/_0.12)]"
                   : "text-ink-2 hover:text-ink",
               )}
             >

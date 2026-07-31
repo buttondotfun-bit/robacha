@@ -180,7 +180,7 @@ export function Pill({
     <span
       className={cn(
         "inline-flex h-6 items-center gap-1.5 rounded-full border px-2 text-[11px] font-medium",
-        tone === "neutral" && "border-[rgb(var(--line-rgb)_/_0.08)] bg-white/70 text-ink-2",
+        tone === "neutral" && "border-[rgb(var(--line-rgb)_/_0.08)] bg-surface/70 text-ink-2",
         tone === "quiet" && "border-transparent bg-canvas text-ink-3",
         tone === "accent" && "border-[#e2f5a8] bg-accent-soft text-accent-ink",
         className,

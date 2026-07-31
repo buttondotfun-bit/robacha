@@ -33,7 +33,7 @@ export default function FaqPage() {
             <li key={group.id}>
               <a
                 href={`#${group.id}`}
-                className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-white/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] hover:text-ink"
+                className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-surface/60 px-3 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-[rgb(var(--line-rgb)_/_0.14)] hover:text-ink"
               >
                 {group.title}
               </a>
@@ -88,7 +88,7 @@ export default function FaqPage() {
                     href={social.href}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-white/60 px-3 text-[12.5px] text-ink-2 transition-colors hover:text-ink"
+                    className="inline-flex h-8 items-center rounded-full border border-[rgb(var(--edge-rgb)_/_0.8)] bg-surface/60 px-3 text-[12.5px] text-ink-2 transition-colors hover:text-ink"
                   >
                     {social.label}
                     <span className="sr-only"> — {social.handle}</span>
