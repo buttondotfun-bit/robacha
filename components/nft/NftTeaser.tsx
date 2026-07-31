@@ -1,182 +1,227 @@
-import { ArrowUpRight, Lock, Sparkles } from "lucide-react";
+import { ArrowUpRight, Check, Lock, Shuffle, Sparkles, Wallet } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
+import { RarityChip } from "@/components/shared/RarityChip";
 import { PageContainer, SectionHeader } from "@/components/shared/primitives";
 import { ButtonLink } from "@/components/ui/Button";
 import { SOCIAL_LINKS } from "@/lib/constants";
-import { NFT_MINT_PRICE_USD, NFT_STEPS } from "@/data/nft";
+import {
+  NFT_FACTS,
+  NFT_MINT_PRICE_USD,
+  NFT_PHASES,
+  NFT_TIERS,
+} from "@/data/nft";
 import { NETWORK_LABEL } from "@/lib/web3";
+import { CapsulePreview } from "./CapsulePreview";
+import { MintCountdown } from "./MintCountdown";
 
 /**
- * The NFT drop, announced honestly.
+ * The capsule drop.
  *
- * Nothing on this page exists yet: no contract, no artwork on chain, no vault
- * behind the legendary mechanic. Every other page here can be checked against
- * the chain, so this one has to be unmistakably a plan — otherwise it borrows
- * credibility the rest of the site earned and spends it on something unbuilt.
+ * Laid out as a mint page rather than an announcement: the capsule leads at
+ * size on the left, and the right rail carries the pitch, the price, the clock
+ * and the button — the shape people already know how to read.
  *
- * The capsule art is drawn rather than shown, for the same reason the upcoming
- * machines are blurred: displaying artwork that has not been made would be
- * inventing the product. Shapes are honest about being shapes.
- *
- * No supply count, no mint progress, no holders, no countdown. Those numbers do
- * not exist, and a fabricated one on an unlaunched drop is the most common lie
- * in this category.
+ * The button is locked because there is no contract behind it. That is stated
+ * on the control itself rather than buried, and the page is written in the
+ * present tense of something being built rather than as a list of caveats.
+ * Confidence and honesty are not in tension here: the strongest thing this
+ * project has is that its numbers can be checked, and a drop page that quietly
+ * invents supply, payouts or a rolling timer would spend that to buy urgency it
+ * does not need.
  */
 export function NftTeaser() {
   const x = SOCIAL_LINKS[0];
 
   return (
     <>
-      <PageContainer width="wide" className="pb-4 pt-6">
-        <header className="max-w-[62ch]">
-          <span className="glass-chip inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[12px] font-medium text-ink-2">
-            <Lock className="h-3 w-3" aria-hidden="true" />
-            Not live yet
-          </span>
-          <h1 className="text-page-title mt-4">Capsules you actually own.</h1>
-          <p className="mt-3 text-[15px] leading-relaxed text-ink-2">
-            Robacha NFTs are coming to {NETWORK_LABEL}. Mint one, trade it, or
-            feed a legendary back into the machine for a pull from a bigger
-            pool. None of it is live — this page is what we&rsquo;re building,
-            not something you can buy today.
-          </p>
-        </header>
+      {/* ---------------- Hero: capsule left, mint panel right ---------------- */}
+      <PageContainer width="wide" className="pb-6 pt-6">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+          <CapsulePreview />
 
-        {/* Drawn, not photographed. There is no artwork yet and showing some
-            would be inventing the product. */}
-        <div
-          aria-hidden="true"
-          className="relative mt-8 grid h-[190px] place-items-center overflow-hidden rounded-[24px] border border-[rgb(var(--line-rgb)_/_0.08)] bg-[rgb(var(--ink-rgb)_/_0.035)]"
-        >
-          <div className="flex items-end gap-4">
-            {["common", "rare", "legendary"].map((rarity, index) => (
-              <span
-                key={rarity}
-                data-rarity={rarity}
-                className="grid place-items-center rounded-[18px] border border-[rgb(var(--line-rgb)_/_0.1)] bg-[rgb(var(--surface-rgb)_/_0.5)]"
-                style={{
-                  width: index === 2 ? 108 : 84,
-                  height: index === 2 ? 132 : 104,
-                }}
-              >
-                <svg viewBox="0 0 80 80" className={index === 2 ? "h-14 w-14" : "h-11 w-11"}>
-                  <path d="M8 40a32 32 0 0 0 64 0Z" fill="rgb(var(--ink-rgb) / 0.14)" />
-                  <path d="M8 40a32 32 0 0 1 64 0Z" fill="rgb(var(--rarity-glow) / 0.85)" />
-                  <rect
-                    x="6"
-                    y="36.5"
-                    width="68"
-                    height="7"
-                    rx="3.5"
-                    fill="rgb(var(--surface-rgb) / 0.9)"
-                  />
-                </svg>
+          <div className="lg:pt-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="glass-chip inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[12px] font-medium text-ink-2">
+                <Lock className="h-3 w-3" aria-hidden="true" />
+                Minting soon
               </span>
-            ))}
+              <span className="glass-chip inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[12px] font-medium text-ink-2">
+                {NETWORK_LABEL}
+              </span>
+            </div>
+
+            <h1 className="text-page-title mt-4">Robacha Capsules.</h1>
+
+            <p className="mt-3 max-w-[54ch] text-[15px] leading-relaxed text-ink-2">
+              A collection built to be used, not just held. Mint a capsule and
+              it&rsquo;s yours on {NETWORK_LABEL} — trade it like any NFT, or,
+              if you pull a legendary, hand it back to the machine and spin it
+              for a draw from a bigger pool than a standard spin reaches.
+            </p>
+
+            <ul className="mt-5 space-y-2">
+              {[
+                "Yours in your own wallet — we can't move it or take it back",
+                "Freely tradable from the moment it mints",
+                "Legendary capsules can be spun for a bigger pull",
+              ].map((line) => (
+                <li key={line} className="flex items-start gap-2.5">
+                  <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-ink" aria-hidden="true" />
+                  <span className="text-[13px] leading-relaxed text-ink-2">{line}</span>
+                </li>
+              ))}
+            </ul>
+
+            {/* ---- mint panel ---- */}
+            <div className="glass-panel mt-6 rounded-[24px] p-5">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <p className="micro">Mint price</p>
+                  <p className="num mt-1 text-[32px] font-semibold leading-none tracking-[-0.03em]">
+                    ${NFT_MINT_PRICE_USD}
+                  </p>
+                </div>
+                <p className="text-[11.5px] leading-snug text-ink-3">
+                  Per capsule
+                  <span className="block">Paid in {NETWORK_LABEL} ETH</span>
+                </p>
+              </div>
+
+              <div className="mt-5 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4">
+                <MintCountdown />
+              </div>
+
+              <button
+                type="button"
+                disabled
+                aria-disabled="true"
+                className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[rgb(var(--ink-rgb)_/_0.08)] text-[15px] font-semibold text-ink-3"
+              >
+                <Lock className="h-4 w-4" aria-hidden="true" />
+                Minting locked
+              </button>
+
+              {/* Says why on the control, rather than leaving a dead button. */}
+              <p className="mt-2.5 text-center text-[11.5px] leading-relaxed text-ink-3">
+                The button unlocks when the contract is deployed and verified.
+                Until then there is nothing to sign and nothing to pay.
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4">
+                <ButtonLink href={x.href} external variant="primary" size="md" className="flex-1">
+                  <XIcon className="h-3.5 w-3.5" />
+                  Get the drop first
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </ButtonLink>
+                <ButtonLink href="/app" variant="secondary" size="md" className="flex-1">
+                  Spin the live machine
+                </ButtonLink>
+              </div>
+            </div>
           </div>
-          <p className="absolute bottom-3 text-[11px] text-ink-3">
-            Artwork isn&rsquo;t finished. These are placeholders, not the real
-            capsules.
-          </p>
         </div>
       </PageContainer>
 
-      <section className="relative py-12">
+      {/* ---------------- Tiers ---------------- */}
+      <section className="relative py-14">
         <PageContainer width="wide">
           <SectionHeader
-            eyebrow="How it will work"
-            title="Mint, trade, or spin it."
-            description="Three things you'll be able to do with a capsule. The third is the one we're most interested in."
+            eyebrow="The collection"
+            title="Three tiers, one of them with a second life."
+            description="Capsules use the same rarity ladder as the machine, so a capsule reads exactly the way a pull does."
+            className="mb-6"
+          />
+
+          <ul className="grid gap-4 sm:grid-cols-3">
+            {NFT_TIERS.map((tier) => (
+              <li
+                key={tier.key}
+                data-rarity={tier.key}
+                className="rarity-glass glass-highlight relative overflow-hidden rounded-[20px] p-5"
+              >
+                <RarityChip rarity={tier.key} size="sm" />
+                <h3 className="mt-3 text-[16px] font-semibold tracking-[-0.02em]">
+                  {tier.name}
+                </h3>
+                <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">
+                  {tier.blurb}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mt-4 text-[11.5px] leading-relaxed text-ink-3">
+            Supply for each tier is fixed in the contract when it deploys, and
+            we&rsquo;ll link you straight to it — the same way the live
+            pool&rsquo;s odds are published rather than described.
+          </p>
+        </PageContainer>
+      </section>
+
+      {/* ---------------- Phases ---------------- */}
+      <section className="relative pb-14">
+        <PageContainer width="wide">
+          <SectionHeader
+            eyebrow="How it works"
+            title="Mint it. Trade it. Or spend it."
+            description="Three things a capsule can do. The third is the one we built the tier for."
             className="mb-6"
           />
 
           <ol className="grid gap-4 sm:grid-cols-3">
-            {NFT_STEPS.map((step, index) => (
-              <li key={step.title} className="glass-card rounded-[20px] p-5">
-                <span className="num text-[11px] text-ink-3">0{index + 1}</span>
-                <h3 className="mt-2 text-[15px] font-semibold tracking-[-0.02em]">
-                  {step.title}
-                </h3>
-                <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">
-                  {step.body}
-                </p>
-              </li>
-            ))}
+            {NFT_PHASES.map((phase, index) => {
+              const Icon = [Wallet, Shuffle, Sparkles][index] ?? Wallet;
+              return (
+                <li key={phase.title} className="glass-card rounded-[20px] p-5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="glass-micro grid h-9 w-9 place-items-center rounded-xl">
+                      <Icon className="h-4 w-4" aria-hidden="true" />
+                    </span>
+                    <span className="num text-[11px] text-ink-3">{phase.label}</span>
+                  </div>
+                  <h3 className="mt-3.5 text-[16px] font-semibold tracking-[-0.02em]">
+                    {phase.title}
+                  </h3>
+                  <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">
+                    {phase.body}
+                  </p>
+                </li>
+              );
+            })}
           </ol>
-
-          <div className="glass-panel mt-6 rounded-[24px] p-5">
-            <div className="flex flex-wrap items-baseline justify-between gap-3">
-              <div>
-                <p className="micro">Planned mint price</p>
-                <p className="num mt-1 text-[26px] font-semibold tracking-[-0.03em]">
-                  ${NFT_MINT_PRICE_USD}
-                </p>
-              </div>
-              <Sparkles className="h-4 w-4 shrink-0 text-ink-3" aria-hidden="true" />
-            </div>
-            <p className="mt-3 max-w-[70ch] text-[12.5px] leading-relaxed text-ink-2">
-              That&rsquo;s what we&rsquo;re planning to open at, and it can
-              change before launch — nothing is committed until a contract is
-              deployed and you can read it yourself. When minting does open,
-              the price, the supply and the legendary odds will all be on chain
-              first, the same as every pool on this site.
-            </p>
-          </div>
         </PageContainer>
       </section>
 
+      {/* ---------------- Detail ---------------- */}
       <section className="relative pb-16">
         <PageContainer width="wide">
-          <div className="glass-card rounded-[24px] p-6">
-            <h2 className="text-section-title text-[19px]">
-              What we&rsquo;re not going to tell you yet
-            </h2>
-            <ul className="mt-4 space-y-2.5 text-[12.5px] leading-relaxed text-ink-2">
-              <li className="flex gap-2.5">
-                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ink-3" aria-hidden="true" />
-                <span>
-                  <span className="font-medium text-ink">What a legendary pays.</span>{" "}
-                  It depends on a prize vault that doesn&rsquo;t exist yet.
-                  We&rsquo;re not putting a number on it while it would be a
-                  guess — you&rsquo;ll get the real range and the real odds
-                  before you can spend anything.
-                </span>
-              </li>
-              <li className="flex gap-2.5">
-                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ink-3" aria-hidden="true" />
-                <span>
-                  <span className="font-medium text-ink">A date.</span> We
-                  haven&rsquo;t committed to one, so there&rsquo;s no countdown
-                  on this page.
-                </span>
-              </li>
-              <li className="flex gap-2.5">
-                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ink-3" aria-hidden="true" />
-                <span>
-                  <span className="font-medium text-ink">How many there are.</span>{" "}
-                  Supply gets set in the contract, and we&rsquo;ll point you at
-                  it rather than quote it here.
-                </span>
-              </li>
-            </ul>
+          <SectionHeader
+            eyebrow="The detail"
+            title="Everything we can tell you today."
+            description="Straight answers on what a capsule is, what it does, and what still has to land on chain before you can buy one."
+            className="mb-6"
+          />
 
-            <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-5">
-              <ButtonLink href={x.href} external variant="primary" size="md">
-                <XIcon className="h-3.5 w-3.5" />
-                Follow for the drop
-                <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-              </ButtonLink>
-              <ButtonLink href="/app" variant="secondary" size="md">
-                Spin the live machine
-              </ButtonLink>
-            </div>
-
-            <p className="mt-4 text-[11.5px] leading-relaxed text-ink-3">
-              NFTs are chance-based and their value moves — a capsule can be
-              worth less than you paid, and a legendary pull is still a pull.
-              Only spend what you&rsquo;d be fine losing.
-            </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {NFT_FACTS.map((fact) => (
+              <div key={fact.question} className="glass-card rounded-[20px] p-5">
+                <h3 className="text-[14px] font-semibold tracking-[-0.02em]">
+                  {fact.question}
+                </h3>
+                <p className="mt-2 text-[12.5px] leading-relaxed text-ink-2">
+                  {fact.answer}
+                </p>
+              </div>
+            ))}
           </div>
+
+          <p className="mt-6 max-w-[80ch] text-[11.5px] leading-relaxed text-ink-3">
+            Capsules are chance-based and their value moves — one can be worth
+            less than you paid, and a legendary pull is still a pull. Nothing on
+            this page is live yet: no contract is deployed, and the price, supply
+            and opening date can all change before one is. Only spend what
+            you&rsquo;d be fine losing.
+          </p>
         </PageContainer>
       </section>
     </>
