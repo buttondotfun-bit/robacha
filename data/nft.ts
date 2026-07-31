@@ -27,6 +27,27 @@ export const NFT_MINT_PRICE_USD = 50;
 /** Planned total supply. Every tier count below sums to exactly this. */
 export const NFT_TOTAL_SUPPLY = 500;
 
+/**
+ * Share of mint revenue going into the prize vault.
+ *
+ * Not invented for this page: 85% is the split the live pool publishes and has
+ * been running on since launch — `rewardReserveBps` reads 8500 on chain today,
+ * with 12% to the protocol and 3% to running costs. The mint is planned to use
+ * the same one, which is why the funding figures below can be shown as
+ * arithmetic rather than asserted.
+ */
+export const NFT_VAULT_SHARE = 0.85;
+
+/** What a given sell-through puts into the prize vault. */
+export function vaultAt(fractionSold: number): number {
+  return Math.round(
+    NFT_TOTAL_SUPPLY * fractionSold * NFT_MINT_PRICE_USD * NFT_VAULT_SHARE,
+  );
+}
+
+/** Sell-through scenarios shown on the page. */
+export const NFT_FUNDING_SCENARIOS = [0.25, 0.5, 1] as const;
+
 export interface NftTier {
   key: "common" | "rare" | "legendary" | "grail";
   name: string;
@@ -125,7 +146,7 @@ export const NFT_FACTS: NftFact[] = [
   {
     question: "How much does a Grail pull pay?",
     answer:
-      "We'll publish the exact odds and prize range on chain before minting opens, and you'll be able to read them yourself the same way you can read every pool on this site today. We're not putting a figure on it before the vault behind it exists — that number has to be one you can check, not one we assert.",
+      "Work it out from the mint. Half the collection selling puts about $10,600 into the prize vault, and only 25 capsules can be spent against it — three of them Grails. That is what makes four-figure Grail pulls reachable rather than aspirational. The exact odds and ranges still go on chain before minting opens, and those are the numbers that bind, not this page.",
   },
   {
     question: "What happens to the mint proceeds?",

@@ -5,10 +5,13 @@ import { ButtonLink } from "@/components/ui/Button";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import {
   NFT_FACTS,
+  NFT_FUNDING_SCENARIOS,
   NFT_MINT_PRICE_USD,
   NFT_PHASES,
   NFT_TIERS,
   NFT_TOTAL_SUPPLY,
+  NFT_VAULT_SHARE,
+  vaultAt,
 } from "@/data/nft";
 import { cn } from "@/lib/utils";
 import { NETWORK_LABEL } from "@/lib/web3";
@@ -70,6 +73,7 @@ export function NftTeaser() {
                 `${NFT_TOTAL_SUPPLY} capsules, fixed in the contract — no reruns`,
                 "Yours in your own wallet — we can't move it or take it back",
                 "25 of them can be spent in the machine. 3 of those are Grails",
+                `Half the collection selling puts about $${vaultAt(0.5).toLocaleString()} into the prize vault`,
               ].map((line) => (
                 <li key={line} className="flex items-start gap-2.5">
                   <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-ink" aria-hidden="true" />
@@ -234,6 +238,87 @@ export function NftTeaser() {
               );
             })}
           </ol>
+        </PageContainer>
+      </section>
+
+      {/* ---------------- What the mint funds ---------------- */}
+      <section className="relative pb-14">
+        <PageContainer width="wide">
+          <SectionHeader
+            eyebrow="Where the money goes"
+            title="Four figures isn't a slogan. It's the arithmetic."
+            description={`${Math.round(NFT_VAULT_SHARE * 100)}% of every mint goes into the prize vault — the same split the live machine publishes and runs on today. Here is what that means at different sell-throughs.`}
+            className="mb-6"
+          />
+
+          <div className="glass-panel overflow-hidden rounded-[24px] p-5">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px] border-collapse text-[13px]">
+                <thead>
+                  <tr className="text-left text-ink-3">
+                    <th className="pb-2 font-medium">If this much sells</th>
+                    <th className="pb-2 text-right font-medium">Capsules minted</th>
+                    <th className="pb-2 text-right font-medium">Mint revenue</th>
+                    <th className="pb-2 text-right font-medium">Into the prize vault</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {NFT_FUNDING_SCENARIOS.map((fraction) => {
+                    const minted = Math.round(NFT_TOTAL_SUPPLY * fraction);
+                    const gross = minted * NFT_MINT_PRICE_USD;
+                    const highlight = fraction === 0.5;
+                    return (
+                      <tr
+                        key={fraction}
+                        className={cn(
+                          "border-t border-[rgb(var(--line-rgb)_/_0.08)]",
+                          highlight && "bg-accent-soft/60",
+                        )}
+                      >
+                        <td className="num py-3 font-medium text-ink">
+                          {Math.round(fraction * 100)}%
+                          {highlight ? (
+                            <span className="ml-2 rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-medium text-accent-ink">
+                              half
+                            </span>
+                          ) : null}
+                        </td>
+                        <td className="num py-3 text-right text-ink-2">{minted}</td>
+                        <td className="num py-3 text-right text-ink-2">
+                          ${gross.toLocaleString()}
+                        </td>
+                        <td className="num py-3 text-right font-semibold text-ink">
+                          ${vaultAt(fraction).toLocaleString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-5 grid gap-4 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-5 sm:grid-cols-2">
+              <div>
+                <p className="micro">Why that matters</p>
+                <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">
+                  Only 25 capsules of the {NFT_TOTAL_SUPPLY} can be spent
+                  against that vault, and three of them are Grails. A pool in
+                  the five figures drawn on by twenty-five capsules is what puts
+                  four-figure Grail pulls within reach — not optimism, just
+                  division.
+                </p>
+              </div>
+              <div>
+                <p className="micro">What still has to happen</p>
+                <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">
+                  The vault has to actually fill, which depends on how many
+                  mint. Exact odds and prize ranges go on chain before minting
+                  opens, and those are the numbers that bind — this table shows
+                  the funding, not a promise about any single pull.
+                </p>
+              </div>
+            </div>
+          </div>
         </PageContainer>
       </section>
 
