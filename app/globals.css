@@ -78,6 +78,12 @@
      near-white on bright lime in dark and become unreadable. */
   --on-accent: #10110f;
 
+  /* Which of Robinhood's two published marks to show. They ship a black one
+     for light backgrounds and a white one for dark, so this selects between
+     their own artwork rather than tinting it — the mark itself is never
+     recoloured to anything they did not publish. */
+  --rh-mark: #000000;
+
   --accent-grad-1: #2f3d00;
   --accent-grad-2: #6f9200;
   --accent-grad-3: #9bcc00;
@@ -866,6 +872,8 @@
   --wash-top: rgb(255 255 255 / 0.04);
 
   /* Inverted range: the light end has to carry the word on a dark canvas. */
+  --rh-mark: #ffffff;
+
   --accent-grad-1: #a8d92b;
   --accent-grad-2: #ccff00;
   --accent-grad-3: #e6ff7a;
