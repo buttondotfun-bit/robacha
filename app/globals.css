@@ -971,6 +971,72 @@
     0 6px 18px -8px rgb(0 0 0 / 0.6);
 }
 
+/* ------------------------------------------------------------------
+   Capsule motion, for the drop page.
+
+   Everything here is slow and small on purpose. A mint page that
+   jitters reads as a scam; the job is to make the object feel like it
+   has weight and is sitting in air, not to draw attention to itself.
+   Durations are in whole seconds and nothing loops faster than 6s.
+------------------------------------------------------------------ */
+@keyframes capsule-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-14px) rotate(-1.5deg); }
+}
+
+/* The small background capsules drift on their own clocks so the group
+   never pulses in unison, which is what makes it look mechanical. */
+@keyframes capsule-drift-a {
+  0%, 100% { transform: translate(0, 0) rotate(-12deg); }
+  50%      { transform: translate(6px, -18px) rotate(-6deg); }
+}
+@keyframes capsule-drift-b {
+  0%, 100% { transform: translate(0, 0) rotate(12deg); }
+  50%      { transform: translate(-8px, -12px) rotate(18deg); }
+}
+@keyframes capsule-drift-c {
+  0%, 100% { transform: translate(0, 0) rotate(6deg); }
+  50%      { transform: translate(5px, -16px) rotate(0deg); }
+}
+
+@keyframes rarity-breathe {
+  0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.06); }
+}
+
+.capsule-float { animation: capsule-float 6s ease-in-out infinite; }
+.capsule-drift-a { animation: capsule-drift-a 9s ease-in-out infinite; }
+.capsule-drift-b { animation: capsule-drift-b 11s ease-in-out infinite 1.2s; }
+.capsule-drift-c { animation: capsule-drift-c 10s ease-in-out infinite 0.6s; }
+.rarity-breathe { animation: rarity-breathe 7s ease-in-out infinite; }
+
+/* ------------------------------------------------------------------
+   Scroll reveal. Content starts hidden only once the observer has
+   confirmed it can run — see Reveal.tsx — so a failed script or a
+   crawler never leaves the page blank.
+------------------------------------------------------------------ */
+@keyframes reveal-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+[data-reveal="pending"] { opacity: 0; }
+[data-reveal="in"] {
+  animation: reveal-rise 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+/* The split bar fills rather than appearing already full. */
+@keyframes bar-fill {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+[data-reveal="in"] .bar-fill {
+  transform-origin: left;
+  animation: bar-fill 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--bar-delay, 120ms);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -983,6 +1049,12 @@
     transition-duration: 0.001ms !important;
   }
   .pulse-dot,
+  .capsule-float,
+  .capsule-drift-a,
+  .capsule-drift-b,
+  .capsule-drift-c,
+  .rarity-breathe,
+  .bar-fill,
   .reward-reveal,
   .capsule,
   .capsule--waiting,
@@ -995,6 +1067,12 @@
   .marquee-track,
   .reward-reveal::after,
   .skeleton::after {
+    animation: none !important;
+  }
+  /* Never leave revealed content invisible when its animation is disabled. */
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
     animation: none !important;
   }
   .marquee-track {

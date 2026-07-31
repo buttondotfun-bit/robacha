@@ -27,7 +27,7 @@ export function CapsulePreview({ rarity = "grail" }: { rarity?: string }) {
       {/* Rarity light behind the capsule. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[78%] w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[8px]"
+        className="rarity-breathe pointer-events-none absolute left-1/2 top-1/2 h-[78%] w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[8px]"
         style={{
           background:
             "radial-gradient(circle, rgb(var(--rarity-glow) / 0.34) 0%, transparent 68%)",
@@ -38,20 +38,20 @@ export function CapsulePreview({ rarity = "grail" }: { rarity?: string }) {
           out of a collection rather than a lone object. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <span data-rarity="common" className="absolute left-[9%] top-[16%] opacity-40">
-          <CapsuleGlyph id="float-a" className="h-12 w-12 -rotate-12" />
+          <CapsuleGlyph id="float-a" className="capsule-drift-a h-12 w-12" />
         </span>
         <span data-rarity="rare" className="absolute right-[11%] top-[24%] opacity-45">
-          <CapsuleGlyph id="float-b" className="h-10 w-10 rotate-12" />
+          <CapsuleGlyph id="float-b" className="capsule-drift-b h-10 w-10" />
         </span>
         <span data-rarity="legendary" className="absolute bottom-[20%] left-[15%] opacity-40">
-          <CapsuleGlyph id="float-c" className="h-9 w-9 rotate-6" />
+          <CapsuleGlyph id="float-c" className="capsule-drift-c h-9 w-9" />
         </span>
       </div>
 
       <div className="relative grid h-full place-items-center p-8">
         <svg
           viewBox="0 0 200 200"
-          className="h-full w-full max-h-[340px] max-w-[340px] drop-shadow-[0_24px_48px_rgb(var(--ink-rgb)_/_0.28)]"
+          className="capsule-float h-full w-full max-h-[340px] max-w-[340px] drop-shadow-[0_24px_48px_rgb(var(--ink-rgb)_/_0.28)]"
           role="img"
           aria-label={`Robacha ${rarity} capsule, placeholder artwork`}
         >
@@ -92,7 +92,7 @@ export function CapsulePreview({ rarity = "grail" }: { rarity?: string }) {
         </svg>
 
         {/* Brand mark set into the capsule's face. */}
-        <span className="absolute bottom-[26%] left-1/2 -translate-x-1/2">
+        <span className="capsule-float absolute bottom-[26%] left-1/2 -translate-x-1/2">
           <RobachaCapsuleRing style={{ height: 34, width: 34 }} />
         </span>
       </div>

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
 import { PageContainer, SectionHeader } from "@/components/shared/primitives";
+import { Reveal } from "@/components/shared/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import {
@@ -30,6 +31,7 @@ import { NETWORK_LABEL } from "@/lib/web3";
 import { CapsuleGlyph } from "./CapsuleGlyph";
 import { CapsulePreview } from "./CapsulePreview";
 import { MintCountdown } from "./MintCountdown";
+import { MintPrice } from "./MintPrice";
 
 /**
  * The capsule drop.
@@ -100,18 +102,7 @@ export function NftTeaser() {
 
             {/* ---- mint panel ---- */}
             <div className="glass-panel mt-6 rounded-[24px] p-5">
-              <div className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <p className="micro">Mint price</p>
-                  <p className="num mt-1 text-[32px] font-semibold leading-none tracking-[-0.03em]">
-                    ${NFT_MINT_PRICE_USD}
-                  </p>
-                </div>
-                <p className="text-[11.5px] leading-snug text-ink-3">
-                  Per capsule
-                  <span className="block">Paid in {NETWORK_LABEL} ETH</span>
-                </p>
-              </div>
+              <MintPrice />
 
               <div className="mt-5 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4">
                 <MintCountdown />
@@ -159,14 +150,17 @@ export function NftTeaser() {
           />
 
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {NFT_TIERS.map((tier) => {
+            {NFT_TIERS.map((tier, index) => {
               const share = (tier.supply / NFT_TOTAL_SUPPLY) * 100;
               return (
-                <li
+                <Reveal
+                  as="li"
                   key={tier.key}
+                  delay={index * 90}
                   data-rarity={tier.key}
                   className={cn(
-                    "rarity-glass glass-highlight relative overflow-hidden rounded-[20px] p-5",
+                    "rarity-glass glass-highlight group relative overflow-hidden rounded-[20px] p-5",
+                    "transition-transform duration-300 hover:-translate-y-1",
                     // The whole collection is built around three capsules, so
                     // the tier that holds them is not one card among four.
                     tier.key === "grail" && "ring-2 ring-[rgb(var(--rarity-glow)_/_0.45)]",
@@ -203,7 +197,7 @@ export function NftTeaser() {
                       four cards to the object they describe. */}
                   <CapsuleGlyph
                     id={tier.key}
-                    className="mt-4 h-14 w-14 drop-shadow-[0_6px_14px_rgb(var(--rarity-glow)_/_0.35)]"
+                    className="mt-4 h-14 w-14 drop-shadow-[0_6px_14px_rgb(var(--rarity-glow)_/_0.35)] transition-transform duration-500 group-hover:-translate-y-1 group-hover:rotate-6"
                   />
 
                   <p className="num mt-3 text-[30px] font-semibold leading-none tracking-[-0.03em]">
@@ -216,7 +210,7 @@ export function NftTeaser() {
                   <p className="mt-3 text-[12.5px] leading-relaxed text-ink-2">
                     {tier.blurb}
                   </p>
-                </li>
+                </Reveal>
               );
             })}
           </ul>
@@ -244,7 +238,7 @@ export function NftTeaser() {
             {NFT_PHASES.map((phase, index) => {
               const Icon = [Wallet, Shuffle, Sparkles][index] ?? Wallet;
               return (
-                <li key={phase.title} className="glass-card rounded-[20px] p-5">
+                <Reveal as="li" key={phase.title} delay={index * 110} className="glass-card rounded-[20px] p-5 transition-transform duration-300 hover:-translate-y-1">
                   <div className="flex items-center justify-between gap-2">
                     <span className="glass-micro grid h-9 w-9 place-items-center rounded-xl">
                       <Icon className="h-4 w-4" aria-hidden="true" />
@@ -257,7 +251,7 @@ export function NftTeaser() {
                   <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">
                     {phase.body}
                   </p>
-                </li>
+                </Reveal>
               );
             })}
           </ol>
@@ -274,18 +268,26 @@ export function NftTeaser() {
             className="mb-6"
           />
 
-          <div className="glass-panel overflow-hidden rounded-[24px] p-5">
+          <Reveal className="glass-panel overflow-hidden rounded-[24px] p-5">
             {/* The split, drawn. Same shape as the odds bar on the landing
                 page, so the two read as the same kind of disclosure. */}
             <div className="mb-5">
               <div className="flex h-3 w-full overflow-hidden rounded-full">
                 <span
-                  className="h-full bg-[#8ec500]"
+                  className="bar-fill h-full bg-[#8ec500]"
                   style={{ width: `${NFT_VAULT_SHARE * 100}%` }}
                   aria-hidden="true"
                 />
-                <span className="h-full w-[12%] bg-[rgb(var(--ink-rgb)_/_0.28)]" aria-hidden="true" />
-                <span className="h-full w-[3%] bg-[rgb(var(--ink-rgb)_/_0.14)]" aria-hidden="true" />
+                <span
+                  className="bar-fill h-full w-[12%] bg-[rgb(var(--ink-rgb)_/_0.28)]"
+                  style={{ "--bar-delay": "260ms" } as React.CSSProperties}
+                  aria-hidden="true"
+                />
+                <span
+                  className="bar-fill h-full w-[3%] bg-[rgb(var(--ink-rgb)_/_0.14)]"
+                  style={{ "--bar-delay": "360ms" } as React.CSSProperties}
+                  aria-hidden="true"
+                />
               </div>
               <ul className="mt-2.5 flex flex-wrap gap-x-5 gap-y-1 text-[11.5px] text-ink-2">
                 <li className="flex items-center gap-1.5">
@@ -355,7 +357,13 @@ export function NftTeaser() {
                     <span key={id} data-rarity="grail">
                       <CapsuleGlyph
                         id={id}
-                        className="h-10 w-10 drop-shadow-[0_6px_14px_rgb(var(--rarity-glow)_/_0.4)]"
+                        className={cn(
+                          "h-10 w-10 drop-shadow-[0_6px_14px_rgb(var(--rarity-glow)_/_0.4)]",
+                          // Three clocks, so they never bob in unison.
+                          id === "g1" && "capsule-drift-a",
+                          id === "g2" && "capsule-drift-b",
+                          id === "g3" && "capsule-drift-c",
+                        )}
                       />
                     </span>
                   ))}
@@ -382,7 +390,7 @@ export function NftTeaser() {
                 </p>
               </div>
             </div>
-          </div>
+          </Reveal>
         </PageContainer>
       </section>
 
@@ -400,7 +408,7 @@ export function NftTeaser() {
             {NFT_FACTS.map((fact, index) => {
               const Icon = FACT_ICONS[index] ?? HelpCircle;
               return (
-                <div key={fact.question} className="glass-card flex gap-3.5 rounded-[20px] p-5">
+                <Reveal key={fact.question} delay={index * 70} className="glass-card flex gap-3.5 rounded-[20px] p-5 transition-transform duration-300 hover:-translate-y-0.5">
                   <span className="glass-micro grid h-9 w-9 shrink-0 place-items-center rounded-xl">
                     <Icon className="h-4 w-4" aria-hidden="true" />
                   </span>
@@ -412,7 +420,7 @@ export function NftTeaser() {
                       {fact.answer}
                     </p>
                   </div>
-                </div>
+                </Reveal>
               );
             })}
           </div>

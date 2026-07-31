@@ -48,6 +48,31 @@ export function vaultAt(fractionSold: number): number {
 /** Sell-through scenarios shown on the page. */
 export const NFT_FUNDING_SCENARIOS = [0.25, 0.5, 1] as const;
 
+/**
+ * Tokens the mint is planned to accept.
+ *
+ * Addresses verified on chain — `symbol()` read back against the ticker before
+ * being written here, which matters on a chain where several tickers have more
+ * than one contract using them. The native token is listed separately because
+ * it has no contract address.
+ *
+ * Prices are read live from the token index at render, so the page never
+ * hardcodes a conversion. Any of these whose price cannot be read reliably
+ * shows as accepted without an amount rather than with a guessed one.
+ */
+export interface NftPaymentToken {
+  symbol: string;
+  /** Null for the chain's native token. */
+  address: `0x${string}` | null;
+}
+
+export const NFT_PAYMENT_TOKENS: NftPaymentToken[] = [
+  { symbol: "ETH", address: null },
+  { symbol: "PONS", address: "0x39dBED3a2bd333467115dE45665cC57F813C4571" },
+  { symbol: "CASHCAT", address: "0x020bfC650A365f8BB26819deAAbF3E21291018b4" },
+  { symbol: "TENDIES", address: "0x45242320DBB855EeA8Fd36804C6487E10E97FCF9" },
+];
+
 export interface NftTier {
   key: "common" | "rare" | "legendary" | "grail";
   name: string;
