@@ -5,6 +5,7 @@ import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { LivePoolPreview } from "@/components/landing/LivePoolPreview";
 import { NextRelease } from "@/components/landing/NextRelease";
+import { NftPreview } from "@/components/landing/NftPreview";
 import { RewardTiers } from "@/components/landing/RewardTiers";
 import { Testimonials } from "@/components/landing/Testimonials";
 import { TokenLineup } from "@/components/landing/TokenLineup";
@@ -19,6 +20,7 @@ export default function LandingPage() {
       <LivePoolPreview />
       <TokenLineup />
       <NextRelease />
+      <NftPreview />
       <WhyRobacha />
       <Testimonials />
       <ActivityPreview />

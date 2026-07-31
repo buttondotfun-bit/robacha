@@ -15,19 +15,25 @@ import { cn } from "@/lib/utils";
  *
  * Unobserves after the first reveal. Content that re-hides when you scroll back
  * up is a distraction, not an effect.
+ *
+ * Forwards every other prop to the rendered element. Without that, wrapping a
+ * card in this silently drops attributes the styling depends on — `data-rarity`
+ * went missing on the tier cards, which left the capsules with no
+ * `--rarity-glow` to read and rendered them black.
  */
 export function Reveal({
   children,
   delay = 0,
   className,
   as: Tag = "div",
+  ...rest
 }: {
   children: React.ReactNode;
   /** Milliseconds, for staggering siblings. */
   delay?: number;
   className?: string;
   as?: "div" | "section" | "li";
-}) {
+} & React.HTMLAttributes<HTMLElement>) {
   const ref = useRef<HTMLElement | null>(null);
   const [state, setState] = useState<"idle" | "pending" | "in">("idle");
 
@@ -68,9 +74,14 @@ export function Reveal({
 
   return (
     <Tag
+      {...rest}
       ref={ref as never}
       data-reveal={state === "idle" ? undefined : state}
-      style={delay ? ({ "--reveal-delay": `${delay}ms` } as React.CSSProperties) : undefined}
+      style={
+        delay
+          ? ({ ...rest.style, "--reveal-delay": `${delay}ms` } as React.CSSProperties)
+          : rest.style
+      }
       className={cn(className)}
     >
       {children}
