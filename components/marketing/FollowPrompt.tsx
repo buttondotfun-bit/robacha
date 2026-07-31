@@ -42,7 +42,10 @@ export function FollowPrompt() {
               target="_blank"
               rel="noreferrer"
               onClick={dismissFollow}
-              className="inline-flex h-8 items-center gap-1.5 rounded-full bg-ink px-3.5 text-[12px] font-medium text-white transition-opacity hover:opacity-90"
+              // bg-ink with a literal white label was invisible in dark, where ink is
+              // near-white. text-canvas is ink's counterpart in both themes: a dark
+              // button with light text in light mode, and the inverse in dark.
+              className="inline-flex h-8 items-center gap-1.5 rounded-full bg-ink px-3.5 text-[12px] font-medium text-canvas transition-opacity hover:opacity-90"
             >
               <XIcon className="h-3 w-3" />
               Follow

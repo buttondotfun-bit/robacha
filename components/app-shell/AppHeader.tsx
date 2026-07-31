@@ -74,10 +74,12 @@ export function AppHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          {/* Siblings in the flex row. Nesting the toggle inside the badge's
+              wrapper made them stack, because that wrapper is block. */}
+          <span className="hidden md:block">
+            <ThemeToggle />
+          </span>
           <span className="hidden sm:block">
-            <span className="hidden md:block">
-              <ThemeToggle />
-            </span>
             <NetworkBadge />
           </span>
           <a
