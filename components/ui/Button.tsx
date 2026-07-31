@@ -12,8 +12,12 @@ const BASE =
 
 const VARIANTS: Record<Variant, string> = {
   // Neon glass. The one loud surface — reserved for the single primary action.
+  //
+  // The label is --on-accent rather than the theme's ink: this gradient is the
+  // same bright lime in both themes, so its text has to be dark in both. Using
+  // text-ink made it near-white on lime in dark mode, which was unreadable.
   primary: [
-    "text-ink border border-[rgba(150,190,0,0.55)]",
+    "text-[var(--on-accent)] border border-[rgba(150,190,0,0.55)]",
     "bg-[linear-gradient(168deg,rgba(226,255,120,0.96)_0%,rgba(204,255,0,0.98)_46%,rgba(186,232,0,0.98)_100%)]",
     "shadow-[var(--shadow-neon)]",
     "hover:-translate-y-0.5 hover:shadow-[0_1px_0_rgb(var(--edge-rgb)_/_0.6)_inset,0_8px_22px_-6px_rgba(160,200,0,0.62),0_18px_44px_-20px_rgba(120,150,0,0.5)]",

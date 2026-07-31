@@ -72,6 +72,12 @@
   --wash-top: rgb(255 255 255 / 0.9);
 
   /* Headline gradient. Deep-to-mid green, tuned for a near-white page. */
+  /* Text sitting on the accent. Constant in both themes, because the accent
+     surface is constant in both themes — it is a fixed lime gradient, not a
+     themed one. Using --color-ink here is what made "Launch App" render
+     near-white on bright lime in dark and become unreadable. */
+  --on-accent: #10110f;
+
   --accent-grad-1: #2f3d00;
   --accent-grad-2: #6f9200;
   --accent-grad-3: #9bcc00;
@@ -167,7 +173,8 @@
 
   ::selection {
     background: var(--color-accent);
-    color: var(--color-ink);
+    /* Fixed surface, so fixed ink — see --on-accent. */
+    color: var(--on-accent);
   }
 
   :focus-visible {
