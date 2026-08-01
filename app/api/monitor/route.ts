@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { encodeAbiParameters, keccak256, parseAbiItem } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import {
   ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
@@ -39,6 +40,42 @@ const MIN_COMMITMENTS = 10;
 
 /** Rounds to look back over. Cheap, and far more than a stall would need. */
 const ROUND_SCAN = 25;
+
+/** A refund for a failed draw is worth shouting about for this long. */
+const REFUND_ALERT_WINDOW_SECONDS = 48 * 3600;
+
+const ROUND_REFUNDABLE = parseAbiItem(
+  "event RoundRefundable(uint256 indexed roundId, string reason)",
+);
+
+/**
+ * The secret the keeper would use for a commitment, derived exactly as the
+ * keeper derives it.
+ *
+ * Kept byte-identical to the settle route's copy on purpose: a check that
+ * computes the secret differently from the code doing the revealing would
+ * report healthy while reveals fail, which is the failure this exists to catch.
+ * The return value is never logged, returned or put in a message — only whether
+ * its hash matched.
+ */
+function secretForIndex(index: number): `0x${string}` | null {
+  if (keeper.legacySecrets) {
+    try {
+      const map = JSON.parse(keeper.legacySecrets) as Record<string, string>;
+      const legacy = map[String(index)];
+      if (legacy) return legacy as `0x${string}`;
+    } catch {
+      /* fall through to derivation */
+    }
+  }
+  if (!keeper.commitmentSeed) return null;
+  return keccak256(
+    encodeAbiParameters(
+      [{ type: "bytes32" }, { type: "uint256" }],
+      [keeper.commitmentSeed as `0x${string}`, BigInt(index)],
+    ),
+  );
+}
 
 const State = {
   None: 0, Open: 1, Closed: 2, RandomnessRequested: 3, CrossChainPending: 4,
@@ -230,8 +267,95 @@ export async function GET() {
         detail: `${missed} reveal(s) missed and slashed — rounds were cancelled and this is publicly counted`,
       });
     }
+
+    // ---- Can the keeper actually reveal, or is it only configured? ----
+    //
+    // Presence and shape of the env vars was all that was checked before, and
+    // that reported healthy while four consecutive rounds refunded for a draw
+    // that never arrived. Closing and requesting are permissionless so they
+    // kept working; reveal is the only step needing the secret, and it was the
+    // only one failing. A configuration check cannot tell those apart.
+    //
+    // So this does the real thing: take the next commitment the keeper will be
+    // asked to open, produce the secret the way the keeper would, and hash it
+    // against what is stored on chain. A truncated secrets map fails here
+    // immediately rather than silently falling through to a derivation that
+    // yields the wrong secret for a legacy commitment.
+    try {
+      const nextUnused = (await client.readContract({
+        address: randomness,
+        abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+        functionName: "nextUnused",
+      })) as bigint;
+
+      const commitment = (await client.readContract({
+        address: randomness,
+        abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+        functionName: "commitments",
+        args: [nextUnused],
+      })) as readonly [`0x${string}`, bigint, boolean];
+
+      const secret = secretForIndex(Number(nextUnused));
+      const matches = secret !== null && keccak256(secret) === commitment[0];
+
+      facts.nextCommitmentIndex = Number(nextUnused);
+      facts.keeperCanReveal = matches;
+
+      if (!matches) {
+        alerts.push({
+          check: "keeperCannotReveal",
+          severity: "critical",
+          detail:
+            `the keeper cannot produce the secret for commitment #${nextUnused} — ` +
+            "its hash does not match the one posted on chain, so every reveal will fail " +
+            "and rounds will refund on timeout. Check KEEPER_LEGACY_SECRETS and " +
+            "KEEPER_COMMITMENT_SEED in the deployment environment",
+        });
+      }
+    } catch (error) {
+      failed.push(`keeperCanReveal: ${error instanceof Error ? error.message : "read failed"}`);
+    }
   } catch (error) {
     failed.push(`randomness: ${error instanceof Error ? error.message : "read failed"}`);
+  }
+
+  // ---- Rounds that refunded instead of paying ----
+  //
+  // These never showed as stuck: a refundable round is finished as far as the
+  // keeper is concerned, and once entrants withdraw its escrow is zero. That is
+  // exactly how four in a row went unreported while the monitor said ok. A
+  // refund for a failed draw is a failure whether or not anyone is still owed.
+  try {
+    const head = await client.getBlockNumber();
+    const logs = await client.getLogs({
+      address: gacha,
+      event: ROUND_REFUNDABLE,
+      fromBlock: 0n,
+      toBlock: head,
+    });
+
+    const recent: string[] = [];
+    for (const log of logs.slice(-12)) {
+      if (!log.blockNumber) continue;
+      const block = await client.getBlock({ blockNumber: log.blockNumber });
+      if (nowSeconds - Number(block.timestamp) > REFUND_ALERT_WINDOW_SECONDS) continue;
+      const args = log.args as { roundId?: bigint; reason?: string };
+      recent.push(`#${args.roundId} (${args.reason ?? "unknown"})`);
+    }
+
+    facts.refundedRoundsLast48h = recent.length;
+
+    if (recent.length > 0) {
+      alerts.push({
+        check: "roundsRefunded",
+        severity: "critical",
+        detail:
+          `${recent.length} round(s) refunded in the last 48h instead of paying out: ` +
+          `${recent.join(", ")} — people paid to spin and got their money back rather than a prize`,
+      });
+    }
+  } catch (error) {
+    failed.push(`roundsRefunded: ${error instanceof Error ? error.message : "read failed"}`);
   }
 
   // ---- 4. Can the live pool still pay every prize it advertises? ----
