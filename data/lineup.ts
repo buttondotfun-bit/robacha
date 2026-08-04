@@ -38,6 +38,16 @@ export interface LineupToken {
    * looking address imply it is ready.
    */
   chain?: "robinhood" | "bsc";
+  /**
+   * Path to a locally stored logo.
+   *
+   * Only needed for tokens the DEX index cannot resolve. Robinhood Chain
+   * tokens get their artwork from the live token index by address; anything on
+   * another chain is invisible to it, so its logo is stored here instead —
+   * served from our own origin rather than hotlinked, the same as the
+   * testimonial avatar.
+   */
+  logo?: string;
 }
 
 export const LINEUP: LineupToken[] = [
@@ -62,6 +72,10 @@ export const LINEUP: LineupToken[] = [
     name: "Pizza",
     address: "0x8554D38b95E4F7Ca11D391008627Df30B2b07777",
     chain: "bsc",
+    // Official artwork, taken from the token's own listing and stored locally.
+    // Cross-checked against the project it belongs to before being used:
+    // pizzabtc.meme and @PizzaBTC7777, matching the contract's 7777 tail.
+    logo: "/tokens/pizza.jpg",
   },
   {
     // Chosen deliberately from six contracts on this chain sharing the ticker.

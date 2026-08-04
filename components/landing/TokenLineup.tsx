@@ -92,7 +92,7 @@ export function TokenLineup({
                 <TokenAvatar
                   address={token.address}
                   symbol={token.symbol}
-                  logoUrl={market.get(token.address)?.logoUrl}
+                  logoUrl={token.logo ?? market.get(token.address)?.logoUrl}
                   size={28}
                   rounded="none"
                 />
@@ -176,7 +176,9 @@ export function TokenLineup({
                     <TokenAvatar
                       address={token.address}
                       symbol={token.symbol}
-                      logoUrl={market.get(token.address)?.logoUrl}
+                      // A stored logo wins: the token index only knows this
+                      // chain, so an off-chain token has no entry there.
+                      logoUrl={token.logo ?? market.get(token.address)?.logoUrl}
                       size={40}
                       rounded="none"
                     />
