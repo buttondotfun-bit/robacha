@@ -8,6 +8,7 @@ import { shortAddress } from "@/lib/formatters";
 import { useLineup } from "@/lib/use-lineup";
 import { usePool } from "@/lib/use-pool";
 import { useTokenMarket } from "@/lib/use-token-market";
+import { NETWORK_LABEL } from "@/lib/web3";
 
 /**
  * Which tokens the machine holds, and which are lined up next.
@@ -100,7 +101,11 @@ export function TokenLineup({
                 {token.name}
               </span>
               <span className="num shrink-0 text-[10.5px] text-ink-3">
-                {token.allowlisted ? "Approved" : "Lined up"}
+                {!token.onThisChain
+                  ? "Watching"
+                  : token.allowlisted
+                    ? "Approved"
+                    : "Lined up"}
               </span>
             </li>
           ))}
@@ -182,18 +187,27 @@ export function TokenLineup({
                     </p>
                     <p className="num truncate text-[11.5px] text-ink-3">
                       ${token.symbol}
+                      {!token.onThisChain ? (
+                        <span className="text-ink-3">{" · BNB Chain"}</span>
+                      ) : null}
                     </p>
                   </div>
                   <span
                     className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--ink-rgb)_/_0.06)] px-2 py-0.5 text-[10.5px] font-medium text-ink-3"
                     title={
-                      token.allowlisted
-                        ? "Approved as a reward token on the registry, not yet in a pool"
-                        : "Not yet approved on the registry"
+                      !token.onThisChain
+                        ? "Lives on another chain — needs a Robinhood Chain contract before it can be a reward"
+                        : token.allowlisted
+                          ? "Approved as a reward token on the registry, not yet in a pool"
+                          : "Not yet approved on the registry"
                     }
                   >
                     <Clock className="h-3 w-3" aria-hidden="true" />
-                    {token.allowlisted ? "Approved" : "Lined up"}
+                    {!token.onThisChain
+                      ? "Watching"
+                      : token.allowlisted
+                        ? "Approved"
+                        : "Lined up"}
                   </span>
                 </li>
               ))}
@@ -205,6 +219,15 @@ export function TokenLineup({
               Until a token shows as loaded above, it isn&rsquo;t in the machine
               and can&rsquo;t be pulled. No odds or amounts are set for them yet,
               so we&rsquo;re not going to invent any.
+              {upcoming.some((t) => !t.onThisChain) ? (
+                <>
+                  {" "}
+                  Anything marked <span className="text-ink-2">Watching</span>{" "}
+                  lives on another chain today — the machine only holds and pays{" "}
+                  {NETWORK_LABEL} tokens, so one of those needs a{" "}
+                  {NETWORK_LABEL} contract before it can be a reward at all.
+                </>
+              ) : null}
               {upcoming.some((t) => t.allowlisted) ? (
                 <>
                   {" "}
@@ -216,7 +239,12 @@ export function TokenLineup({
 
             <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
               {upcoming.map((token) => {
-                const url = explorerUrl("token", token.address);
+                // A BNB Chain address on the Robinhood explorer resolves to
+                // nothing, which reads as a broken link rather than a
+                // different chain.
+                const url = token.onThisChain
+                  ? explorerUrl("token", token.address)
+                  : `https://bscscan.com/token/${token.address}`;
                 return url ? (
                   <li key={token.address}>
                     <a

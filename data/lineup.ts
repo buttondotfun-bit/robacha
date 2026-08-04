@@ -27,6 +27,17 @@ export interface LineupToken {
   symbol: string;
   name: string;
   address: Address;
+  /**
+   * Where the contract at `address` actually lives.
+   *
+   * Defaults to Robinhood Chain because that is the only chain the machine
+   * reads or pays on. A token from anywhere else cannot be a reward at that
+   * address — the vault holds Robinhood Chain tokens and pays them out — so
+   * anything marked otherwise is announced as watched rather than as next in,
+   * and the interface says which chain it is on rather than letting a valid
+   * looking address imply it is ready.
+   */
+  chain?: "robinhood" | "bsc";
 }
 
 export const LINEUP: LineupToken[] = [
@@ -39,6 +50,18 @@ export const LINEUP: LineupToken[] = [
     symbol: "TENDIES",
     name: "Tendies",
     address: "0x45242320DBB855EeA8Fd36804C6487E10E97FCF9",
+  },
+  {
+    // Verified on BNB Chain, not Robinhood Chain: symbol() and name() both read
+    // PIZZA, 18 decimals, 1bn supply, about $92k of liquidity on PancakeSwap.
+    // There is no contract at this address on Robinhood Chain — eth_getCode
+    // returns empty — so it cannot be a reward here as it stands. It needs a
+    // Robinhood Chain representation first, and until one exists this is
+    // listed as something we are watching rather than something arriving.
+    symbol: "PIZZA",
+    name: "Pizza",
+    address: "0x8554D38b95E4F7Ca11D391008627Df30B2b07777",
+    chain: "bsc",
   },
   {
     // Chosen deliberately from six contracts on this chain sharing the ticker.
