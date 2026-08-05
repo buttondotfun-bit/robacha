@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowUpRight, RefreshCw } from "lucide-react";
 import { TokenAvatar } from "@/components/brand/TokenAvatar";
 import { LightField } from "@/components/shared/AmbientBackground";
@@ -25,6 +26,24 @@ export function LivePoolPreview() {
   const market = useTokenMarket(pool?.entries.map((e) => e.token) ?? []);
 
   const round = useLiveRound();
+
+  /**
+   * The rarest prizes first, then as many of the rest as fit.
+   *
+   * This used to take the first six slots in contract order. Slots are stored
+   * grouped by tier, common first, so once the pool grew past six the preview
+   * filled up entirely with commons — while the tier chips directly beneath it
+   * advertised a rare and a legendary tier that nothing on screen showed. The
+   * two best prizes in the machine were the ones being hidden.
+   *
+   * Sorting by tier descending puts the legendary slot at the top, which is
+   * both the honest thing to show next to those odds and the thing anyone
+   * looking at a gacha wants to see first.
+   */
+  const preview = [...(pool?.entries ?? [])]
+    .sort((a, b) => b.tierIndex - a.tierIndex)
+    .slice(0, 8);
+  const hidden = (pool?.entries.length ?? 0) - preview.length;
 
   return (
     <section className="relative py-16 sm:py-20">
@@ -134,7 +153,7 @@ export function LivePoolPreview() {
                   </GlassChip>
                 </div>
                 <ul className="mt-4 space-y-2">
-                  {pool.entries.slice(0, 6).map((entry) => (
+                  {preview.map((entry) => (
                     <li
                       key={`${entry.token}-${entry.tierIndex}`}
                       data-rarity={entry.rarity}
@@ -168,6 +187,12 @@ export function LivePoolPreview() {
                     </li>
                   ))}
                 </ul>
+                {hidden > 0 ? (
+                  <p className="num mt-3 text-[11px] text-ink-3">
+                    +{hidden} more {hidden === 1 ? "prize" : "prizes"} in the
+                    machine — <Link href="/rewards" className="underline decoration-dotted underline-offset-2 hover:text-ink-2">see the full pool</Link>
+                  </p>
+                ) : null}
               </div>
             </div>
           )}
