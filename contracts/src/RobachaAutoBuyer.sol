@@ -64,6 +64,42 @@ interface IUniswapV3Router {
     function exactInput(ExactInputParams calldata params) external payable returns (uint256 amountOut);
 }
 
+/**
+ * @dev Uniswap V4's singleton, verified on chain against the deployed
+ *      PoolManager's own ABI rather than written from memory.
+ *
+ * V4 has no per-pool contract and no swap entry point that can simply be
+ * called. Everything goes through `unlock`: the caller asks to be unlocked,
+ * the manager calls `unlockCallback` back, and only inside that callback may
+ * the caller swap. It then has to square its own books before returning —
+ * anything it owes is `settle`d, anything it is owed is `take`n — and the
+ * manager reverts if the accounts do not balance. That is why the swap logic
+ * below lives in a callback rather than inline.
+ */
+interface IPoolManager {
+    struct PoolKey {
+        address currency0;
+        address currency1;
+        uint24 fee;
+        int24 tickSpacing;
+        address hooks;
+    }
+
+    struct SwapParams {
+        bool zeroForOne;
+        int256 amountSpecified;
+        uint160 sqrtPriceLimitX96;
+    }
+
+    function unlock(bytes calldata data) external returns (bytes memory);
+    function swap(PoolKey calldata key, SwapParams calldata params, bytes calldata hookData)
+        external
+        returns (int256 delta);
+    function sync(address currency) external;
+    function settle() external payable returns (uint256);
+    function take(address currency, address to, uint256 amount) external;
+}
+
 interface IWETH9 {
     function deposit() external payable;
     function withdraw(uint256 amount) external;
@@ -122,8 +158,13 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     /// @notice Which router interface a venue speaks.
     enum Venue {
         V2,
-        V3
+        V3,
+        V4
     }
+
+    /// @dev V4's price bounds. A swap must name a limit; these mean "no limit".
+    uint160 constant MIN_SQRT_PRICE = 4295128739 + 1;
+    uint160 constant MAX_SQRT_PRICE = 1461446703485210103287273052203988822378723970342 - 1;
 
     /**
      * @notice How to trade one token, when the default venue will not do.
@@ -143,6 +184,8 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
         Venue venue;
         address[] path;
         bytes v3Path;
+        /// V4 only. The pool is identified by the whole key, not an address.
+        IPoolManager.PoolKey v4Key;
     }
 
     /// @notice ETH -> token. Empty router means "use the default venue".
@@ -156,6 +199,7 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     event BuyRouteSet(address indexed token, address indexed router, address[] path);
     event SellRouteSet(address indexed token, address indexed router, address[] path);
     event BuyRouteSetV3(address indexed token, address indexed router, bytes path);
+    event V4RouteSet(address indexed token, address indexed manager, uint24 fee, int24 tickSpacing);
     event SellRouteSetV3(address indexed token, address indexed router, bytes path);
     event BuyRouteCleared(address indexed token);
     event SellRouteCleared(address indexed token);
@@ -168,6 +212,11 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     error PathMustEndWith(address expected, address actual);
     /// @dev A V3 path is 20 + (23 * hops) bytes. Anything else is malformed.
     error MalformedV3Path(uint256 length);
+    error PoolKeyMissingToken(address token);
+    error PoolKeyMisordered();
+    error NotThePoolManager();
+    error V4SwapReturnedNothing();
+    error InsufficientOutput(uint256 received, uint256 minimum);
 
     constructor(address admin, address vault_) {
         if (admin == address(0) || vault_ == address(0)) revert ZeroAddress();
@@ -193,7 +242,7 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     {
         if (token == address(0) || router == address(0)) revert ZeroAddress();
         _requirePath(path, WETH, token);
-        _buyRoutes[token] = Route({router: router, venue: Venue.V2, path: path, v3Path: ""});
+        _buyRoutes[token] = Route({router: router, venue: Venue.V2, path: path, v3Path: "", v4Key: _emptyKey()});
         emit BuyRouteSet(token, router, path);
     }
 
@@ -212,8 +261,48 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
         if (token == address(0) || router == address(0)) revert ZeroAddress();
         _requireV3Path(v3Path, WETH, token);
         address[] memory empty;
-        _buyRoutes[token] = Route({router: router, venue: Venue.V3, path: empty, v3Path: v3Path});
+        _buyRoutes[token] = Route({router: router, venue: Venue.V3, path: empty, v3Path: v3Path, v4Key: _emptyKey()});
         emit BuyRouteSetV3(token, router, v3Path);
+    }
+
+    /**
+     * @notice Point a token at its Uniswap V4 pool, for both buying and selling.
+     * @param manager The PoolManager singleton.
+     * @param key     The pool's full key. V4 identifies a pool by the hash of
+     *                this, so there is no address to point at and nothing to
+     *                look up from the token alone.
+     * @dev One call covers both directions, unlike V2 and V3 where the path
+     *      has to be reversed. A V4 swap direction is just `zeroForOne`, so the
+     *      same key serves both and splitting it would only create a way for
+     *      the two to disagree.
+     *
+     *      The key must name this token as one of its two currencies, or it
+     *      describes a different pool entirely and the swap would deliver
+     *      something else into the vault.
+     */
+    function setV4Route(address token, address manager, IPoolManager.PoolKey calldata key)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        if (token == address(0) || manager == address(0)) revert ZeroAddress();
+        if (key.currency0 != token && key.currency1 != token) revert PoolKeyMissingToken(token);
+        // currency0 < currency1 is V4's own invariant; a key breaking it hashes
+        // to a pool that was never initialised.
+        if (key.currency0 >= key.currency1) revert PoolKeyMisordered();
+
+        address[] memory empty;
+        Route memory route =
+            Route({router: manager, venue: Venue.V4, path: empty, v3Path: "", v4Key: key});
+        _buyRoutes[token] = route;
+        _sellRoutes[token] = route;
+        emit V4RouteSet(token, manager, key.fee, key.tickSpacing);
+    }
+
+    /// @notice The V4 pool a token trades through, if one is configured.
+    function v4Route(address token) external view returns (address manager, IPoolManager.PoolKey memory key) {
+        Route storage route = _buyRoutes[token];
+        if (route.venue != Venue.V4) return (address(0), key);
+        return (route.router, route.v4Key);
     }
 
     /// @notice Point a token's sales at a Uniswap V3 pool.
@@ -224,7 +313,7 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
         if (token == address(0) || router == address(0)) revert ZeroAddress();
         _requireV3Path(v3Path, token, WETH);
         address[] memory empty;
-        _sellRoutes[token] = Route({router: router, venue: Venue.V3, path: empty, v3Path: v3Path});
+        _sellRoutes[token] = Route({router: router, venue: Venue.V3, path: empty, v3Path: v3Path, v4Key: _emptyKey()});
         emit SellRouteSetV3(token, router, v3Path);
     }
 
@@ -235,7 +324,7 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     {
         if (token == address(0) || router == address(0)) revert ZeroAddress();
         _requirePath(path, token, WETH);
-        _sellRoutes[token] = Route({router: router, venue: Venue.V2, path: path, v3Path: ""});
+        _sellRoutes[token] = Route({router: router, venue: Venue.V2, path: path, v3Path: "", v4Key: _emptyKey()});
         emit SellRouteSet(token, router, path);
     }
 
@@ -299,7 +388,16 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
 
         Route storage route = _buyRoutes[token];
 
-        if (route.venue == Venue.V3 && route.router != address(0)) {
+        if (route.venue == Venue.V4 && route.router != address(0)) {
+            uint256 before = IERC20(token).balanceOf(address(this));
+            _v4Swap(route, token, ethAmount, true);
+            amountOut = IERC20(token).balanceOf(address(this)) - before;
+            // V4 has no amountOutMinimum of its own: the pool only understands
+            // a price limit, and a price limit is not a slippage floor. So the
+            // caller's minimum is enforced here, after the fact, by reverting
+            // the whole transaction — swap included.
+            if (amountOut < minAmountOut) revert InsufficientOutput(amountOut, minAmountOut);
+        } else if (route.venue == Venue.V3 && route.router != address(0)) {
             // Measured rather than taken from the return value, for the same
             // reason as the sell side: what the vault can pay out is what
             // actually arrived.
@@ -353,7 +451,15 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
         uint256 before = address(this).balance;
         address router;
 
-        if (route.venue == Venue.V3 && route.router != address(0)) {
+        if (route.venue == Venue.V4 && route.router != address(0)) {
+            // No approval: V4 is paid by transferring into the manager between
+            // sync and settle, not by it pulling from an allowance.
+            _v4Swap(route, token, tokenAmount, false);
+            ethOut = address(this).balance - before;
+            if (ethOut < minEthOut) revert InsufficientOutput(ethOut, minEthOut);
+            emit TokensSoldForEth(token, tokenAmount, ethOut);
+            return ethOut;
+        } else if (route.venue == Venue.V3 && route.router != address(0)) {
             router = route.router;
             IERC20(token).forceApprove(router, tokenAmount);
 
@@ -424,6 +530,115 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
         if (path.length < 2) revert PathTooShort();
         if (path[0] != from) revert PathMustStartWith(from, path[0]);
         if (path[path.length - 1] != to) revert PathMustEndWith(to, path[path.length - 1]);
+    }
+
+    // -------------------------------------------------------------------- V4
+
+    /// @dev What `unlock` carries across into the callback.
+    struct V4Call {
+        IPoolManager.PoolKey key;
+        address token;
+        uint256 amountIn;
+        bool buying;
+    }
+
+    /**
+     * @dev Starts a V4 swap. The real work happens in `unlockCallback`.
+     *
+     * The manager will not let anyone swap outside an unlock, so this cannot be
+     * collapsed into a direct call however much simpler that would read.
+     */
+    function _v4Swap(Route storage route, address token, uint256 amountIn, bool buying) private {
+        IPoolManager(route.router).unlock(
+            abi.encode(V4Call({key: route.v4Key, token: token, amountIn: amountIn, buying: buying}))
+        );
+    }
+
+    /**
+     * @notice Called back by the PoolManager during `unlock`. Not for anyone else.
+     * @dev Every V4 swap runs here, because the manager grants the right to swap
+     *      only for the duration of this call and revokes it on return.
+     *
+     *      The access check is the important line. Without it anyone could
+     *      invoke this directly and have the contract settle a swap it never
+     *      asked for, paying out of its own balance. `msg.sender` is the only
+     *      thing that distinguishes a real callback from a forged one, since
+     *      the arguments are attacker-supplied either way.
+     *
+     *      Settlement is not optional bookkeeping: the manager reverts the
+     *      whole unlock unless every currency this swap moved is squared off.
+     *      A negative delta is a debt we pay, a positive one is a credit we
+     *      collect, and the direction of each depends on which way the swap
+     *      went.
+     */
+    function unlockCallback(bytes calldata data) external returns (bytes memory) {
+        V4Call memory call = abi.decode(data, (V4Call));
+        // Checked against the route rather than a stored flag: the manager for
+        // this token is what we configured, and nothing else may call in.
+        if (msg.sender != _buyRoutes[call.token].router || msg.sender == address(0)) {
+            revert NotThePoolManager();
+        }
+
+        bool nativeIsCurrency0 = call.key.currency0 == address(0);
+        // Buying spends the pool's currency0 side when that side is ETH.
+        bool zeroForOne = call.buying ? nativeIsCurrency0 : !nativeIsCurrency0;
+
+        int256 delta = IPoolManager(msg.sender).swap(
+            call.key,
+            IPoolManager.SwapParams({
+                zeroForOne: zeroForOne,
+                // Negative means exact input: spend precisely this much.
+                amountSpecified: -int256(call.amountIn),
+                sqrtPriceLimitX96: zeroForOne ? MIN_SQRT_PRICE : MAX_SQRT_PRICE
+            }),
+            ""
+        );
+
+        (int128 delta0, int128 delta1) = _unpack(delta);
+        if (delta0 == 0 && delta1 == 0) revert V4SwapReturnedNothing();
+
+        _resolve(call.key.currency0, delta0);
+        _resolve(call.key.currency1, delta1);
+
+        return "";
+    }
+
+    /// @dev Pay what we owe on this currency, or collect what we are owed.
+    function _resolve(address currency, int128 delta) private {
+        if (delta < 0) {
+            uint256 owed = uint256(uint128(-delta));
+            if (currency == address(0)) {
+                // Native ETH is settled by value, with no sync beforehand.
+                IPoolManager(msg.sender).settle{value: owed}();
+            } else {
+                // An ERC-20 is settled by depositing it between sync and
+                // settle: sync snapshots the balance, the transfer moves the
+                // tokens, settle credits the difference.
+                IPoolManager(msg.sender).sync(currency);
+                IERC20(currency).safeTransfer(msg.sender, owed);
+                IPoolManager(msg.sender).settle();
+            }
+        } else if (delta > 0) {
+            IPoolManager(msg.sender).take(currency, address(this), uint256(uint128(delta)));
+        }
+    }
+
+    /// @dev BalanceDelta packs both amounts into one int256: amount0 high, amount1 low.
+    function _unpack(int256 delta) private pure returns (int128 amount0, int128 amount1) {
+        assembly {
+            amount0 := sar(128, delta)
+            amount1 := signextend(15, delta)
+        }
+    }
+
+    function _emptyKey() private pure returns (IPoolManager.PoolKey memory) {
+        return IPoolManager.PoolKey({
+            currency0: address(0),
+            currency1: address(0),
+            fee: 0,
+            tickSpacing: 0,
+            hooks: address(0)
+        });
     }
 
     // ------------------------------------------------------------- emergency
