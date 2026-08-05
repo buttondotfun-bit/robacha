@@ -5,6 +5,8 @@ import { useState } from "react";
 import { WagmiProvider } from "wagmi";
 import { SpinProvider } from "@/lib/spin-store";
 import { wagmiConfig } from "@/lib/web3";
+// Imported for its side effect: this is what creates the wallet modal, once.
+import "@/lib/appkit";
 
 /**
  * wagmi talks to Robinhood Chain mainnet; react-query caches the reads.

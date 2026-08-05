@@ -1,6 +1,29 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // AppKit's guide says to exclude pino-pretty, lokijs and encoding via a
+  // webpack config. Not done here: this project builds with Turbopack, and
+  // adding a `webpack` block makes Next fall back to webpack for the whole
+  // build — which took it from seconds to over ten minutes. Turbopack resolves
+  // those optional Node-only packages on its own, so the workaround is not
+  // needed; if one of them ever does break a build, the fix is
+  // `turbopack.resolveAlias`, not reintroducing webpack.
+  turbopack: {
+    // AppKit's wagmi adapter imports the whole `@wagmi/connectors` barrel,
+    // which pulls in Coinbase's Base Account connector, which pulls in the CDP
+    // SDK, which imports these `@x402/*` payment packages. They are optional
+    // peers — not installed, and never reached by anything here, since the only
+    // wallet paths this app uses are the injected connector and WalletConnect.
+    // Turbopack still has to resolve every specifier it sees, so without these
+    // aliases the build fails on five modules no code calls.
+    resolveAlias: {
+      "@x402/core/client": "./shims/empty-module.cjs",
+      "@x402/evm": "./shims/empty-module.cjs",
+      "@x402/evm/exact/client": "./shims/empty-module.cjs",
+      "@x402/evm/upto/client": "./shims/empty-module.cjs",
+      "@x402/svm/exact/client": "./shims/empty-module.cjs",
+    },
+  },
   images: {
     // Some Robinhood Chain tokens publish SVG icons. These only ever reach the
     // optimizer via our own /api/token-icon proxy (never a third-party URL),
