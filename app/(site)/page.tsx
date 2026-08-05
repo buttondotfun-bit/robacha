@@ -7,6 +7,7 @@ import { LivePoolPreview } from "@/components/landing/LivePoolPreview";
 import { NextRelease } from "@/components/landing/NextRelease";
 import { NftPreview } from "@/components/landing/NftPreview";
 import { RewardTiers } from "@/components/landing/RewardTiers";
+import { RobToken } from "@/components/landing/RobToken";
 import { Testimonials } from "@/components/landing/Testimonials";
 import { TokenLineup } from "@/components/landing/TokenLineup";
 import { WhyRobacha } from "@/components/landing/WhyRobacha";
@@ -19,6 +20,10 @@ export default function LandingPage() {
       <RewardTiers />
       <LivePoolPreview />
       <TokenLineup />
+      {/* Sits right after the lineup: both answer "which contract is the real
+          one", and someone who has just read four reward-token addresses is
+          already in the habit of checking. */}
+      <RobToken />
       <NextRelease />
       <NftPreview />
       <WhyRobacha />

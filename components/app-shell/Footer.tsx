@@ -3,6 +3,8 @@ import { FooterNav } from "./FooterNav";
 import { GlassChip } from "@/components/ui/Glass";
 import { BRAND, RISK_NOTICE, SOCIAL_LINKS } from "@/lib/constants";
 import { RobinhoodChainMark } from "@/components/brand/RobinhoodChainMark";
+import { ROB_TOKEN } from "@/data/rob-token";
+import { explorerUrl } from "@/lib/config";
 import { NETWORK_LABEL } from "@/lib/web3";
 
 const COLUMNS = [
@@ -38,6 +40,8 @@ const COLUMNS = [
 ];
 
 export function Footer() {
+  const robTokenLink = explorerUrl("token", ROB_TOKEN.address);
+
   return (
     <footer className="relative px-4 pb-6 pt-16 sm:px-6">
       {/* Environmental glow behind the footer slab */}
@@ -62,6 +66,26 @@ export function Footer() {
                 {NETWORK_LABEL} · Live
               </GlassChip>
             </div>
+
+            {/* Repeated here, in full, so the real address is reachable from
+                every page rather than only the one section of the landing
+                page — someone checking a token they were sent has no reason to
+                be on the home page, and a truncated address would not settle
+                the question anyway. */}
+            <p className="micro mb-2 mt-6">Official ${ROB_TOKEN.symbol} contract</p>
+            <code className="num block break-all text-[11.5px] leading-relaxed text-ink-2 select-all">
+              {ROB_TOKEN.address}
+            </code>
+            {robTokenLink ? (
+              <a
+                href={robTokenLink}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-1.5 inline-block text-[11.5px] text-ink-3 underline decoration-dotted underline-offset-2 hover:text-ink-2"
+              >
+                Verify on the explorer
+              </a>
+            ) : null}
           </div>
 
           {COLUMNS.map((column) => (
