@@ -52,16 +52,6 @@ export interface LineupToken {
 
 export const LINEUP: LineupToken[] = [
   {
-    symbol: "PONS",
-    name: "Pons",
-    address: "0x39dBED3a2bd333467115dE45665cC57F813C4571",
-  },
-  {
-    symbol: "TENDIES",
-    name: "Tendies",
-    address: "0x45242320DBB855EeA8Fd36804C6487E10E97FCF9",
-  },
-  {
     // Verified on BNB Chain, not Robinhood Chain: symbol() and name() both read
     // PIZZA, 18 decimals, 1bn supply, about $92k of liquidity on PancakeSwap.
     // There is no contract at this address on Robinhood Chain — eth_getCode
@@ -76,17 +66,6 @@ export const LINEUP: LineupToken[] = [
     // Cross-checked against the project it belongs to before being used:
     // pizzabtc.meme and @PizzaBTC7777, matching the contract's 7777 tail.
     logo: "/tokens/pizza.jpg",
-  },
-  {
-    // symbol() reads DICE and name() reads Dice Protocol on this contract,
-    // 18 decimals, 1bn supply. Its market is a Uniswap V3 pool at the 1% tier
-    // holding 7.7 WETH against 152m tokens — the deepest V3 pool of any
-    // candidate here, ROB included — plus 21.7m more in the V4 singleton. It
-    // has no V2 pair at all, which matters only because that is the venue the
-    // AutoBuyer reaches first; the V3 route it needs is already supported.
-    symbol: "DICE",
-    name: "Dice Protocol",
-    address: "0x3F9f0b6073Ee8c495Aed96869AF31850fED40FeB",
   },
   {
     // Chosen deliberately from six contracts on this chain sharing the ticker.

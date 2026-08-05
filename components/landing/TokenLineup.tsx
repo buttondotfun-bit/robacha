@@ -44,13 +44,21 @@ export function TokenLineup({
   variant?: "full" | "strip";
 } = {}) {
   const { pool } = usePool();
-  const { tokens: upcoming } = useLineup();
+  const { tokens: lineup } = useLineup();
 
   // One card per token, not per reward slot — a token in two tiers is still
   // one token, and listing it twice would overstate the lineup.
   const live = Array.from(
     new Map((pool?.entries ?? []).map((entry) => [entry.token.toLowerCase(), entry])).values(),
   );
+
+  // A token that has arrived stops being upcoming, whatever the written list
+  // still says. That list is edited by hand and the pool changes without it,
+  // so the two drift — and they drifted, leaving tokens advertised as "next in"
+  // while the machine was already paying them out. Deriving this from the
+  // contract means the stale half can only ever be too long, never wrong.
+  const loaded = new Set(live.map((entry) => entry.token.toLowerCase()));
+  const upcoming = lineup.filter((token) => !loaded.has(token.address.toLowerCase()));
 
   const market = useTokenMarket([
     ...live.map((entry) => entry.token),

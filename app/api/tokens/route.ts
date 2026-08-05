@@ -73,18 +73,38 @@ export async function GET(request: Request) {
   }
 
   try {
-    // DexScreener accepts a comma-separated batch on this endpoint.
-    const response = await fetch(
-      `https://api.dexscreener.com/latest/dex/tokens/${addresses.join(",")}`,
-      { headers: { accept: "application/json" }, cache: "no-store" },
+    // Asked for in small chunks, not one batch, because the response caps the
+    // number of *pairs* it returns rather than the number of tokens. Each of
+    // these tokens now trades in several pools — V2, V3 and V4 — so a single
+    // request for the whole pool blew through that cap and the tokens late in
+    // the list came back as though they had no pairs at all. They then rendered
+    // the generated placeholder instead of their real logo, which looked like
+    // missing artwork and was really a truncated response.
+    //
+    // Three at a time keeps each response well inside the cap while still
+    // costing only a handful of round trips, and they run concurrently so the
+    // wall-clock cost is one request.
+    const CHUNK = 3;
+    const chunks: Address[][] = [];
+    for (let i = 0; i < addresses.length; i += CHUNK) {
+      chunks.push(addresses.slice(i, i + CHUNK));
+    }
+
+    const responses = await Promise.all(
+      chunks.map(async (chunk) => {
+        const response = await fetch(
+          `https://api.dexscreener.com/latest/dex/tokens/${chunk.join(",")}`,
+          { headers: { accept: "application/json" }, cache: "no-store" },
+        );
+        if (!response.ok) throw new Error(`upstream ${response.status}`);
+        const body = (await response.json()) as { pairs?: DexPair[] | null };
+        return body.pairs ?? [];
+      }),
     );
 
-    if (!response.ok) throw new Error(`upstream ${response.status}`);
-
-    const body = (await response.json()) as { pairs?: DexPair[] | null };
-    const pairs = (body.pairs ?? []).filter(
-      (p) => p.chainId === DEX_CHAIN_ID && p.baseToken?.address,
-    );
+    const pairs = responses
+      .flat()
+      .filter((p) => p.chainId === DEX_CHAIN_ID && p.baseToken?.address);
 
     // Keep only the deepest pair per token — the shallow ones are noise and
     // their prices are the easiest to push around.

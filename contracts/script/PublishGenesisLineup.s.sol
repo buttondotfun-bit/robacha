@@ -184,15 +184,32 @@ contract PublishGenesisLineup is Script {
         probabilities[2] = 500;
         registry.setProbabilities(POOL_ID, version, probabilities);
 
-        // Every usable token appears in the common tier, so a common pull is
-        // not always the same coin. The rare and legendary tiers go to the
-        // deepest markets, since those are the slots big enough that a thin
-        // pool could not be restocked after paying one.
-        for (uint256 i = 0; i < count; ++i) {
+        // One token per tier, and no token in two tiers.
+        //
+        // The obvious arrangement — every token in the common tier, then the
+        // deepest market in each of the big ones — put CASHCAT in all three,
+        // because "the deepest" answers the same for rare and legendary. The
+        // machine then showed three CASHCAT slots and read as though the pool
+        // held one coin wearing three hats.
+        //
+        // So the deepest market takes legendary, the next takes rare, and
+        // everything remaining shares the common tier. Depth decides the order
+        // because the big tiers are the ones a shallow market cannot restock
+        // after paying out once.
+        _sortByDepth(usable, count);
+
+        uint256 first = count > 2 ? 2 : 0; // where the common tier starts
+        if (count > 1) {
+            _addSlot(version, usable[0], 2, LEGENDARY_BPS);
+            _addSlot(version, usable[1], 1, RARE_BPS);
+        } else {
+            // A single token has to carry every tier; there is nothing else.
+            _addSlot(version, usable[0], 2, LEGENDARY_BPS);
+            _addSlot(version, usable[0], 1, RARE_BPS);
+        }
+        for (uint256 i = first; i < count; ++i) {
             _addSlot(version, usable[i], 0, COMMON_BPS);
         }
-        _addSlot(version, _deepest(usable, count), 1, RARE_BPS);
-        _addSlot(version, _deepest(usable, count), 2, LEGENDARY_BPS);
 
         registry.activate(POOL_ID, version, uint64(block.timestamp), 0);
 
@@ -314,6 +331,51 @@ contract PublishGenesisLineup is Script {
         if (token == ROB) return 0x1490b8cB62e567F862DeC48E4C100e2DBFb10092;
         if (token == DICE) return 0x399eaE9D063Cff3f0b05aa94256348c475001022;
         return address(0);
+    }
+
+    /**
+     * @dev Orders tokens by what the vault's holding of each is worth,
+     *      descending, so index 0 is the deepest.
+     *
+     * An insertion sort, which would be the wrong choice almost anywhere else
+     * and is the right one here: the list is the pool's token count, this runs
+     * once off chain, and the alternative is more code to get wrong.
+     */
+    function _sortByDepth(address[] memory tokens, uint256 count) internal view {
+        uint256[] memory values = new uint256[](count);
+        for (uint256 i = 0; i < count; ++i) {
+            values[i] = _valueOf(tokens[i]);
+        }
+        for (uint256 i = 1; i < count; ++i) {
+            uint256 value = values[i];
+            address token = tokens[i];
+            uint256 j = i;
+            while (j > 0 && values[j - 1] < value) {
+                values[j] = values[j - 1];
+                tokens[j] = tokens[j - 1];
+                --j;
+            }
+            values[j] = value;
+            tokens[j] = token;
+        }
+    }
+
+    /// @dev What the vault's whole holding of one token is worth, in ETH.
+    function _valueOf(address token) internal view returns (uint256) {
+        address[] memory path = new address[](2);
+        path[0] = token;
+        path[1] = WETH;
+        try IUniswapV2Router02(V2_ROUTER).getAmountsOut(vault.available(token), path) returns (
+            uint256[] memory amounts
+        ) {
+            return amounts[amounts.length - 1];
+        } catch {
+            // V3-only token: value it through the same spot price used to size
+            // its slots, so the ordering stays comparable across venues.
+            uint256 perEth = _tokensFor(token, 1e15);
+            if (perEth == 0) return 0;
+            return (vault.available(token) * 1e15) / perEth;
+        }
     }
 
     /// @dev The token whose vault holding is worth the most, for the big tiers.
