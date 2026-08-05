@@ -133,6 +133,8 @@ contract PublishGenesisLineup is Script {
     address constant FRONG = 0x6245e67affA44a23077f0Ea7f981a8DC743a0c47;
     address constant ROB = 0x7B7D785a2BA95d39F97FCe44f5B2169895855b7E;
     address constant DICE = 0x3F9f0b6073Ee8c495Aed96869AF31850fED40FeB;
+    address constant STONKBROKER = 0xe934e36A439C94017B64a3FecE66AF12099aBF50;
+    address constant DERP = 0x6543B7746ca744C4bb2198191E71f40FF04C41b9;
 
     /// @dev Tier targets as a multiple of the base spin price, in basis points.
     uint256 constant COMMON_BPS = 5_000;
@@ -151,8 +153,10 @@ contract PublishGenesisLineup is Script {
 
         console2.log("active version before", registry.activeVersion(POOL_ID));
 
-        address[7] memory candidates = [CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES];
-        string[7] memory names = ["CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES"];
+        address[9] memory candidates =
+            [CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP];
+        string[9] memory names =
+            ["CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES", "STONKBROKER", "DERP"];
 
         // Decide the whole table before broadcasting anything, so a token that
         // cannot be included is reported rather than discovered halfway through
@@ -273,16 +277,31 @@ contract PublishGenesisLineup is Script {
         console2.log("    max", max);
     }
 
-    /// @dev How many tokens `ethAmount` buys right now. 0 if unpriceable.
+    /**
+     * @dev How many tokens `ethAmount` buys right now. 0 if unpriceable.
+     *
+     * A registered V3 pool wins over the V2 pair, rather than the V2 pair
+     * being tried first and V3 only catching the revert. That ordering was
+     * safe while the V3-only tokens had no V2 pair at all, and stops being
+     * safe the moment one does: STONKBROKER's V2 pair exists and holds about
+     * 6.5e-12 WETH, so it does not revert — it answers, with a number produced
+     * by a pool holding nothing. The slot would have been sized off a price
+     * that no real trade could ever get.
+     *
+     * The pools in `_v3PoolFor` are there because each was checked by hand and
+     * found to be the token's actual market. That is better evidence than the
+     * mere existence of a pair.
+     */
     function _tokensFor(address token, uint256 ethAmount) internal view returns (uint256) {
+        if (_v3PoolFor(token) != address(0)) return _v3Price(token, ethAmount);
+
         address[] memory path = new address[](2);
         path[0] = WETH;
         path[1] = token;
         try IUniswapV2Router02(V2_ROUTER).getAmountsOut(ethAmount, path) returns (uint256[] memory amounts) {
             return amounts[amounts.length - 1];
         } catch {
-            // No V2 pair, so fall back to the V3 pool if this token has one.
-            return _v3Price(token, ethAmount);
+            return 0;
         }
     }
 
@@ -330,6 +349,14 @@ contract PublishGenesisLineup is Script {
         // on chain and are empty, and neither has a V2 pair to fall back on.
         if (token == ROB) return 0x1490b8cB62e567F862DeC48E4C100e2DBFb10092;
         if (token == DICE) return 0x399eaE9D063Cff3f0b05aa94256348c475001022;
+        // STONKBROKER also has a V2 pair, but it holds about 6.5e-12 WETH —
+        // empty in every sense that matters. Registering the 1% pool here is
+        // what stops that corpse being used to price a prize. Its 0.3% tier
+        // exists too and is shallower: 4.5 WETH against 15.9.
+        if (token == STONKBROKER) return 0x9cd74d5980A4BF60408B9bA2B0F6a3d368EBf594;
+        // DERP has the same shape: no V2 pair at all, a 0.3% tier holding
+        // 0.0002 WETH, and everything real in the 1% tier at 14.4 WETH.
+        if (token == DERP) return 0xfB578FdD8f3577E8ce7A45dfef725B6072b9d9A1;
         return address(0);
     }
 

@@ -68,6 +68,24 @@ export const LINEUP: LineupToken[] = [
     logo: "/tokens/pizza.jpg",
   },
   {
+    // symbol() and name() both read STONKBROKER / StonkBroker, 18 decimals,
+    // 2.45bn supply. Its market is the Uniswap V3 pool at the 1% tier holding
+    // 15.9 WETH — deeper than DICE or ROB. Worth recording that it also has a
+    // V2 pair holding about 6.5e-12 WETH: not a market, just something that
+    // exists, and exactly the sort of thing that answers a price query with a
+    // number no real trade could get.
+    symbol: "STONKBROKER",
+    name: "StonkBroker",
+    address: "0xe934e36A439C94017B64a3FecE66AF12099aBF50",
+  },
+  {
+    // 18 decimals, no V2 pair at all. Its 0.3% V3 tier holds 0.0002 WETH and
+    // its 1% tier holds 14.4 WETH, so the tier matters as much as the venue.
+    symbol: "DERP",
+    name: "DERP",
+    address: "0x6543B7746ca744C4bb2198191E71f40FF04C41b9",
+  },
+  {
     // Chosen deliberately from six contracts on this chain sharing the ticker.
     // symbol() reads HOODRAT and name() reads Hoodrat on this one, and unlike
     // PONS and TENDIES its pair on the AutoBuyer's router is deep enough to
