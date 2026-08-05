@@ -85,13 +85,24 @@ interface IUniswapV3Pool {
  * cannot cover, which makes `activate` revert and leaves the pool on its old
  * version.
  *
- * PONS, FRONG and TENDIES are deliberately absent even though all three are
- * allowlisted and funded. Their entire markets are 0.00165, 0.000262 and
- * 0.000000179 ETH deep respectively — less than a single spin for all three
- * combined. A slot cannot be both worth winning and coverable out of a pool
- * that shallow, and restocking one moves its price against us by more than the
- * prize is worth. They are not excluded for being small; they are excluded
- * because no funding level fixes a market that thin.
+ * PONS, FRONG and TENDIES are included, which reverses an earlier call. They
+ * were dropped on the grounds that their markets were too thin to back a
+ * prize, measured from their V2 pairs — 0.00165, 0.000262 and 0.000000179 ETH.
+ * That measurement missed the venue that matters. Their real liquidity is in
+ * the Uniswap V4 singleton, which holds 15.7m PONS, 45.0m FRONG and 1.77m
+ * TENDIES against 3,583 ETH, and it was never checked because only the V2 and
+ * V3 factories were.
+ *
+ * So the thin V2 pairs were never their market, only the venue we happened to
+ * buy through — which is why those purchases filled so badly. The pairs remain
+ * usable for *pricing*, since a small quote against a shallow pool still
+ * tracks the real price even though a real purchase through it does not.
+ *
+ * What is still true is that the vault holds very little of each, because the
+ * buying went through those pairs. Every slot here is capped at a quarter of
+ * inventory, so they enter as small prizes rather than as prizes the vault
+ * cannot cover. Buying them properly needs V4 support in the AutoBuyer, which
+ * it does not yet have.
  *
  * ORDER MATTERS
  *
@@ -117,7 +128,9 @@ contract PublishGenesisLineup is Script {
     // All four verified on chain: symbol() matches the ticker, 18 decimals.
     address constant CASHCAT = 0x020bfC650A365f8BB26819deAAbF3E21291018b4;
     address constant WOOD = 0xF8BC08092C06dB6148114DCf82AF881F1085f92b;
-    address constant HOODRAT = 0x8e62F281f282686fCa6dCB39288069a93fC23F1c;
+    address constant PONS = 0x39dBED3a2bd333467115dE45665cC57F813C4571;
+    address constant TENDIES = 0x45242320DBB855EeA8Fd36804C6487E10E97FCF9;
+    address constant FRONG = 0x6245e67affA44a23077f0Ea7f981a8DC743a0c47;
     address constant ROB = 0x7B7D785a2BA95d39F97FCe44f5B2169895855b7E;
     address constant DICE = 0x3F9f0b6073Ee8c495Aed96869AF31850fED40FeB;
 
@@ -138,8 +151,8 @@ contract PublishGenesisLineup is Script {
 
         console2.log("active version before", registry.activeVersion(POOL_ID));
 
-        address[5] memory candidates = [CASHCAT, WOOD, HOODRAT, ROB, DICE];
-        string[5] memory names = ["CASHCAT", "WOOD", "HOODRAT", "ROB", "DICE"];
+        address[7] memory candidates = [CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES];
+        string[7] memory names = ["CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES"];
 
         // Decide the whole table before broadcasting anything, so a token that
         // cannot be included is reported rather than discovered halfway through
