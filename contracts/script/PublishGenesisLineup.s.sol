@@ -119,6 +119,7 @@ contract PublishGenesisLineup is Script {
     address constant WOOD = 0xF8BC08092C06dB6148114DCf82AF881F1085f92b;
     address constant HOODRAT = 0x8e62F281f282686fCa6dCB39288069a93fC23F1c;
     address constant ROB = 0x7B7D785a2BA95d39F97FCe44f5B2169895855b7E;
+    address constant DICE = 0x3F9f0b6073Ee8c495Aed96869AF31850fED40FeB;
 
     /// @dev Tier targets as a multiple of the base spin price, in basis points.
     uint256 constant COMMON_BPS = 5_000;
@@ -137,13 +138,13 @@ contract PublishGenesisLineup is Script {
 
         console2.log("active version before", registry.activeVersion(POOL_ID));
 
-        address[4] memory candidates = [CASHCAT, WOOD, HOODRAT, ROB];
-        string[4] memory names = ["CASHCAT", "WOOD", "HOODRAT", "ROB"];
+        address[5] memory candidates = [CASHCAT, WOOD, HOODRAT, ROB, DICE];
+        string[5] memory names = ["CASHCAT", "WOOD", "HOODRAT", "ROB", "DICE"];
 
         // Decide the whole table before broadcasting anything, so a token that
         // cannot be included is reported rather than discovered halfway through
         // a sequence of live transactions.
-        address[] memory usable = new address[](4);
+        address[] memory usable = new address[](candidates.length);
         uint256 count;
         for (uint256 i = 0; i < candidates.length; ++i) {
             (bool ok, string memory why) = _assess(candidates[i]);
@@ -295,9 +296,10 @@ contract PublishGenesisLineup is Script {
 
     /// @dev The verified V3 pool for a token, or zero if it has none.
     function _v3PoolFor(address token) internal pure returns (address) {
-        // ROB trades only here: the 1% tier. The 0.01%, 0.05% and 0.3% tiers
-        // were all checked on chain and are empty.
+        // Both trade only at the 1% tier; the 0.05% and 0.3% tiers were checked
+        // on chain and are empty, and neither has a V2 pair to fall back on.
         if (token == ROB) return 0x1490b8cB62e567F862DeC48E4C100e2DBFb10092;
+        if (token == DICE) return 0x399eaE9D063Cff3f0b05aa94256348c475001022;
         return address(0);
     }
 

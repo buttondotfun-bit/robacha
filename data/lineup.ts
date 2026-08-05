@@ -78,6 +78,17 @@ export const LINEUP: LineupToken[] = [
     logo: "/tokens/pizza.jpg",
   },
   {
+    // symbol() reads DICE and name() reads Dice Protocol on this contract,
+    // 18 decimals, 1bn supply. Its market is a Uniswap V3 pool at the 1% tier
+    // holding 7.7 WETH against 152m tokens — the deepest V3 pool of any
+    // candidate here, ROB included — plus 21.7m more in the V4 singleton. It
+    // has no V2 pair at all, which matters only because that is the venue the
+    // AutoBuyer reaches first; the V3 route it needs is already supported.
+    symbol: "DICE",
+    name: "Dice Protocol",
+    address: "0x3F9f0b6073Ee8c495Aed96869AF31850fED40FeB",
+  },
+  {
     // Chosen deliberately from six contracts on this chain sharing the ticker.
     // symbol() reads HOODRAT and name() reads Hoodrat on this one, and unlike
     // PONS and TENDIES its pair on the AutoBuyer's router is deep enough to
