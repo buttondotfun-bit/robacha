@@ -24,6 +24,52 @@ interface IUniswapV2Router02 {
     ) external returns (uint256[] memory amounts);
 }
 
+/**
+ * @dev The V3 router's exact-input calls.
+ *
+ * `exactInputSingle` is the one hop case and takes the fee tier directly.
+ * `exactInput` walks a longer route, where the fee for each hop is packed into
+ * the path bytes rather than passed alongside it: token, then uint24 fee, then
+ * the next token, repeating. So a two hop route is 43 bytes and a three hop
+ * route is 66, which is why the path is `bytes` here and `address[]` on V2.
+ *
+ * The `deadline` field is absent because SwapRouter02 dropped it. Deadlines
+ * there are the caller's problem, and ours is the block itself: a swap that is
+ * not mined in this block is not mined at all, since the call originates from
+ * a transaction of ours.
+ */
+interface IUniswapV3Router {
+    struct ExactInputSingleParams {
+        address tokenIn;
+        address tokenOut;
+        uint24 fee;
+        address recipient;
+        uint256 amountIn;
+        uint256 amountOutMinimum;
+        uint160 sqrtPriceLimitX96;
+    }
+
+    struct ExactInputParams {
+        bytes path;
+        address recipient;
+        uint256 amountIn;
+        uint256 amountOutMinimum;
+    }
+
+    function exactInputSingle(ExactInputSingleParams calldata params)
+        external
+        payable
+        returns (uint256 amountOut);
+
+    function exactInput(ExactInputParams calldata params) external payable returns (uint256 amountOut);
+}
+
+interface IWETH9 {
+    function deposit() external payable;
+    function withdraw(uint256 amount) external;
+    function approve(address spender, uint256 amount) external returns (bool);
+}
+
 interface IRobachaRewardVault {
     function fund(address token, uint256 amount) external;
 }
@@ -73,15 +119,30 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
 
     IRobachaRewardVault public immutable vault;
 
+    /// @notice Which router interface a venue speaks.
+    enum Venue {
+        V2,
+        V3
+    }
+
     /**
      * @notice How to trade one token, when the default venue will not do.
      * @param router The router to send the swap through.
-     * @param path   The full hop list, validated on write so a bad path cannot
-     *               be stored and only discovered mid-swap.
+     * @param venue  Which interface that router speaks. The two are not
+     *               interchangeable: pointing a V2 call at a V3 router reverts,
+     *               which is exactly how this was found out the expensive way.
+     * @param path   V2 hop list. Empty on a V3 route.
+     * @param v3Path V3 packed path: token, uint24 fee, token, repeating. Empty
+     *               on a V2 route. The fee tier lives inside the bytes, which
+     *               is why V3 cannot reuse `path` — a plain address list has
+     *               nowhere to put it, and the tier is not guessable. ROB, for
+     *               instance, exists only at 1% and not at all at 0.05%.
      */
     struct Route {
         address router;
+        Venue venue;
         address[] path;
+        bytes v3Path;
     }
 
     /// @notice ETH -> token. Empty router means "use the default venue".
@@ -94,6 +155,8 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     event TokensSoldForEth(address indexed token, uint256 tokensSpent, uint256 ethReceived);
     event BuyRouteSet(address indexed token, address indexed router, address[] path);
     event SellRouteSet(address indexed token, address indexed router, address[] path);
+    event BuyRouteSetV3(address indexed token, address indexed router, bytes path);
+    event SellRouteSetV3(address indexed token, address indexed router, bytes path);
     event BuyRouteCleared(address indexed token);
     event SellRouteCleared(address indexed token);
 
@@ -103,6 +166,8 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     error PathTooShort();
     error PathMustStartWith(address expected, address actual);
     error PathMustEndWith(address expected, address actual);
+    /// @dev A V3 path is 20 + (23 * hops) bytes. Anything else is malformed.
+    error MalformedV3Path(uint256 length);
 
     constructor(address admin, address vault_) {
         if (admin == address(0) || vault_ == address(0)) revert ZeroAddress();
@@ -128,8 +193,39 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     {
         if (token == address(0) || router == address(0)) revert ZeroAddress();
         _requirePath(path, WETH, token);
-        _buyRoutes[token] = Route({router: router, path: path});
+        _buyRoutes[token] = Route({router: router, venue: Venue.V2, path: path, v3Path: ""});
         emit BuyRouteSet(token, router, path);
+    }
+
+    /**
+     * @notice Point a token's buys at a Uniswap V3 pool.
+     * @param v3Path Packed as token, uint24 fee, token, repeating. Must start
+     *               at WETH and end at the token being bought.
+     * @dev Needed because the V2 interface cannot reach a V3 pool at all. ROB's
+     *      only market is a V3 pool at the 1% tier, and a V2 call against the
+     *      router fronting it simply reverts.
+     */
+    function setBuyRouteV3(address token, address router, bytes calldata v3Path)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        if (token == address(0) || router == address(0)) revert ZeroAddress();
+        _requireV3Path(v3Path, WETH, token);
+        address[] memory empty;
+        _buyRoutes[token] = Route({router: router, venue: Venue.V3, path: empty, v3Path: v3Path});
+        emit BuyRouteSetV3(token, router, v3Path);
+    }
+
+    /// @notice Point a token's sales at a Uniswap V3 pool.
+    function setSellRouteV3(address token, address router, bytes calldata v3Path)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        if (token == address(0) || router == address(0)) revert ZeroAddress();
+        _requireV3Path(v3Path, token, WETH);
+        address[] memory empty;
+        _sellRoutes[token] = Route({router: router, venue: Venue.V3, path: empty, v3Path: v3Path});
+        emit SellRouteSetV3(token, router, v3Path);
     }
 
     /// @notice Point a token's sales at a specific venue and path.
@@ -139,7 +235,7 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     {
         if (token == address(0) || router == address(0)) revert ZeroAddress();
         _requirePath(path, token, WETH);
-        _sellRoutes[token] = Route({router: router, path: path});
+        _sellRoutes[token] = Route({router: router, venue: Venue.V2, path: path, v3Path: ""});
         emit SellRouteSet(token, router, path);
     }
 
@@ -155,14 +251,33 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
         emit SellRouteCleared(token);
     }
 
-    /// @notice The route a buy would take right now, default included.
+    /**
+     * @notice The V2 route a buy would take right now, default included.
+     * @dev Reports the default for a token configured on V3, since there is no
+     *      address list to report. Read `buyRouteV3` alongside it: a non-empty
+     *      path there means this is not the route that will be taken.
+     */
     function buyRoute(address token) external view returns (address router, address[] memory path) {
         return _resolve(_buyRoutes[token], WETH, token);
     }
 
-    /// @notice The route a sale would take right now, default included.
+    /// @notice The V2 route a sale would take right now, default included.
     function sellRoute(address token) external view returns (address router, address[] memory path) {
         return _resolve(_sellRoutes[token], token, WETH);
+    }
+
+    /// @notice The V3 buy route, or a zero router and empty path if there is none.
+    function buyRouteV3(address token) external view returns (address router, bytes memory path) {
+        Route storage route = _buyRoutes[token];
+        if (route.venue != Venue.V3) return (address(0), "");
+        return (route.router, route.v3Path);
+    }
+
+    /// @notice The V3 sell route, or a zero router and empty path if there is none.
+    function sellRouteV3(address token) external view returns (address router, bytes memory path) {
+        Route storage route = _sellRoutes[token];
+        if (route.venue != Venue.V3) return (address(0), "");
+        return (route.router, route.v3Path);
     }
 
     // ----------------------------------------------------------------- swaps
@@ -182,12 +297,29 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
         if (ethAmount == 0) revert ZeroAmount();
         if (address(this).balance < ethAmount) revert InsufficientBalance(address(this).balance, ethAmount);
 
-        (address router, address[] memory path) = _resolve(_buyRoutes[token], WETH, token);
+        Route storage route = _buyRoutes[token];
 
-        uint256[] memory amounts = IUniswapV2Router02(router).swapExactETHForTokens{value: ethAmount}(
-            minAmountOut, path, address(this), block.timestamp + 300
-        );
-        amountOut = amounts[amounts.length - 1];
+        if (route.venue == Venue.V3 && route.router != address(0)) {
+            // Measured rather than taken from the return value, for the same
+            // reason as the sell side: what the vault can pay out is what
+            // actually arrived.
+            uint256 before = IERC20(token).balanceOf(address(this));
+            IUniswapV3Router(route.router).exactInput{value: ethAmount}(
+                IUniswapV3Router.ExactInputParams({
+                    path: route.v3Path,
+                    recipient: address(this),
+                    amountIn: ethAmount,
+                    amountOutMinimum: minAmountOut
+                })
+            );
+            amountOut = IERC20(token).balanceOf(address(this)) - before;
+        } else {
+            (address router, address[] memory path) = _resolve(route, WETH, token);
+            uint256[] memory amounts = IUniswapV2Router02(router).swapExactETHForTokens{value: ethAmount}(
+                minAmountOut, path, address(this), block.timestamp + 300
+            );
+            amountOut = amounts[amounts.length - 1];
+        }
 
         // forceApprove, not approve: a token that requires the allowance be
         // zeroed before it is raised would revert on the second buy, and the
@@ -217,14 +349,36 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
         uint256 held = IERC20(token).balanceOf(address(this));
         if (held < tokenAmount) revert InsufficientBalance(held, tokenAmount);
 
-        (address router, address[] memory path) = _resolve(_sellRoutes[token], token, WETH);
-
-        IERC20(token).forceApprove(router, tokenAmount);
-
+        Route storage route = _sellRoutes[token];
         uint256 before = address(this).balance;
-        IUniswapV2Router02(router).swapExactTokensForETH(
-            tokenAmount, minEthOut, path, address(this), block.timestamp + 300
-        );
+        address router;
+
+        if (route.venue == Venue.V3 && route.router != address(0)) {
+            router = route.router;
+            IERC20(token).forceApprove(router, tokenAmount);
+
+            // V3 pays out WETH, not ETH — there is no swapExactTokensForETH
+            // here. Taking delivery as WETH and unwrapping it ourselves keeps
+            // this to one call, where the router's own unwrap helper would mean
+            // a multicall and a second thing to get wrong.
+            uint256 wethOut = IUniswapV3Router(router).exactInput(
+                IUniswapV3Router.ExactInputParams({
+                    path: route.v3Path,
+                    recipient: address(this),
+                    amountIn: tokenAmount,
+                    amountOutMinimum: minEthOut
+                })
+            );
+            IWETH9(WETH).withdraw(wethOut);
+        } else {
+            address[] memory path;
+            (router, path) = _resolve(route, token, WETH);
+            IERC20(token).forceApprove(router, tokenAmount);
+            IUniswapV2Router02(router).swapExactTokensForETH(
+                tokenAmount, minEthOut, path, address(this), block.timestamp + 300
+            );
+        }
+
         // Measured rather than taken from the router's return value: a
         // fee-on-transfer token delivers less than it reports, and this number
         // is what the reserve can actually spend.
@@ -249,6 +403,21 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
         path[0] = from;
         path[1] = to;
         return (SWAP_ROUTER, path);
+    }
+
+    /**
+     * @dev A V3 path is 20 bytes of token, then 23 bytes per additional hop
+     *      (3 fee + 20 token). Checked on write for the same reason as V2: a
+     *      path that does not start and end where it claims buys the wrong
+     *      asset, and the vault would accept it as the prize it was meant to be.
+     */
+    function _requireV3Path(bytes calldata v3Path, address from, address to) private pure {
+        if (v3Path.length < 43 || (v3Path.length - 20) % 23 != 0) revert MalformedV3Path(v3Path.length);
+
+        address first = address(bytes20(v3Path[0:20]));
+        address last = address(bytes20(v3Path[v3Path.length - 20:v3Path.length]));
+        if (first != from) revert PathMustStartWith(from, first);
+        if (last != to) revert PathMustEndWith(to, last);
     }
 
     function _requirePath(address[] calldata path, address from, address to) private pure {
