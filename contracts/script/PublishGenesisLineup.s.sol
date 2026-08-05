@@ -1,0 +1,329 @@
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.24;
+
+import {Script, console2} from "forge-std/Script.sol";
+
+interface IRegistry {
+    function createPoolVersion(uint256 poolId, string calldata name) external returns (uint256 version);
+    function setEconomics(uint256 poolId, uint256 version, uint256 baseSpinPriceWei, uint256 randomnessSurchargeWei)
+        external;
+    function setRoundConfig(
+        uint256 poolId,
+        uint256 version,
+        uint16 maxEntriesPerRound,
+        uint32 roundDuration,
+        uint16 maxQuantityPerTx,
+        uint16 maxQuantityPerWallet
+    ) external;
+    function setProbabilities(uint256 poolId, uint256 version, uint16[] calldata probabilityBps) external;
+    function addReward(uint256 poolId, uint256 version, address token, uint8 tierIndex, uint256 min, uint256 max)
+        external;
+    function activate(uint256 poolId, uint256 version, uint64 startTime, uint64 endTime) external;
+    function allowlistedTokens(address token) external view returns (bool);
+    function activeVersion(uint256 poolId) external view returns (uint256);
+    function activationReadiness(uint256 poolId, uint256 version)
+        external
+        view
+        returns (bool, bool, bool, bool, bool inventorySolvent, address firstUnfundedToken);
+}
+
+interface IVault {
+    function available(address token) external view returns (uint256);
+}
+
+interface IUniswapV2Router02 {
+    function getAmountsOut(uint256 amountIn, address[] calldata path)
+        external
+        view
+        returns (uint256[] memory amounts);
+}
+
+interface IUniswapV3Pool {
+    function slot0()
+        external
+        view
+        returns (uint160 sqrtPriceX96, int24, uint16, uint16, uint16, uint8, bool);
+    function token0() external view returns (address);
+}
+
+/**
+ * @notice Publishes one Genesis Pool version carrying every token that can
+ *         actually back a prize, and removes the lifetime per-wallet cap.
+ *
+ * Supersedes PublishPoolV4, which did the cap alone. There is no reason to
+ * spend two versions on two changes, and each activation retires the previous
+ * version for everyone mid-play.
+ *
+ * WHY SLOTS ARE PRICED RATHER THAN HARDCODED
+ *
+ * v3's prize table was a set of fixed token amounts chosen against the prices
+ * of the day, with a note to re-check them if the market moved. It moved. WOOD
+ * is now cheap enough that its whole 121 token vault balance is worth about
+ * 0.0003 ETH — half a single spin — so the amounts that once made a fair
+ * legendary tier now make a derisory one.
+ *
+ * So each slot is sized here from a live quote: pick a target value in ETH,
+ * ask the router how many tokens that buys, and use it. Two things follow.
+ * Prizes stay comparable across tokens whose prices have nothing to do with
+ * each other, and a token funded after this was written sizes itself correctly
+ * without anyone editing a constant.
+ *
+ * Targets are set against the base spin price, not plucked from the air:
+ *
+ *     common     70%    0.5x base
+ *     rare       25%    1.0x base
+ *     legendary   5%    4.0x base
+ *
+ * which is an expected payout of 0.80x base — inside the 85% the fee router
+ * actually reserves for prizes, with room for the spread on restocking.
+ *
+ * WHICH TOKENS, AND WHY NOT THE OTHERS
+ *
+ * Every candidate is checked on chain for two things: it is allowlisted, and
+ * the vault holds some. Anything failing either is skipped with a line saying
+ * so, rather than silently dropped or — worse — added as a slot the vault
+ * cannot cover, which makes `activate` revert and leaves the pool on its old
+ * version.
+ *
+ * PONS, FRONG and TENDIES are deliberately absent even though all three are
+ * allowlisted and funded. Their entire markets are 0.00165, 0.000262 and
+ * 0.000000179 ETH deep respectively — less than a single spin for all three
+ * combined. A slot cannot be both worth winning and coverable out of a pool
+ * that shallow, and restocking one moves its price against us by more than the
+ * prize is worth. They are not excluded for being small; they are excluded
+ * because no funding level fixes a market that thin.
+ *
+ * ORDER MATTERS
+ *
+ * `setProbabilities` deletes the version's reward slots, because a slot's tier
+ * index only means anything against a given tier list. Probabilities are set
+ * before any reward is added, never after.
+ */
+contract PublishGenesisLineup is Script {
+    uint256 constant POOL_ID = 1;
+
+    uint256 constant BASE_SPIN_PRICE_WEI = 0.0005 ether;
+    uint256 constant RANDOMNESS_SURCHARGE_WEI = 0.0001 ether;
+    uint16 constant MAX_ENTRIES_PER_ROUND = 5;
+    uint32 constant ROUND_DURATION = 120;
+    uint16 constant MAX_QUANTITY_PER_TX = 5;
+
+    /// 0 = unlimited. Five-per-round still holds, via MAX_ENTRIES_PER_ROUND.
+    uint16 constant MAX_QUANTITY_PER_WALLET = 0;
+
+    address constant WETH = 0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73;
+    address constant V2_ROUTER = 0x89e5DB8B5aA49aA85AC63f691524311AEB649eba;
+
+    // All four verified on chain: symbol() matches the ticker, 18 decimals.
+    address constant CASHCAT = 0x020bfC650A365f8BB26819deAAbF3E21291018b4;
+    address constant WOOD = 0xF8BC08092C06dB6148114DCf82AF881F1085f92b;
+    address constant HOODRAT = 0x8e62F281f282686fCa6dCB39288069a93fC23F1c;
+    address constant ROB = 0x7B7D785a2BA95d39F97FCe44f5B2169895855b7E;
+
+    /// @dev Tier targets as a multiple of the base spin price, in basis points.
+    uint256 constant COMMON_BPS = 5_000;
+    uint256 constant RARE_BPS = 10_000;
+    uint256 constant LEGENDARY_BPS = 40_000;
+
+    /// @dev A prize is a band, not a number: min is 60% of the target.
+    uint256 constant MIN_BAND_BPS = 6_000;
+
+    IRegistry registry;
+    IVault vault;
+
+    function run() external {
+        registry = IRegistry(vm.envAddress("ROBACHA_POOL_REGISTRY"));
+        vault = IVault(vm.envAddress("ROBACHA_REWARD_VAULT"));
+
+        console2.log("active version before", registry.activeVersion(POOL_ID));
+
+        address[4] memory candidates = [CASHCAT, WOOD, HOODRAT, ROB];
+        string[4] memory names = ["CASHCAT", "WOOD", "HOODRAT", "ROB"];
+
+        // Decide the whole table before broadcasting anything, so a token that
+        // cannot be included is reported rather than discovered halfway through
+        // a sequence of live transactions.
+        address[] memory usable = new address[](4);
+        uint256 count;
+        for (uint256 i = 0; i < candidates.length; ++i) {
+            (bool ok, string memory why) = _assess(candidates[i]);
+            if (ok) {
+                usable[count++] = candidates[i];
+                console2.log("including", names[i]);
+            } else {
+                console2.log("skipping ", names[i], why);
+            }
+        }
+        require(count > 0, "no token can back a prize - fund the vault first");
+
+        vm.startBroadcast();
+
+        uint256 version = registry.createPoolVersion(POOL_ID, "Genesis Pool");
+        registry.setEconomics(POOL_ID, version, BASE_SPIN_PRICE_WEI, RANDOMNESS_SURCHARGE_WEI);
+        registry.setRoundConfig(
+            POOL_ID, version, MAX_ENTRIES_PER_ROUND, ROUND_DURATION, MAX_QUANTITY_PER_TX, MAX_QUANTITY_PER_WALLET
+        );
+
+        uint16[] memory probabilities = new uint16[](3);
+        probabilities[0] = 7000;
+        probabilities[1] = 2500;
+        probabilities[2] = 500;
+        registry.setProbabilities(POOL_ID, version, probabilities);
+
+        // Every usable token appears in the common tier, so a common pull is
+        // not always the same coin. The rare and legendary tiers go to the
+        // deepest markets, since those are the slots big enough that a thin
+        // pool could not be restocked after paying one.
+        for (uint256 i = 0; i < count; ++i) {
+            _addSlot(version, usable[i], 0, COMMON_BPS);
+        }
+        _addSlot(version, _deepest(usable, count), 1, RARE_BPS);
+        _addSlot(version, _deepest(usable, count), 2, LEGENDARY_BPS);
+
+        registry.activate(POOL_ID, version, uint64(block.timestamp), 0);
+
+        vm.stopBroadcast();
+
+        (,,,, bool solvent, address firstUnfunded) = registry.activationReadiness(POOL_ID, version);
+        console2.log("published version ", version);
+        console2.log("activeVersion(1)  ", registry.activeVersion(POOL_ID));
+        console2.log("inventorySolvent  ", solvent);
+        console2.log("firstUnfundedToken", firstUnfunded);
+
+        require(registry.activeVersion(POOL_ID) == version, "new version did not become active");
+        require(solvent, "vault cannot cover every slot's max");
+    }
+
+    /// @dev Allowlisted, held, and quotable. All three or it cannot be a prize.
+    function _assess(address token) internal view returns (bool ok, string memory why) {
+        if (!registry.allowlistedTokens(token)) return (false, "not allowlisted");
+        if (vault.available(token) == 0) return (false, "vault holds none");
+        if (_tokensFor(token, BASE_SPIN_PRICE_WEI) == 0) return (false, "no usable quote");
+        return (true, "");
+    }
+
+    /**
+     * @dev Adds one slot, sized from a live quote and clamped to inventory.
+     *
+     * The clamp is what keeps `activate` from reverting: solvency is checked
+     * per slot against `vault.available`, so a max above the balance fails the
+     * whole activation. Clamping publishes a smaller prize instead, which is
+     * worse than intended but live, and says so in the log.
+     */
+    function _addSlot(uint256 version, address token, uint8 tier, uint256 targetBps) internal {
+        uint256 targetWei = (BASE_SPIN_PRICE_WEI * targetBps) / 10_000;
+
+        // The target is the average prize, not the best one. A slot pays
+        // somewhere in [min, max] with min at 60% of max, so the mean lands at
+        // 80% of max — treating the target as the max would quietly pay out a
+        // fifth less than intended, which across the whole table is the
+        // difference between an expected 80% of the spin price and 56%.
+        uint256 max = (_tokensFor(token, targetWei) * 20_000) / (10_000 + MIN_BAND_BPS);
+        uint256 held = vault.available(token);
+
+        // No single prize may be worth more than a quarter of what backs it.
+        // Solvency is only checked at activation, so a slot sized at the whole
+        // balance passes that check and then empties the token on its first
+        // win, leaving every later draw on it unpayable. A quarter means the
+        // pool survives at least four wins on its scarcest token while the
+        // reserve restocks.
+        uint256 cap = held / 4;
+        if (cap == 0) cap = held;
+        if (max > cap) {
+            console2.log("  UNDERFUNDED - prize capped to a quarter of inventory:", token);
+            max = cap;
+        }
+        uint256 min = (max * MIN_BAND_BPS) / 10_000;
+        if (min == 0) min = max;
+
+        registry.addReward(POOL_ID, version, token, tier, min, max);
+        console2.log("  slot tier", tier);
+        console2.log("    min", min);
+        console2.log("    max", max);
+    }
+
+    /// @dev How many tokens `ethAmount` buys right now. 0 if unpriceable.
+    function _tokensFor(address token, uint256 ethAmount) internal view returns (uint256) {
+        address[] memory path = new address[](2);
+        path[0] = WETH;
+        path[1] = token;
+        try IUniswapV2Router02(V2_ROUTER).getAmountsOut(ethAmount, path) returns (uint256[] memory amounts) {
+            return amounts[amounts.length - 1];
+        } catch {
+            // No V2 pair, so fall back to the V3 pool if this token has one.
+            return _v3Price(token, ethAmount);
+        }
+    }
+
+    /**
+     * @dev Price a token from its V3 pool's spot price.
+     *
+     * Reading the pool rather than asking a quoter, because the quoter is a
+     * separate deployment whose address is not something to guess on a chain
+     * where getting it wrong means pricing a prize off a contract that is not
+     * what we think it is. The pool address is known and verified.
+     *
+     * This is spot, so it ignores the price impact a real swap would pay. That
+     * is the right trade here: it prices a prize rather than executing a
+     * trade, and a prize is denominated in tokens once and paid out later.
+     *
+     * The multiplication is staged through two shifts rather than squaring
+     * sqrtPriceX96 outright, which would overflow uint256 for any realistic
+     * price.
+     */
+    function _v3Price(address token, uint256 ethAmount) internal view returns (uint256) {
+        address pool = _v3PoolFor(token);
+        if (pool == address(0)) return 0;
+
+        try IUniswapV3Pool(pool).slot0() returns (uint160 sqrtPriceX96, int24, uint16, uint16, uint16, uint8, bool) {
+            uint256 sqrtP = uint256(sqrtPriceX96);
+            bool wethIsToken0 = IUniswapV3Pool(pool).token0() == WETH;
+
+            if (wethIsToken0) {
+                // price = (sqrtP / 2^96)^2 gives token1 per token0.
+                uint256 staged = (ethAmount * sqrtP) >> 96;
+                return (staged * sqrtP) >> 96;
+            } else {
+                // Inverted: token0 per token1.
+                uint256 staged = (ethAmount << 96) / sqrtP;
+                return (staged << 96) / sqrtP;
+            }
+        } catch {
+            return 0;
+        }
+    }
+
+    /// @dev The verified V3 pool for a token, or zero if it has none.
+    function _v3PoolFor(address token) internal pure returns (address) {
+        // ROB trades only here: the 1% tier. The 0.01%, 0.05% and 0.3% tiers
+        // were all checked on chain and are empty.
+        if (token == ROB) return 0x1490b8cB62e567F862DeC48E4C100e2DBFb10092;
+        return address(0);
+    }
+
+    /// @dev The token whose vault holding is worth the most, for the big tiers.
+    function _deepest(address[] memory tokens, uint256 count) internal view returns (address best) {
+        uint256 bestValue;
+        for (uint256 i = 0; i < count; ++i) {
+            address[] memory path = new address[](2);
+            path[0] = tokens[i];
+            path[1] = WETH;
+            uint256 value;
+            try IUniswapV2Router02(V2_ROUTER).getAmountsOut(vault.available(tokens[i]), path) returns (
+                uint256[] memory amounts
+            ) {
+                value = amounts[amounts.length - 1];
+            } catch {
+                // V3-only token: value it by asking how much ETH's worth of it
+                // the vault holds, using the same spot price used to size slots.
+                uint256 perEth = _tokensFor(tokens[i], 1e15);
+                if (perEth != 0) value = (vault.available(tokens[i]) * 1e15) / perEth;
+            }
+            if (value > bestValue) {
+                bestValue = value;
+                best = tokens[i];
+            }
+        }
+        if (best == address(0)) best = tokens[0];
+    }
+}
