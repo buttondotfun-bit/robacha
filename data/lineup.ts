@@ -37,7 +37,7 @@ export interface LineupToken {
    * and the interface says which chain it is on rather than letting a valid
    * looking address imply it is ready.
    */
-  chain?: "robinhood" | "bsc";
+  chain?: "robinhood" | "bsc" | "ethereum";
   /**
    * Path to a locally stored logo.
    *
@@ -66,6 +66,25 @@ export const LINEUP: LineupToken[] = [
     // Cross-checked against the project it belongs to before being used:
     // pizzabtc.meme and @PizzaBTC7777, matching the contract's 7777 tail.
     logo: "/tokens/pizza.jpg",
+  },
+  {
+    // Verified on Ethereum, not Robinhood Chain: symbol() reads FWA, name()
+    // reads Fake World Assets, 18 decimals, ~999m supply, about $621k of
+    // liquidity. eth_getCode at this address on Robinhood Chain returns empty,
+    // so there is nothing here to hold or pay — the vault custodies Robinhood
+    // Chain tokens and pays them out, and an address that is a real token on
+    // one chain is nothing at all on another.
+    //
+    // Listed as watched rather than arriving, for the same reason as PIZZA. It
+    // needs a Robinhood Chain representation before it can be a reward.
+    symbol: "FWA",
+    name: "Fake World Assets",
+    address: "0xa0Df17B5aC76ABaBA36E1450E2cbCd18A620C845",
+    chain: "ethereum",
+    // The DEX index only resolves Robinhood Chain contracts, so a token on
+    // another chain is invisible to it. Stored locally and served from our own
+    // origin, as with PIZZA and SUSHI.
+    logo: "/tokens/fwa.jpg",
   },
   {
     // symbol() and name() both read THROBBIN, 18 decimals, 1bn supply, and it

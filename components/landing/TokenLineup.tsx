@@ -32,6 +32,22 @@ import { NETWORK_LABEL } from "@/lib/web3";
  * No odds, amounts or dates on the upcoming half. Those do not exist until a
  * pool version is published containing the token.
  */
+
+/**
+ * Where an off-chain token actually lives, and where to go and look at it.
+ *
+ * A table rather than a branch per chain, because the label and the explorer
+ * link have to agree and previously did not have to: both hardcoded BNB, so
+ * the first token from anywhere else would have been announced as BNB Chain
+ * and linked to a BscScan page that does not exist. Adding a chain now means
+ * adding a row, and forgetting the link is a type error rather than a wrong
+ * page.
+ */
+const FOREIGN_CHAINS: Record<string, { label: string; explorer: string }> = {
+  bsc: { label: "BNB Chain", explorer: "https://bscscan.com/token/" },
+  ethereum: { label: "Ethereum", explorer: "https://etherscan.io/token/" },
+};
+
 export function TokenLineup({
   variant = "full",
 }: {
@@ -198,7 +214,10 @@ export function TokenLineup({
                     <p className="num truncate text-[11.5px] text-ink-3">
                       ${token.symbol}
                       {!token.onThisChain ? (
-                        <span className="text-ink-3">{" · BNB Chain"}</span>
+                        <span className="text-ink-3">
+                          {" · "}
+                          {FOREIGN_CHAINS[token.chain ?? ""]?.label ?? "another chain"}
+                        </span>
                       ) : null}
                     </p>
                   </div>
@@ -249,12 +268,15 @@ export function TokenLineup({
 
             <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
               {upcoming.map((token) => {
-                // A BNB Chain address on the Robinhood explorer resolves to
-                // nothing, which reads as a broken link rather than a
-                // different chain.
+                // An address from another chain resolves to nothing on the
+                // Robinhood explorer, which reads as a broken link rather than
+                // as a token that lives somewhere else.
+                const foreign = FOREIGN_CHAINS[token.chain ?? ""];
                 const url = token.onThisChain
                   ? explorerUrl("token", token.address)
-                  : `https://bscscan.com/token/${token.address}`;
+                  : foreign
+                    ? `${foreign.explorer}${token.address}`
+                    : null;
                 return url ? (
                   <li key={token.address}>
                     <a
