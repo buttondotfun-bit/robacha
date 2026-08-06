@@ -242,11 +242,11 @@ export function SpinControls({
 
       <p className="mt-3 text-[11.5px] leading-relaxed text-ink-3">
         Every spin has the same odds shown above — one pull never changes the
-        next. We lock in a sealed number before your round even opens, and it
-        gets mixed with everyone who enters, so we can&rsquo;t pick your reward.
-        We could refuse to unseal it — then the round is cancelled and everyone
-        is refunded in full, and it&rsquo;s recorded publicly. Token values go
-        up and down.
+        next. Your round closes before any number is drawn, and the number is
+        then folded from mining work that hasn&rsquo;t happened yet, so nobody
+        knows it while you can still enter. Yours is mixed with your own
+        address, so everyone in a round draws separately. Token values go up
+        and down.
       </p>
 
       {gachaLink || vaultLink ? (

@@ -39,7 +39,7 @@ const STEPS = [
   {
     icon: ShieldCheck,
     title: "We can't pick what you get",
-    body: "The random number is sealed before your round even opens, then mixed with everyone who enters. We can refuse to unseal it, and then the round is cancelled and everyone gets a full refund — publicly recorded. What we can't do is choose your reward.",
+    body: "Your round closes first, then the number is drawn — folded from mining work that hasn't happened yet, so nobody can know it while you can still enter. Yours is mixed with your own address, so everyone in a round draws separately. We don't hold the number and can't ask for a different one.",
   },
   {
     icon: Coins,

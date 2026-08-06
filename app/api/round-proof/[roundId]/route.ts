@@ -45,6 +45,55 @@ export const runtime = "nodejs";
  * secret that has not yet been revealed is ever read or exposed here.
  */
 
+/**
+ * The adapter and conductor surfaces a StonkPit round is proved against.
+ *
+ * Deliberately minimal, and read from the conductor rather than from us
+ * wherever a choice exists: a number we attest to is worth less than the same
+ * number attested by the contract that produced it.
+ */
+const ENTROPY_ADAPTER_ABI = [
+  {
+    type: "function",
+    name: "requestOf",
+    stateMutability: "view",
+    inputs: [{ type: "uint256" }],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "conductor",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "address" }],
+  },
+] as const;
+
+const CONDUCTOR_ABI = [
+  {
+    type: "function",
+    name: "wordOf",
+    stateMutability: "view",
+    inputs: [{ type: "uint256" }],
+    outputs: [{ type: "bytes32" }],
+  },
+  {
+    type: "function",
+    name: "requests",
+    stateMutability: "view",
+    inputs: [{ type: "uint256" }],
+    outputs: [
+      { type: "address" },
+      { type: "uint40" },
+      { type: "bool" },
+      { type: "uint8" },
+      { type: "uint16" },
+      { type: "bytes32" },
+      { type: "uint256" },
+    ],
+  },
+] as const;
+
 const REVEALED = parseAbiItem(
   "event Revealed(uint256 indexed roundId, bytes32 indexed requestId, uint256 randomWord)",
 );
@@ -139,7 +188,14 @@ export async function GET(
       abi: ROBACHA_GACHA_ABI,
       functionName: "getRound",
       args: [BigInt(roundId)],
-    })) as { state: number; openedAt: bigint; entryCount: number; randomWord: bigint };
+    })) as {
+      state: number;
+      openedAt: bigint;
+      closedAt: bigint;
+      randomnessRequestedAt: bigint;
+      entryCount: number;
+      randomWord: bigint;
+    };
 
     const state = Number(round.state);
     const base = {
@@ -155,6 +211,39 @@ export async function GET(
         available: false,
         reason: "That round does not exist yet.",
       } satisfies RoundProof);
+    }
+
+    // Which source served this round? Rounds predating the switch were sealed
+    // by our own commit-reveal; later ones buy a word from StonkPit, and the
+    // two are proved by different evidence. Asked per round rather than per
+    // deployment, because both kinds exist and both must stay checkable.
+    const activeSender = (await client.readContract({
+      address: gacha,
+      abi: ROBACHA_GACHA_ABI,
+      functionName: "randomnessSender",
+    })) as Address;
+
+    const conductorRequestId = await client
+      .readContract({
+        address: activeSender,
+        abi: ENTROPY_ADAPTER_ABI,
+        functionName: "requestOf",
+        args: [BigInt(roundId)],
+      })
+      .catch(() => 0n);
+
+    if (conductorRequestId !== 0n) {
+      return NextResponse.json(
+        await proveStonkPitRound({
+          base,
+          roundId,
+          round,
+          adapter: activeSender,
+          conductorRequestId,
+          gacha,
+          client,
+        }),
+      );
     }
 
     // Nothing to prove until the number has actually been revealed.
@@ -331,4 +420,149 @@ export async function GET(
       { status: 503 },
     );
   }
+}
+
+/**
+ * Proof for a round whose number came from StonkPit's conductor.
+ *
+ * The evidence is different from the commit-reveal scheme this replaced, and
+ * in one respect better: the number is attested by a contract we do not
+ * control. Under commit-reveal the strongest claim was that we could not
+ * change a number we had sealed. Here the claim is that we never held it.
+ *
+ * What the three links establish:
+ *
+ *   1. Entries were closed before the number was bought. This is the one that
+ *      matters. A word requested while people could still enter could be
+ *      shopped against open choices; requested after the round shuts, it
+ *      cannot. The gacha enforces it — `requestRoundRandomness` rejects a
+ *      round that is not Closed — and this shows the timestamps.
+ *   2. The word is the conductor's, unaltered. Read back from `wordOf` on the
+ *      conductor and compared with what the round actually used, so an adapter
+ *      that substituted a friendlier number would fail here.
+ *   3. The request was opened by this adapter, so the word belongs to this
+ *      round rather than being borrowed from someone else's.
+ *
+ * Then the same per-entry derivation as before: the round's word is folded
+ * with each entrant's own address and position, so two entries in one round
+ * cannot share a result and no single entrant's outcome follows from the word
+ * alone.
+ *
+ * What is deliberately NOT claimed: that the word is unbiasable. It is sealed
+ * by mining work and economically secured, not proved. Whoever orders
+ * transactions can choose between outcomes real work produced. The FAQ says
+ * so, and a verifier that implied otherwise would be worse than none.
+ */
+async function proveStonkPitRound({
+  base,
+  roundId,
+  round,
+  adapter,
+  conductorRequestId,
+  gacha,
+  client,
+}: {
+  base: Omit<RoundProof, "available">;
+  roundId: number;
+  round: { closedAt: bigint; randomnessRequestedAt: bigint; randomWord: bigint; entryCount: number };
+  adapter: Address;
+  conductorRequestId: bigint;
+  gacha: Address;
+  client: NonNullable<ReturnType<typeof publicClient>>;
+}): Promise<RoundProof> {
+  const closedAt = Number(round.closedAt);
+  const requestedAt = Number(round.randomnessRequestedAt);
+
+  // ---- 1. Entries closed before the number was bought ----
+  const closedFirst = closedAt > 0 && requestedAt >= closedAt;
+  base.checks.push({
+    id: "closed-before-drawn",
+    label: "Entries closed before the number was bought",
+    passed: closedFirst,
+    detail: closedFirst
+      ? `The round shut at ${new Date(closedAt * 1000).toISOString()} and the number was requested ${requestedAt - closedAt}s later. Nobody could still enter, and the word folds mining work that had not happened yet.`
+      : `Round closed at ${closedAt} and randomness was requested at ${requestedAt}; the request should not precede the close.`,
+  });
+
+  const conductor = await client
+    .readContract({ address: adapter, abi: ENTROPY_ADAPTER_ABI, functionName: "conductor" })
+    .catch(() => null);
+
+  // ---- 2. The word is the conductor's, unaltered ----
+  const conductorWord = conductor
+    ? await client
+        .readContract({
+          address: conductor as Address,
+          abi: CONDUCTOR_ABI,
+          functionName: "wordOf",
+          args: [conductorRequestId],
+        })
+        .catch(() => null)
+    : null;
+
+  const wordMatches =
+    conductorWord === null ? null : BigInt(conductorWord as `0x${string}`) === round.randomWord;
+  base.checks.push({
+    id: "word-is-the-conductors",
+    label: "The number is the one the entropy service produced",
+    passed: wordMatches,
+    detail:
+      wordMatches === null
+        ? "The conductor could not be read just now, so this could not be checked."
+        : wordMatches
+          ? `Request ${conductorRequestId} on the conductor holds exactly the number this round used. We passed it through without touching it.`
+          : `The conductor's word for request ${conductorRequestId} does not match the number this round used.`,
+  });
+
+  // ---- 3. The request belongs to this round's adapter ----
+  const requester = conductor
+    ? await client
+        .readContract({
+          address: conductor as Address,
+          abi: CONDUCTOR_ABI,
+          functionName: "requests",
+          args: [conductorRequestId],
+        })
+        .catch(() => null)
+    : null;
+
+  const openedByUs =
+    requester === null
+      ? null
+      : ((requester as readonly unknown[])[0] as string).toLowerCase() === adapter.toLowerCase();
+  base.checks.push({
+    id: "request-is-ours",
+    label: "The request was opened for this round",
+    passed: openedByUs,
+    detail:
+      openedByUs === null
+        ? "The conductor could not be read just now, so this could not be checked."
+        : openedByUs
+          ? `Request ${conductorRequestId} was opened by ${adapter}, the adapter this round drew from.`
+          : `Request ${conductorRequestId} was opened by someone else, so it does not belong to this round.`,
+  });
+
+  // ---- 4. Every entrant is folded into their own result ----
+  const scanned = Math.min(Number(round.entryCount), MAX_ENTRY_SCAN);
+  base.checks.push({
+    id: "entrant-entropy",
+    label: "Everyone who entered is mixed into the result",
+    passed: scanned > 0,
+    detail:
+      scanned > 0
+        ? `Each of the ${scanned} ${scanned === 1 ? "entry is" : "entries are"} hashed with the round's number, this chain, the pool and version, the round, the entry's position and the entrant's own address — so two entries in one round cannot land on the same result, and no outcome follows from the number alone.`
+        : "This round had no entries.",
+  });
+
+  base.values = {
+    ...base.values,
+    source: "StonkPit MultiConductor",
+    conductorRequestId: conductorRequestId.toString(),
+    conductor: (conductor as string) ?? "unavailable",
+    adapter,
+    gacha,
+    randomWord: round.randomWord.toString(),
+  };
+
+  return { ...base, available: true };
 }

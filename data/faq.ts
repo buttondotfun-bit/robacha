@@ -154,12 +154,12 @@ export const FAQ_GROUPS: FaqGroup[] = [
       {
         question: "Can you pick what I get?",
         answer:
-          "No, and here's exactly why. Before a round even opens we lock in a sealed random number — the contract publishes a fingerprint of it and refuses any number sealed after the round started. When the round ends we unseal it, and the contract checks it matches that fingerprint. We can't swap it for a nicer one. On top of that, the final result mixes in the addresses of everyone who entered, which we couldn't have known when we sealed it.",
+          "No, and the order things happen in is why. Your round closes first, so who is in it is fixed. Only then do we buy a random number from StonkPit, and that number is folded from the next four certified mining prints — work that hasn't been done yet at the moment your round closed. Nobody knows it then, us included, and we can't ask for a different one. Your specific prize is that number mixed with your wallet address and your place in the round, so everyone in the same round draws separately.",
       },
       {
         question: "So what CAN you do?",
         answer:
-          "One thing, and we'd rather say it than have you find it. Once a round closes we can see the result before unsealing it, and we could refuse to unseal. That doesn't let us change your prize — it cancels the whole round and refunds everyone in full, including us losing the fees. Every refusal is counted on chain forever, so a pattern of convenient failures is visible to anyone. We also post a deposit that gets slashed each time it happens.",
+          "Less than we used to, and we'd rather say what's left than have you find it. We used to seal the number ourselves, which meant we could refuse to unseal one we didn't like and cancel the round. That's gone — we don't hold the number any more and delivery doesn't depend on us. What's left isn't ours to do: this is sealed by real mining work rather than a cryptographic proof, so whoever orders transactions on the chain could in principle pick between outcomes that real work produced. They can't invent one. It's kept small by how little rides on a single round — five spins, and every prize capped at a quarter of what's in the vault for that token.",
       },
       {
         question: "Can I check the code?",
