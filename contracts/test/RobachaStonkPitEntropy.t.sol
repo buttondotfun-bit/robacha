@@ -42,6 +42,21 @@ contract MockConductor {
         requester[id] = msg.sender;
         seedOf[id] = seed;
         printsOf[id] = nPrints;
+        feePaid[id] = msg.value;
+    }
+
+    uint256 public constant CANCEL_TIMEOUT = 172800;
+    mapping(uint256 => uint256) public feePaid;
+    mapping(uint256 => bool) public cancelled;
+
+    /// @dev Refunds the fee, as the real one does after its timeout.
+    function cancel(uint256 id) external {
+        require(requester[id] == msg.sender, "MockConductor: not the requester");
+        require(!cancelled[id], "MockConductor: already cancelled");
+        cancelled[id] = true;
+        uint256 amount = feePaid[id];
+        (bool ok,) = msg.sender.call{value: amount}("");
+        require(ok, "MockConductor: refund failed");
     }
 
     /// @dev Permissionless delivery, exactly as the real one is.
@@ -342,5 +357,58 @@ contract RobachaStonkPitEntropyTest is Test {
         assertLt(address(sender).balance, floatBefore, "one seat needed the float");
         (bool ready,) = sender.isReady();
         assertTrue(ready, "and there is still runway afterwards");
+    }
+
+    // ------------------------------------------------------------------
+    // Reclaiming a request the conductor never determined
+    // ------------------------------------------------------------------
+
+    function test_reclaimsTheFeeForAnUndeliveredRequest() public {
+        uint256 pay = _forwarded(3);
+        gacha.askFor(sender, 30, pay);
+
+        uint256 floatBefore = address(sender).balance;
+        uint256 recovered = sender.reclaimStrandedRequest(30);
+
+        assertGt(recovered, 0, "the fee came back");
+        assertEq(address(sender).balance, floatBefore + recovered, "and landed in the float");
+    }
+
+    function test_reclaimingIsPermissionless() public {
+        // Nothing to gain by calling it — the ETH can only land in the float —
+        // so the float should not wait on an admin being awake.
+        gacha.askFor(sender, 31, _forwarded(3));
+        vm.prank(stranger);
+        sender.reclaimStrandedRequest(31);
+        assertTrue(sender.reclaimed(31));
+    }
+
+    function test_aDeliveredRoundCannotBeReclaimed() public {
+        // The one that matters. The word arrived and settled a round; taking
+        // the fee back afterwards would be taking money for work delivered.
+        bytes32 rid = gacha.askFor(sender, 32, _forwarded(3));
+        conductor.deliver(uint256(rid), bytes32(uint256(0xABC)));
+
+        vm.expectRevert(abi.encodeWithSelector(RobachaStonkPitEntropy.NothingToReclaim.selector, uint256(32)));
+        sender.reclaimStrandedRequest(32);
+    }
+
+    function test_theSameRequestCannotBeReclaimedTwice() public {
+        gacha.askFor(sender, 33, _forwarded(3));
+        sender.reclaimStrandedRequest(33);
+
+        vm.expectRevert(abi.encodeWithSelector(RobachaStonkPitEntropy.AlreadyReclaimed.selector, uint256(33)));
+        sender.reclaimStrandedRequest(33);
+    }
+
+    function test_aRoundThatNeverRequestedHasNothingToReclaim() public {
+        vm.expectRevert(abi.encodeWithSelector(RobachaStonkPitEntropy.NothingToReclaim.selector, uint256(99)));
+        sender.reclaimStrandedRequest(99);
+    }
+
+    function test_cancelTimeoutIsReadFromTheConductor() public view {
+        // 48 hours, against the gacha's 2 hour refund. Players are repaid long
+        // before this; only our own fee waits.
+        assertEq(sender.cancelTimeout(), 172800);
     }
 }

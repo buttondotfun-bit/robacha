@@ -15,6 +15,10 @@ interface IMultiConductor {
     function liveTapeCount() external view returns (uint256);
     /// @notice Buy a word folded from the next `nPrints` certified prints.
     function request(uint256 nPrints, bytes32 seed) external payable returns (uint256 requestId);
+    /// @notice Reclaim the fee for a request still undetermined after the timeout.
+    function cancel(uint256 requestId) external;
+    /// @notice How long a request must sit undetermined before it can be cancelled.
+    function CANCEL_TIMEOUT() external view returns (uint256);
 }
 
 interface IGachaConsumer {
@@ -107,11 +111,15 @@ contract RobachaStonkPitEntropy is IRobachaRandomnessSender, AccessControl, Reen
     mapping(uint256 roundId => uint256 conductorRequestId) public requestOf;
     mapping(uint256 roundId => bool delivered) public delivered;
 
+    /// @notice Rounds whose fee has already been reclaimed from the conductor.
+    mapping(uint256 roundId => bool reclaimed) public reclaimed;
+
     event RandomnessBought(uint256 indexed roundId, uint256 indexed requestId, uint256 feePaid, uint256 fromFloat);
     event RandomnessDelivered(uint256 indexed roundId, uint256 indexed requestId, uint256 word);
     event FloatFunded(address indexed from, uint256 amount, uint256 total);
     event FloatWithdrawn(address indexed to, uint256 amount);
     event KeeperTipUpdated(uint256 tip);
+    event StrandedRequestReclaimed(uint256 indexed roundId, uint256 indexed requestId, uint256 recovered);
 
     error NotGacha();
     error NotConductor();
@@ -121,6 +129,8 @@ contract RobachaStonkPitEntropy is IRobachaRandomnessSender, AccessControl, Reen
     error UnknownRequest(uint256 requestId);
     error FloatTooThin(uint256 held, uint256 needed);
     error TransferFailed();
+    error NothingToReclaim(uint256 roundId);
+    error AlreadyReclaimed(uint256 roundId);
 
     constructor(address admin, address conductor_, address gacha_) {
         if (admin == address(0) || conductor_ == address(0) || gacha_ == address(0)) revert ZeroAddress();
@@ -186,6 +196,47 @@ contract RobachaStonkPitEntropy is IRobachaRandomnessSender, AccessControl, Reen
 
         IGachaConsumer(gacha).fulfillRandomness(roundId, bytes32(requestId), uint256(word));
         emit RandomnessDelivered(roundId, requestId, uint256(word));
+    }
+
+    /**
+     * @notice Reclaim the fee for a request the conductor never determined.
+     *
+     * @dev Players are never waiting on this. A round whose word does not
+     *      arrive becomes refundable after the gacha's own two hour timeout and
+     *      everyone is repaid; the conductor will not release the fee for
+     *      forty-eight. So the only thing stranded in between is our money, and
+     *      this is what goes and gets it.
+     *
+     *      Permissionless, and the recovered ETH lands in the float rather than
+     *      anywhere a caller could choose. There is nothing to gain by calling
+     *      it and no reason to make the float wait on an administrator being
+     *      awake — the same reasoning as `fundFloat`.
+     *
+     *      Every real precondition is the conductor's to enforce: that the
+     *      request exists, is still undetermined, belongs to us, and is past
+     *      its timeout. Re-checking them here would only be a second copy to
+     *      drift. What is checked is what only this contract knows: that the
+     *      word never reached us, and that the fee has not already been taken
+     *      back.
+     */
+    function reclaimStrandedRequest(uint256 roundId) external nonReentrant returns (uint256 recovered) {
+        uint256 requestId = requestOf[roundId];
+        if (requestId == 0) revert NothingToReclaim(roundId);
+        if (delivered[roundId]) revert NothingToReclaim(roundId);
+        if (reclaimed[roundId]) revert AlreadyReclaimed(roundId);
+
+        reclaimed[roundId] = true;
+
+        uint256 before = address(this).balance;
+        conductor.cancel(requestId);
+        recovered = address(this).balance - before;
+
+        emit StrandedRequestReclaimed(roundId, requestId, recovered);
+    }
+
+    /// @notice When a stranded request becomes reclaimable, per the conductor.
+    function cancelTimeout() external view returns (uint256) {
+        return conductor.CANCEL_TIMEOUT();
     }
 
     // -------------------------------------------------------------- readiness
