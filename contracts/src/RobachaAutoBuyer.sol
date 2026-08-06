@@ -100,6 +100,29 @@ interface IPoolManager {
     function take(address currency, address to, uint256 amount) external;
 }
 
+/**
+ * @dev Uniswap's original V3 SwapRouter, which SwapRouter02 replaced.
+ *
+ * The only difference that matters here is `deadline`, which the original
+ * takes and its successor dropped. That single extra field shifts every
+ * argument after it, so calling one router with the other's struct does not
+ * fail cleanly — it succeeds against garbage, and the field that ends up
+ * garbage is `amountOutMinimum`. A swap with no slippage floor is a worse
+ * outcome than a reverted one, which is why these are separate venues rather
+ * than one call site with a flag.
+ */
+interface IUniswapV3RouterLegacy {
+    struct ExactInputParams {
+        bytes path;
+        address recipient;
+        uint256 deadline;
+        uint256 amountIn;
+        uint256 amountOutMinimum;
+    }
+
+    function exactInput(ExactInputParams calldata params) external payable returns (uint256 amountOut);
+}
+
 interface IWETH9 {
     function deposit() external payable;
     function withdraw(uint256 amount) external;
@@ -159,7 +182,9 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
     enum Venue {
         V2,
         V3,
-        V4
+        V4,
+        /// The original SwapRouter. Same pools as V3, different call shape.
+        V3Legacy
     }
 
     /// @dev V4's price bounds. A swap must name a limit; these mean "no limit".
@@ -305,6 +330,37 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
         return (route.router, route.v4Key);
     }
 
+    /**
+     * @notice Point a token at a pool fronted by the original SwapRouter.
+     * @dev Same packed path as V3 — the pools are identical, only the router's
+     *      argument list differs. SUSHI is the case in point: its market sits
+     *      on a third V3 factory whose router predates SwapRouter02.
+     */
+    function setBuyRouteV3Legacy(address token, address router, bytes calldata v3Path)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        if (token == address(0) || router == address(0)) revert ZeroAddress();
+        _requireV3Path(v3Path, WETH, token);
+        address[] memory empty;
+        _buyRoutes[token] =
+            Route({router: router, venue: Venue.V3Legacy, path: empty, v3Path: v3Path, v4Key: _emptyKey()});
+        emit BuyRouteSetV3(token, router, v3Path);
+    }
+
+    /// @notice The selling half of a legacy SwapRouter route.
+    function setSellRouteV3Legacy(address token, address router, bytes calldata v3Path)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        if (token == address(0) || router == address(0)) revert ZeroAddress();
+        _requireV3Path(v3Path, token, WETH);
+        address[] memory empty;
+        _sellRoutes[token] =
+            Route({router: router, venue: Venue.V3Legacy, path: empty, v3Path: v3Path, v4Key: _emptyKey()});
+        emit SellRouteSetV3(token, router, v3Path);
+    }
+
     /// @notice Point a token's sales at a Uniswap V3 pool.
     function setSellRouteV3(address token, address router, bytes calldata v3Path)
         external
@@ -397,6 +453,20 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
             // caller's minimum is enforced here, after the fact, by reverting
             // the whole transaction — swap included.
             if (amountOut < minAmountOut) revert InsufficientOutput(amountOut, minAmountOut);
+        } else if (route.venue == Venue.V3Legacy && route.router != address(0)) {
+            uint256 before = IERC20(token).balanceOf(address(this));
+            IUniswapV3RouterLegacy(route.router).exactInput{value: ethAmount}(
+                IUniswapV3RouterLegacy.ExactInputParams({
+                    path: route.v3Path,
+                    recipient: address(this),
+                    // This block is the deadline: a swap not mined now is not
+                    // mined, since it originates from a transaction of ours.
+                    deadline: block.timestamp,
+                    amountIn: ethAmount,
+                    amountOutMinimum: minAmountOut
+                })
+            );
+            amountOut = IERC20(token).balanceOf(address(this)) - before;
         } else if (route.venue == Venue.V3 && route.router != address(0)) {
             // Measured rather than taken from the return value, for the same
             // reason as the sell side: what the vault can pay out is what
@@ -459,6 +529,20 @@ contract RobachaAutoBuyer is AccessControl, ReentrancyGuard {
             if (ethOut < minEthOut) revert InsufficientOutput(ethOut, minEthOut);
             emit TokensSoldForEth(token, tokenAmount, ethOut);
             return ethOut;
+        } else if (route.venue == Venue.V3Legacy && route.router != address(0)) {
+            router = route.router;
+            IERC20(token).forceApprove(router, tokenAmount);
+
+            uint256 wethOut = IUniswapV3RouterLegacy(router).exactInput(
+                IUniswapV3RouterLegacy.ExactInputParams({
+                    path: route.v3Path,
+                    recipient: address(this),
+                    deadline: block.timestamp,
+                    amountIn: tokenAmount,
+                    amountOutMinimum: minEthOut
+                })
+            );
+            IWETH9(WETH).withdraw(wethOut);
         } else if (route.venue == Venue.V3 && route.router != address(0)) {
             router = route.router;
             IERC20(token).forceApprove(router, tokenAmount);

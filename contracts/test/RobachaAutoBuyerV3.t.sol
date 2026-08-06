@@ -2,7 +2,7 @@
 pragma solidity 0.8.24;
 
 import {Test} from "forge-std/Test.sol";
-import {RobachaAutoBuyer, IUniswapV3Router} from "../src/RobachaAutoBuyer.sol";
+import {RobachaAutoBuyer, IUniswapV3Router, IUniswapV3RouterLegacy} from "../src/RobachaAutoBuyer.sol";
 import {RobachaRewardVault} from "../src/RobachaRewardVault.sol";
 import {RobachaRoles} from "../src/RobachaRoles.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -266,5 +266,159 @@ contract RobachaAutoBuyerV3Test is Test {
         vm.prank(admin);
         vm.expectRevert("MockV3Router: INSUFFICIENT_OUTPUT");
         buyer.swapAndFund(address(reward), 0, 1 ether, 1_000_000e18);
+    }
+}
+
+// ======================================================================
+// The original SwapRouter — same pools, one extra argument
+// ======================================================================
+
+/**
+ * @dev Test-only original SwapRouter.
+ *
+ * Modelled on the deployed contract's verified ABI. The point of this double
+ * is the `deadline` field: it enforces it, so a caller that omitted it and let
+ * the arguments shift would be caught here rather than on chain.
+ */
+contract MockV3LegacyRouter {
+    address public immutable weth;
+    uint256 public rate = 50_000;
+
+    constructor(address weth_) {
+        weth = weth_;
+    }
+
+    function _first(bytes memory path) internal pure returns (address a) {
+        assembly {
+            a := shr(96, mload(add(path, 32)))
+        }
+    }
+
+    function _last(bytes memory path) internal pure returns (address a) {
+        uint256 len = path.length;
+        assembly {
+            a := shr(96, mload(add(add(path, 32), sub(len, 20))))
+        }
+    }
+
+    function exactInput(IUniswapV3RouterLegacy.ExactInputParams calldata params)
+        external
+        payable
+        returns (uint256 amountOut)
+    {
+        require(params.deadline >= block.timestamp, "MockV3Legacy: expired");
+
+        address tokenIn = _first(params.path);
+        address tokenOut = _last(params.path);
+
+        if (tokenIn == weth) {
+            require(msg.value == params.amountIn, "MockV3Legacy: bad value");
+            amountOut = (params.amountIn * rate) / 1e6;
+        } else {
+            MockERC20(tokenIn).transferFrom(msg.sender, address(this), params.amountIn);
+            amountOut = (params.amountIn * 1e6) / rate;
+        }
+
+        require(amountOut >= params.amountOutMinimum, "MockV3Legacy: INSUFFICIENT_OUTPUT");
+        MockERC20(tokenOut).mint(params.recipient, amountOut);
+    }
+
+    receive() external payable {}
+}
+
+contract RobachaAutoBuyerV3LegacyTest is Test {
+    address internal constant WETH_ADDR = 0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73;
+
+    address internal admin = makeAddr("admin");
+    address internal stranger = makeAddr("stranger");
+
+    RobachaRewardVault internal vault;
+    RobachaAutoBuyer internal buyer;
+    MockV3LegacyRouter internal legacy;
+    MockERC20 internal reward;
+
+    function setUp() public {
+        MockWETH9 wethImpl = new MockWETH9();
+        vm.etch(WETH_ADDR, address(wethImpl).code);
+
+        legacy = new MockV3LegacyRouter(WETH_ADDR);
+        reward = new MockERC20("Reward", "RWD", 18);
+
+        vault = new RobachaRewardVault(admin);
+        buyer = new RobachaAutoBuyer(admin, address(vault));
+
+        vm.prank(admin);
+        vault.grantRole(RobachaRoles.VAULT_MANAGER_ROLE, address(buyer));
+
+        vm.deal(address(buyer), 10 ether);
+    }
+
+    function _path(address a, uint24 fee, address b) internal pure returns (bytes memory) {
+        return abi.encodePacked(a, fee, b);
+    }
+
+    function test_buysThroughTheOriginalSwapRouter() public {
+        vm.prank(admin);
+        buyer.setBuyRouteV3Legacy(address(reward), address(legacy), _path(WETH_ADDR, 3000, address(reward)));
+
+        vm.prank(admin);
+        uint256 out = buyer.swapAndFund(address(reward), 0, 1 ether, 1);
+
+        assertEq(out, (1 ether * 50_000) / 1e6, "filled against the legacy router");
+        assertEq(vault.available(address(reward)), out, "and reached the vault");
+    }
+
+    function test_slippageFloorSurvivesTheExtraArgument() public {
+        // The whole reason this is a separate venue. If the minimum were passed
+        // in SwapRouter02's position it would land in `deadline`, and the real
+        // minimum would decode from whatever followed — a live buy with no
+        // floor at all. Here the floor must actually bite.
+        vm.prank(admin);
+        buyer.setBuyRouteV3Legacy(address(reward), address(legacy), _path(WETH_ADDR, 3000, address(reward)));
+
+        vm.prank(admin);
+        vm.expectRevert("MockV3Legacy: INSUFFICIENT_OUTPUT");
+        buyer.swapAndFund(address(reward), 0, 1 ether, 1_000_000e18);
+    }
+
+    function test_sellsThroughTheOriginalSwapRouter() public {
+        reward.mint(address(buyer), 1e18);
+        vm.deal(WETH_ADDR, 100 ether);
+
+        vm.prank(admin);
+        buyer.setSellRouteV3Legacy(address(reward), address(legacy), _path(address(reward), 3000, WETH_ADDR));
+
+        uint256 before = address(buyer).balance;
+        vm.prank(admin);
+        uint256 ethOut = buyer.sellForEth(address(reward), 1e18, 1);
+
+        assertGt(ethOut, 0, "produced ETH, not WETH");
+        assertEq(address(buyer).balance, before + ethOut);
+    }
+
+    function test_legacySellLeavesNoStandingAllowance() public {
+        reward.mint(address(buyer), 1e18);
+        vm.deal(WETH_ADDR, 100 ether);
+
+        vm.prank(admin);
+        buyer.setSellRouteV3Legacy(address(reward), address(legacy), _path(address(reward), 3000, WETH_ADDR));
+        vm.prank(admin);
+        buyer.sellForEth(address(reward), 1e18, 1);
+
+        assertEq(reward.allowance(address(buyer), address(legacy)), 0);
+    }
+
+    function test_legacyPathIsValidatedLikeTheRest() public {
+        vm.prank(admin);
+        vm.expectRevert(
+            abi.encodeWithSelector(RobachaAutoBuyer.PathMustStartWith.selector, WETH_ADDR, address(reward))
+        );
+        buyer.setBuyRouteV3Legacy(address(reward), address(legacy), _path(address(reward), 3000, WETH_ADDR));
+    }
+
+    function test_onlyAdminCanSetALegacyRoute() public {
+        vm.prank(stranger);
+        vm.expectRevert();
+        buyer.setBuyRouteV3Legacy(address(reward), address(legacy), _path(WETH_ADDR, 3000, address(reward)));
     }
 }
