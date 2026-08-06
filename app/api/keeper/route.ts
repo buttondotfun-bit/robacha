@@ -22,6 +22,27 @@ export const runtime = "nodejs";
  * gets is the refund timeout. That is precisely how three funded rounds ended
  * up stuck in production.
  *
+ * WHERE THE CADENCE COMES FROM
+ *
+ * cron-job.org calls this every minute. That is the real schedule, and it has
+ * to be roughly that fast: a round becomes refundable 7200s after it closes,
+ * and a keeper that ticks slower than that hands people refunds instead of
+ * rewards.
+ *
+ * `vercel.json` also has a cron here, set to daily, and it must stay daily.
+ * This account is on Hobby, which allows one cron run per day, and Vercel does
+ * not clamp a faster schedule or warn about it — it refuses to create the
+ * deployment at all, with `cron_jobs_limits_reached`. Setting it to every
+ * minute once blocked four commits from ever being built while the deployment
+ * list showed twenty consecutive successes, so production quietly served an
+ * older commit for hours. Hourly fails the same way; daily is the only
+ * schedule this plan accepts.
+ *
+ * So the Vercel entry is a backstop rather than the mechanism: if the external
+ * job dies, a round still eventually gets closed and settled rather than
+ * sitting Open forever — and an Open round cannot time out and refund on its
+ * own, so nothing else would rescue it.
+ *
  * Every action is simulated before it is sent, so a call that would revert is
  * skipped rather than burning gas, and the whole route is idempotent: running
  * it twice does nothing the second time.

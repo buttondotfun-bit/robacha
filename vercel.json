@@ -1,23 +1,6 @@
 {
   "crons": [
     {
-      "_comment": [
-        "Daily, and deliberately not more often. This account is on Hobby,",
-        "which caps crons at one run per day, and Vercel does not clamp a",
-        "faster schedule or warn about it — it refuses to create the",
-        "deployment at all, with cron_jobs_limits_reached. A '* * * * *' here",
-        "silently blocked every push for hours: the deployment list showed",
-        "nothing failing because nothing was ever built.",
-        "",
-        "The keeper's real cadence comes from cron-job.org at one minute,",
-        "which is what the 7200s randomness timeout actually needs. This entry",
-        "is only a backstop for the case where that external job dies, so a",
-        "round eventually gets closed and settled rather than sitting open",
-        "forever — an Open round cannot even time out and refund on its own.",
-        "",
-        "If this project moves to Pro, a faster schedule becomes available and",
-        "this can carry the keeper by itself."
-      ],
       "path": "/api/keeper",
       "schedule": "0 3 * * *"
     }
