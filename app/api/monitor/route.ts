@@ -35,6 +35,27 @@ const KEEPER_MIN_GAS_WEI = 2_000_000_000_000_000n; // 0.002 ETH
 /** A round past this age in a non-terminal state is not progressing on its own. */
 const STUCK_ROUND_SECONDS = 15 * 60;
 
+/**
+ * How long an Open round may sit past its own close time.
+ *
+ * Tighter than `STUCK_ROUND_SECONDS`, because the two say different things. A
+ * round that has closed and is waiting on randomness is mid-cycle: a request
+ * and a reveal both have to land, and minutes of that are ordinary. A round
+ * still Open past its deadline is waiting on `closeRound`, which is one cheap
+ * permissionless call with nothing to wait for — so a few minutes of it means
+ * the keeper is not running at all, and folding that into a fifteen minute
+ * threshold delays the loudest signal there is.
+ *
+ * Rounds are 120 seconds, so three minutes is comfortably past anything
+ * normal without alerting on a slow block or a keeper tick that just missed.
+ *
+ * There is a second reason to be quick. `markRoundRefundable` only accepts
+ * rounds that have closed, so an Open round cannot time out and refund the way
+ * every other stall eventually does. It sits, holding money, until somebody
+ * calls `closeRound`. Nothing about it self-heals.
+ */
+const OPEN_OVERDUE_SECONDS = 3 * 60;
+
 /** Reveals consume commitments; running out halts every round. */
 const MIN_COMMITMENTS = 10;
 
@@ -172,6 +193,7 @@ export async function GET() {
     const newest = Number(nextRoundId) - 1;
     const oldest = Math.max(1, newest - ROUND_SCAN + 1);
     const stuck: string[] = [];
+    const notClosing: string[] = [];
     let refundsOwed = 0n;
 
     const ids = Array.from({ length: newest - oldest + 1 }, (_, i) => oldest + i);
@@ -202,6 +224,15 @@ export async function GET() {
       const deadline = Number(round.closesAt);
       const age = nowSeconds - deadline;
       if (state === State.Open && age <= 0) continue;
+
+      // Reported separately and sooner: still Open past its deadline means
+      // nobody is calling `closeRound`, which is the single clearest sign the
+      // keeper is down, and the one stall that cannot resolve itself.
+      if (state === State.Open && age > OPEN_OVERDUE_SECONDS) {
+        notClosing.push(`#${id} open ${Math.floor(age / 60)}m past close`);
+        continue;
+      }
+
       if (age > STUCK_ROUND_SECONDS) {
         stuck.push(`#${id} ${STATE_NAME[state] ?? state} for ${Math.floor(age / 60)}m`);
       }
@@ -210,6 +241,15 @@ export async function GET() {
     facts.newestRound = newest;
     facts.refundsOwedWei = refundsOwed.toString();
 
+    if (notClosing.length > 0) {
+      alerts.push({
+        check: "roundsNotClosing",
+        severity: "critical",
+        detail:
+          `${notClosing.join(", ")} — nobody is calling closeRound, so the keeper is almost certainly down. ` +
+          `These cannot time out and refund on their own: markRoundRefundable will not accept an Open round.`,
+      });
+    }
     if (stuck.length > 0) {
       alerts.push({
         check: "stuckRounds",
