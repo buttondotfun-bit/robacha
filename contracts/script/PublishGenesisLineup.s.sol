@@ -115,17 +115,32 @@ contract PublishGenesisLineup is Script {
 
     uint256 constant BASE_SPIN_PRICE_WEI = 0.0005 ether;
     /**
-     * @dev Held at 0.0001 while the machine runs its own commit-reveal, which
-     *      charges 0.00005 a round and is comfortably covered.
+     * @dev Sized so a round pays for its own entropy rather than the treasury
+     *      doing it.
      *
-     *      Buying entropy from StonkPit instead needs 0.0002: one round buys
-     *      one word whatever it seats, measured occupancy is 3.29 seats, and
-     *      their fee ceiling plus a tip is 0.0006, so break-even is 0.000182.
-     *      That change belongs with that switch and not before it — the
-     *      surcharge funds no prizes, so raising it early would cost players
-     *      17% of their ticket for something not yet switched on.
+     *      One round buys one word however many seats it holds, so the cost
+     *      divides across everyone in it. Measured occupancy is 3.29 seats
+     *      across 69 entries, and StonkPit's fee ceiling plus a keeper tip is
+     *      0.0006, so break-even is 0.0006 / 3.29 = 0.000182. At 0.0002 a round
+     *      collects 0.000658 — covering the ceiling with room, and the live
+     *      quote of 0.0003425 nearly twice over.
+     *
+     *      The surplus is not profit and cannot become profit: the fee router
+     *      sends unused surcharge to `randomnessTreasury`, which points at the
+     *      entropy adapter, so busy rounds refill the float that lean ones draw
+     *      down. That loop is what stops this needing topping up by hand.
+     *
+     *      Deliberately not the 0.0006 a single-seat round would need to be
+     *      self-sufficient alone. That reading ignores amortisation, and since
+     *      the surcharge buys no prizes it would have cut the player's expected
+     *      return from 67% to 36% — a house edge worth screenshotting, on a
+     *      site that publishes its odds.
+     *
+     *      Twenty-one rounds is a thin sample. If occupancy settles nearer two
+     *      seats, break-even at the ceiling rises to 0.0003; `runwayRounds()`
+     *      on the adapter will show that coming before players feel it.
      */
-    uint256 constant RANDOMNESS_SURCHARGE_WEI = 0.0001 ether;
+    uint256 constant RANDOMNESS_SURCHARGE_WEI = 0.0002 ether;
     uint16 constant MAX_ENTRIES_PER_ROUND = 5;
     uint32 constant ROUND_DURATION = 120;
     uint16 constant MAX_QUANTITY_PER_TX = 5;
