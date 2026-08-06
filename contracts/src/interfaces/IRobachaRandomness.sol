@@ -4,10 +4,17 @@ pragma solidity 0.8.24;
 /**
  * @notice The randomness source a ROBACHA round asks for a random word.
  *
- * @dev The production implementation is `RobachaRandomnessSender`, which forwards
- *      the request over Chainlink CCIP to an Ethereum coordinator backed by
- *      Chainlink VRF v2.5. The word returns over CCIP to
- *      `RobachaRandomnessReceiver`, which delivers it to the gacha.
+ * @dev The production implementation is `RobachaStonkPitEntropy`, which buys a
+ *      word from StonkPit's MultiConductor folded from four certified mining
+ *      prints, and receives it back through an authenticated callback. It is
+ *      both sender and receiver: it opens the request and hands the word to
+ *      the gacha itself.
+ *
+ *      Earlier implementations used a self-hosted commit-reveal scheme, and
+ *      before that a Chainlink VRF word bridged from Ethereum over CCIP. This
+ *      comment described the CCIP design long after it stopped being true,
+ *      which matters more here than in most files: verified source is what we
+ *      tell people to read instead of trusting the site.
  *
  *      None of the following is acceptable as a source, alone or combined:
  *      `block.timestamp`, `block.prevrandao`, `block.difficulty`, `blockhash`,

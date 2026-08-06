@@ -86,7 +86,21 @@ contract RobachaStonkPitEntropy is IRobachaRandomnessSender, AccessControl, Reen
     ///      deployed contract's own ABI says uint256, and the chain wins.
     uint256 public constant N_PRINTS = 4;
 
-    /// @notice Held back on top of the fee so a keeper is paid to deliver.
+    /**
+     * @notice Margin held on top of the fee, over and above what a request costs.
+     *
+     * @dev Nobody is paid this, despite the name. Miners take their tip out of
+     *      the conductor's own fee when they call `fulfillAsMiner`, so nothing
+     *      here is owed to anyone and this figure only ever makes the float
+     *      look smaller than it is. StonkPit's review called the name
+     *      misleading and they were right.
+     *
+     *      It stays because the effect is wanted even if the label was wrong:
+     *      it is headroom against the fee moving between a spin being sold and
+     *      its round being served, on top of the five-round runway. Renaming it
+     *      would change the deployed ABI for no behavioural gain, so the
+     *      correction lives here until the next redeploy.
+     */
     uint256 public keeperTip = 0.0001 ether;
 
     /**
