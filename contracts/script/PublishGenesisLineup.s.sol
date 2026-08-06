@@ -114,7 +114,28 @@ contract PublishGenesisLineup is Script {
     uint256 constant POOL_ID = 1;
 
     uint256 constant BASE_SPIN_PRICE_WEI = 0.0005 ether;
-    uint256 constant RANDOMNESS_SURCHARGE_WEI = 0.0001 ether;
+    /**
+     * @dev Sized so the surcharge pays for its own entropy at real occupancy.
+     *
+     * One round buys one word whatever it seats, so the cost divides across
+     * everyone in it. Measured occupancy is 3.29 seats per round across 69
+     * entries, and StonkPit's fee ceiling plus a keeper tip is 0.0006, so
+     * break-even is 0.0006 / 3.29 = 0.000182. At 0.0002 a round collects
+     * 0.000658, which covers the ceiling with room and covers the live quote
+     * of 0.00045 nearly half again over.
+     *
+     * The surplus is not profit and does not become profit: the fee router
+     * sends unused surcharge to `randomnessTreasury`, which points at the
+     * entropy adapter, so busy rounds refill the float that lean rounds draw
+     * down. That is what stops this needing topping up by hand.
+     *
+     * Deliberately not the 0.0006 that a one-seat round would need to be
+     * self-sufficient alone. That figure ignores amortisation, and since the
+     * surcharge funds no prizes it would have taken the player's expected
+     * return from 67% to 36% — a house edge worth screenshotting, on a site
+     * that publishes its odds.
+     */
+    uint256 constant RANDOMNESS_SURCHARGE_WEI = 0.0002 ether;
     uint16 constant MAX_ENTRIES_PER_ROUND = 5;
     uint32 constant ROUND_DURATION = 120;
     uint16 constant MAX_QUANTITY_PER_TX = 5;
