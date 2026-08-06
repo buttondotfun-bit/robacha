@@ -37,8 +37,15 @@ contract DeployAutoBuyer is Script {
         RobachaRewardVault vault = RobachaRewardVault(vaultAddress);
         vault.grantRole(RobachaRoles.VAULT_MANAGER_ROLE, autoBuyerAddress);
 
-        // 3. Point FeeRouter's rewardReserveTreasury to AutoBuyer
+        // Revoke VAULT_MANAGER_ROLE from old AutoBuyer
         RobachaFeeRouter feeRouter = RobachaFeeRouter(payable(feeRouterAddress));
+        address oldAutoBuyerAddress = feeRouter.rewardReserveTreasury();
+        if (oldAutoBuyerAddress != address(0) && oldAutoBuyerAddress != autoBuyerAddress) {
+            console2.log("Revoking VAULT_MANAGER_ROLE from old AutoBuyer:", oldAutoBuyerAddress);
+            vault.revokeRole(RobachaRoles.VAULT_MANAGER_ROLE, oldAutoBuyerAddress);
+        }
+
+        // 3. Point FeeRouter's rewardReserveTreasury to AutoBuyer
         feeRouter.setTreasuries(
             feeRouter.protocolTreasury(),
             feeRouter.operationsTreasury(),

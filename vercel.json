@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/keeper",
-      "schedule": "0 3 * * *"
+      "schedule": "* * * * *"
     }
   ]
 }
