@@ -72,11 +72,11 @@ export const DOC_SECTIONS: DocSection[] = [
           },
           {
             title: "Randomness is requested",
-            text: "Anyone can trigger the request — it is not a privileged action, so a round cannot be stranded by an operator failing to act. The request travels to Ethereum over Chainlink CCIP.",
+            text: "Anyone can trigger the request — it is not a privileged action, so a round cannot be stranded by an operator failing to act. The request goes to StonkPit's conductor and buys a word folded from the next four certified mining prints: work that has not been done yet at the moment it is bought.",
           },
           {
             title: "The word returns",
-            text: "Chainlink VRF produces one random word on Ethereum and it returns over CCIP. Only the authorised receiver contract can deliver it, and only once per round.",
+            text: "Miners deliver the word once those prints are certified — permissionless, so it does not depend on ROBACHA acting. Only the authorised receiver contract can hand it to the gacha, and only once per round.",
           },
           {
             title: "Entries settle",
@@ -98,26 +98,29 @@ export const DOC_SECTIONS: DocSection[] = [
   {
     id: "randomness",
     title: "Randomness",
-    summary: "Chainlink VRF on Ethereum, delivered over CCIP. No fallback exists.",
+    summary: "Bought from StonkPit's mined entropy after entries close. Not a VRF, and the difference is stated below.",
     blocks: [
       {
         kind: "p",
-        text: "Robinhood Chain has no native VRF, and every on-chain value available locally is either predictable by a participant or choosable by a block producer. Rather than accept a weaker source, ROBACHA sources randomness from Ethereum and bridges it:",
+        text: "Robinhood Chain has no native VRF, and every on-chain value available locally is either predictable by a participant or choosable by a block producer. ROBACHA buys its randomness instead, from StonkPit's conductor, which sells words sealed by real mining work:",
       },
       {
         kind: "code",
         text: `RobachaGacha
-  → RobachaRandomnessSender        (Robinhood Chain)
-  → Chainlink CCIP
-  → EthereumRobachaRandomnessCoordinator
-  → Chainlink VRF v2.5             (Ethereum)
-  → Chainlink CCIP
-  → RobachaRandomnessReceiver      (Robinhood Chain)
+  → RobachaStonkPitEntropy         (adapter)
+  → StonkPit MultiConductor
+  → four certified mining prints   (not yet mined)
+  → miners deliver the word
+  → RobachaStonkPitEntropy         (authenticated callback)
   → settlement`,
       },
       {
         kind: "p",
-        text: "One VRF word settles an entire round. Each entry's own result is derived from that word by domain-separated hashing, bound to values that make two entries mathematically unable to share a result:",
+        text: "The order is the guarantee. A round closes before its word is bought, so the set of entries is fixed first, and the word folds prints that have not been mined yet — nobody knows it while anyone can still enter, ROBACHA included. Previous versions used a commit-reveal scheme run by ROBACHA; rounds settled under it remain verifiable on their own terms.",
+      },
+      {
+        kind: "p",
+        text: "One word settles an entire round. Each entry's own result is derived from that word by domain-separated hashing, bound to values that make two entries mathematically unable to share a result:",
       },
       {
         kind: "code",
@@ -151,7 +154,7 @@ export const DOC_SECTIONS: DocSection[] = [
       },
       {
         kind: "p",
-        text: "Every layer of the return path is validated before a word is accepted: the CCIP router must be the caller, the source chain selector must match, the sending contract must be the authorised coordinator, the message must not have been seen before, and the round must not already be fulfilled. The gacha then checks the request id independently.",
+        text: "The return path is validated before a word is accepted: the conductor must be the caller, the request must be one this adapter opened, and the round must not already be fulfilled. The gacha then checks the request id independently. Any round can be re-derived afterwards from published values — the verifier reads the word back from the conductor's own records and compares it with what the round used, so a substituted number fails the check.",
       },
     ],
   },
@@ -278,7 +281,7 @@ export const DOC_SECTIONS: DocSection[] = [
       {
         kind: "note",
         tone: "info",
-        text: "The randomness surcharge is not protocol revenue. It pays the real Chainlink CCIP and VRF costs of the round, is routed to a separate funding account, and is displayed apart from the base price.",
+        text: "The randomness surcharge is not protocol revenue. It pays what the round's word actually costs at the conductor, is routed to a separate funding account rather than to profit, and is displayed apart from the base price. One word settles a whole round, so the cost divides across everyone in it — which is why the surcharge is a fraction of what a single-entry round would need to cover on its own.",
       },
     ],
   },

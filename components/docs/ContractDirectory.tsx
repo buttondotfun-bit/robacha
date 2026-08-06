@@ -14,8 +14,13 @@ const ROWS: { key: keyof typeof contracts; name: string; role: string }[] = [
   { key: "poolRegistry", name: "RobachaPoolRegistry", role: "Pool versions, probabilities, reward slots, immutability" },
   { key: "rewardVault", name: "RobachaRewardVault", role: "Custodies reward inventory and tracks liabilities" },
   { key: "feeRouter", name: "RobachaFeeRouter", role: "Splits base payments, enforces caps and the fee timelock" },
-  { key: "randomnessSender", name: "RobachaRandomnessSender", role: "Sends the randomness request to Ethereum over CCIP" },
-  { key: "randomnessReceiver", name: "RobachaRandomnessReceiver", role: "Validates and delivers the returning VRF word" },
+  // Both keys point at the same contract today: the adapter buys the word and
+  // hands it back itself, so it is both the sender and the receiver. They stay
+  // separate rows because the gacha stores them separately and they can be
+  // pointed at different contracts — which is exactly how the source was
+  // changed without redeploying anything else.
+  { key: "randomnessSender", name: "RobachaStonkPitEntropy", role: "Buys the round's word from StonkPit's conductor" },
+  { key: "randomnessReceiver", name: "RobachaStonkPitEntropy", role: "Receives the delivered word and hands it to the gacha" },
 ];
 
 export function ContractDirectory() {
