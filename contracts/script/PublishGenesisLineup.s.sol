@@ -162,6 +162,7 @@ contract PublishGenesisLineup is Script {
     address constant STONKBROKER = 0xe934e36A439C94017B64a3FecE66AF12099aBF50;
     address constant DERP = 0x6543B7746ca744C4bb2198191E71f40FF04C41b9;
     address constant SUSHI = 0x0bb40D7fbaE7f0C69Bc5910C601987dce697d85F;
+    address constant THROBBIN = 0xe8fB470E0685437d7739BD2AacBA60b228800335;
 
     /// @dev Tier targets as a multiple of the base spin price, in basis points.
     uint256 constant COMMON_BPS = 5_000;
@@ -180,10 +181,11 @@ contract PublishGenesisLineup is Script {
 
         console2.log("active version before", registry.activeVersion(POOL_ID));
 
-        address[10] memory candidates =
-            [CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP, SUSHI];
-        string[10] memory names =
-            ["CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES", "STONKBROKER", "DERP", "SUSHI"];
+        address[11] memory candidates =
+            [CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP, SUSHI, THROBBIN];
+        string[11] memory names = [
+            "CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES", "STONKBROKER", "DERP", "SUSHI", "THROBBIN"
+        ];
 
         // Decide the whole table before broadcasting anything, so a token that
         // cannot be included is reported rather than discovered halfway through
@@ -389,6 +391,9 @@ contract PublishGenesisLineup is Script {
         // pool is read directly here, so pricing needs no router — but buying
         // does, and that router speaks the older SwapRouter shape.
         if (token == SUSHI) return 0x7fff70d5748390779E573A1995952c3DdDF57a9c;
+        // THROBBIN has no V2 pair at all and nothing on the Sushi factory; its
+        // market is the 1% tier on the Gekko V3 factory, holding 12.4 WETH.
+        if (token == THROBBIN) return 0xd17044bdbEe55C7bD09c185937C88B9007ab7Be6;
         return address(0);
     }
 

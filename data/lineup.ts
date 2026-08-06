@@ -68,6 +68,17 @@ export const LINEUP: LineupToken[] = [
     logo: "/tokens/pizza.jpg",
   },
   {
+    // symbol() and name() both read THROBBIN, 18 decimals, 1bn supply, and it
+    // is a plain contract rather than a proxy. No V2 pair and nothing on the
+    // Sushi V3 factory; its market is the 1% tier on the Gekko V3 factory,
+    // holding 12.4 WETH — comparable to DERP and STONKBROKER, and reachable by
+    // the route support already built. The V4 singleton holds another 334k
+    // across sixteen pools, most of them junk fee tiers.
+    symbol: "THROBBIN",
+    name: "Throbbin",
+    address: "0xe8fB470E0685437d7739BD2AacBA60b228800335",
+  },
+  {
     // Chosen deliberately from six contracts on this chain sharing the ticker.
     // symbol() reads HOODRAT and name() reads Hoodrat on this one, and its pair
     // on the AutoBuyer's default router is deep enough to restock through on
