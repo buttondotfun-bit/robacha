@@ -68,21 +68,6 @@ export const LINEUP: LineupToken[] = [
     logo: "/tokens/pizza.jpg",
   },
   {
-    // Bridged, not a copy: the contract is a ClonableBeaconProxy over
-    // StandardArbERC20, which is this chain's canonical bridged-token template
-    // rather than something written for the occasion. symbol() reads SUSHI and
-    // name() reads SushiToken.
-    //
-    // Its market took finding. There is no V2 pair and nothing on the V3
-    // factory the other tokens use; the real pool sits on a third V3 factory
-    // at 0xE51960f1, holding 1.4 WETH against 15.8k tokens across 827 swaps.
-    // That is genuine but the thinnest of the set, so its prizes will size
-    // smaller than the rest and that is correct rather than a fault.
-    symbol: "SUSHI",
-    name: "SushiToken",
-    address: "0x0bb40D7fbaE7f0C69Bc5910C601987dce697d85F",
-  },
-  {
     // Chosen deliberately from six contracts on this chain sharing the ticker.
     // symbol() reads HOODRAT and name() reads Hoodrat on this one, and its pair
     // on the AutoBuyer's default router is deep enough to restock through on

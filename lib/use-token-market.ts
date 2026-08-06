@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { TokenMarket } from "@/app/api/tokens/route";
+import { localTokenLogo } from "@/data/token-logos";
 
 /**
  * Logos, prices and liquidity for a set of reward tokens, keyed by contract
@@ -38,7 +39,16 @@ export function useTokenMarket(addresses: readonly string[]) {
 
   const byAddress = new Map<string, TokenMarket>();
   for (const token of query.data?.tokens ?? []) {
-    byAddress.set(token.address.toLowerCase(), token);
+    byAddress.set(token.address.toLowerCase(), {
+      ...token,
+      // Filled in here rather than at each call site: a token's logo is read
+      // in about fourteen places — the machine, the carousel, the bag, the
+      // leaderboard, activity — and patching them one by one would mean the
+      // artwork appearing in some and not others, which is worse than it
+      // appearing nowhere. The index still wins where it has an image; this
+      // only covers the gaps, which bridged tokens routinely fall into.
+      logoUrl: token.logoUrl ?? localTokenLogo(token.address),
+    });
   }
 
   return {
