@@ -85,6 +85,23 @@ contract RobachaStonkPitEntropy is IRobachaRandomnessSender, AccessControl, Reen
     /// @notice Held back on top of the fee so a keeper is paid to deliver.
     uint256 public keeperTip = 0.0001 ether;
 
+    /**
+     * @notice Rounds of runway the float must hold to report itself ready.
+     *
+     * @dev One would be literally accurate — a request with that much really
+     *      would succeed — and would still be the wrong answer. Readiness is
+     *      not asked for its own sake: the gacha refuses to sell spins while it
+     *      is false, so a float covering exactly one more round keeps the
+     *      machine open right up to the moment it shuts, with no interval in
+     *      which anyone could notice and top it up.
+     *
+     *      Five gives that interval. It closes the machine early, on purpose,
+     *      while there is still enough to serve several rounds, so the failure
+     *      shows up as runway trending down rather than as a machine that was
+     *      fine and then was not.
+     */
+    uint256 public constant MIN_RUNWAY_ROUNDS = 5;
+
     /// @notice roundId by conductor requestId, and the reverse.
     mapping(uint256 conductorRequestId => uint256 roundId) public roundOf;
     mapping(uint256 roundId => uint256 conductorRequestId) public requestOf;
@@ -184,7 +201,11 @@ contract RobachaStonkPitEntropy is IRobachaRandomnessSender, AccessControl, Reen
     function isReady() external view override returns (bool ready, string memory reason) {
         if (conductor.liveTapeCount() == 0) return (false, "No live entropy tapes on the mining floor");
 
-        uint256 needed = conductor.maxRequestFee() + keeperTip;
+        // Against the ceiling rather than the live quote, and against several
+        // rounds rather than the next one. The fee moves between a spin being
+        // sold and its round being served, so a float sized to today's quote is
+        // sized to the wrong number.
+        uint256 needed = (conductor.maxRequestFee() + keeperTip) * MIN_RUNWAY_ROUNDS;
         if (address(this).balance < needed) return (false, "Entropy float too thin to guarantee a round");
 
         return (true, "");

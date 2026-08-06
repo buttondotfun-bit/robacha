@@ -177,6 +177,43 @@ contract RobachaStonkPitEntropyTest is Test {
         assertFalse(ready, "covers the quote but not the ceiling, so not ready");
     }
 
+    function test_oneRoundOfRunwayIsNotReady() public {
+        // The point of the threshold. A float covering exactly the next round
+        // is literally sufficient for that round, and reporting ready on it
+        // keeps the machine open right up to the moment it shuts, with no
+        // interval in which anyone could notice and top it up.
+        vm.prank(admin);
+        sender.withdrawFloat(payable(admin), address(sender).balance);
+        sender.fundFloat{value: 0.0006 ether}(); // exactly one round
+
+        assertEq(sender.runwayRounds(), 1, "one round of runway");
+
+        (bool ready, string memory reason) = sender.isReady();
+        assertFalse(ready, "one round is not enough to keep selling spins");
+        assertEq(reason, "Entropy float too thin to guarantee a round");
+    }
+
+    function test_fiveRoundsOfRunwayIsReady() public {
+        vm.prank(admin);
+        sender.withdrawFloat(payable(admin), address(sender).balance);
+        sender.fundFloat{value: 0.0006 ether * 5}();
+
+        assertEq(sender.runwayRounds(), 5);
+        (bool ready,) = sender.isReady();
+        assertTrue(ready, "five rounds clears the bar");
+    }
+
+    function test_fourRoundsIsStillTooThin() public {
+        // Pins the boundary, so raising or lowering the threshold has to be a
+        // deliberate edit to this test rather than a silent behaviour change.
+        vm.prank(admin);
+        sender.withdrawFloat(payable(admin), address(sender).balance);
+        sender.fundFloat{value: 0.0006 ether * 4}();
+
+        (bool ready,) = sender.isReady();
+        assertFalse(ready, "four is below the five-round bar");
+    }
+
     function test_runwayCountsRoundsAtTheCeiling() public view {
         // 0.05 float against a 0.0006 worst case round: 83 guaranteed rounds.
         uint256 perRound = conductor.maxRequestFee() + sender.keeperTip();
