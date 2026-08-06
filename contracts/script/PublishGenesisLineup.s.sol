@@ -146,6 +146,7 @@ contract PublishGenesisLineup is Script {
     address constant DICE = 0x3F9f0b6073Ee8c495Aed96869AF31850fED40FeB;
     address constant STONKBROKER = 0xe934e36A439C94017B64a3FecE66AF12099aBF50;
     address constant DERP = 0x6543B7746ca744C4bb2198191E71f40FF04C41b9;
+    address constant SUSHI = 0x0bb40D7fbaE7f0C69Bc5910C601987dce697d85F;
 
     /// @dev Tier targets as a multiple of the base spin price, in basis points.
     uint256 constant COMMON_BPS = 5_000;
@@ -164,10 +165,10 @@ contract PublishGenesisLineup is Script {
 
         console2.log("active version before", registry.activeVersion(POOL_ID));
 
-        address[9] memory candidates =
-            [CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP];
-        string[9] memory names =
-            ["CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES", "STONKBROKER", "DERP"];
+        address[10] memory candidates =
+            [CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP, SUSHI];
+        string[10] memory names =
+            ["CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES", "STONKBROKER", "DERP", "SUSHI"];
 
         // Decide the whole table before broadcasting anything, so a token that
         // cannot be included is reported rather than discovered halfway through
@@ -368,6 +369,11 @@ contract PublishGenesisLineup is Script {
         // DERP has the same shape: no V2 pair at all, a 0.3% tier holding
         // 0.0002 WETH, and everything real in the 1% tier at 14.4 WETH.
         if (token == DERP) return 0xfB578FdD8f3577E8ce7A45dfef725B6072b9d9A1;
+        // SUSHI sits on a third V3 factory entirely, 0xE51960f1, which is why
+        // scanning only the V2 factory and Gekko's V3 factory missed it. The
+        // pool is read directly here, so pricing needs no router — but buying
+        // does, and that router speaks the older SwapRouter shape.
+        if (token == SUSHI) return 0x7fff70d5748390779E573A1995952c3DdDF57a9c;
         return address(0);
     }
 
