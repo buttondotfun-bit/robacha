@@ -115,27 +115,17 @@ contract PublishGenesisLineup is Script {
 
     uint256 constant BASE_SPIN_PRICE_WEI = 0.0005 ether;
     /**
-     * @dev Sized so the surcharge pays for its own entropy at real occupancy.
+     * @dev Held at 0.0001 while the machine runs its own commit-reveal, which
+     *      charges 0.00005 a round and is comfortably covered.
      *
-     * One round buys one word whatever it seats, so the cost divides across
-     * everyone in it. Measured occupancy is 3.29 seats per round across 69
-     * entries, and StonkPit's fee ceiling plus a keeper tip is 0.0006, so
-     * break-even is 0.0006 / 3.29 = 0.000182. At 0.0002 a round collects
-     * 0.000658, which covers the ceiling with room and covers the live quote
-     * of 0.00045 nearly half again over.
-     *
-     * The surplus is not profit and does not become profit: the fee router
-     * sends unused surcharge to `randomnessTreasury`, which points at the
-     * entropy adapter, so busy rounds refill the float that lean rounds draw
-     * down. That is what stops this needing topping up by hand.
-     *
-     * Deliberately not the 0.0006 that a one-seat round would need to be
-     * self-sufficient alone. That figure ignores amortisation, and since the
-     * surcharge funds no prizes it would have taken the player's expected
-     * return from 67% to 36% — a house edge worth screenshotting, on a site
-     * that publishes its odds.
+     *      Buying entropy from StonkPit instead needs 0.0002: one round buys
+     *      one word whatever it seats, measured occupancy is 3.29 seats, and
+     *      their fee ceiling plus a tip is 0.0006, so break-even is 0.000182.
+     *      That change belongs with that switch and not before it — the
+     *      surcharge funds no prizes, so raising it early would cost players
+     *      17% of their ticket for something not yet switched on.
      */
-    uint256 constant RANDOMNESS_SURCHARGE_WEI = 0.0002 ether;
+    uint256 constant RANDOMNESS_SURCHARGE_WEI = 0.0001 ether;
     uint16 constant MAX_ENTRIES_PER_ROUND = 5;
     uint32 constant ROUND_DURATION = 120;
     uint16 constant MAX_QUANTITY_PER_TX = 5;
