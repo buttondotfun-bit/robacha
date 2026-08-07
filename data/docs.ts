@@ -57,7 +57,7 @@ export const DOC_SECTIONS: DocSection[] = [
     blocks: [
       {
         kind: "p",
-        text: "Requesting cross-chain randomness for every individual spin would cost more than most spins are worth. Instead, entries collect into a round, and one random word settles the whole round.",
+        text: "Buying a separate random word for every individual spin would cost more than most spins are worth. Instead, entries collect into a round, and one word settles the whole round.",
       },
       {
         kind: "steps",
@@ -329,7 +329,7 @@ export const DOC_SECTIONS: DocSection[] = [
         kind: "list",
         items: [
           "All contracts deployed and source-verified on Robinhood Chain",
-          "Cross-chain randomness configured and funded on both chains",
+          "Randomness bought from StonkPit's conductor, with the adapter funded ahead of the rounds it pays for",
           "Frontend reading pool, odds, inventory and wallet state directly from chain",
           "Activity and wallet rewards served from confirmed contract logs and reads",
         ],
