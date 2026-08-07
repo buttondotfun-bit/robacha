@@ -19,6 +19,23 @@ import { RoundFill } from "./RoundFill";
 /** Phases where a signature or a block confirmation is genuinely outstanding. */
 const SPINNING_PHASES = new Set<SpinPhase>(["simulating", "confirming", "broadcast"]);
 
+/**
+ * Paid, in a round, and waiting on the chain rather than on the wallet.
+ *
+ * Separated from the spinning set on purpose. These phases can last minutes,
+ * so they get a different idiom: the machine breathes rather than turns. A
+ * reel spinning for three minutes would flatten a phone battery and, worse,
+ * read as "about to land" for the entire time — the whole reason the carousel
+ * stops here. But stopping everything was the other extreme, and it left the
+ * screen looking as though the spin had failed. Breathing says the machine is
+ * on and working, which is exactly what is true and no more.
+ */
+const WAITING_PHASES = new Set<SpinPhase>([
+  "round-open",
+  "round-closed",
+  "randomness-pending",
+]);
+
 export function GachaStage({
   pool,
   className,
@@ -39,6 +56,7 @@ export function GachaStage({
   // is safely in a round, PendingSpins is what reports the wait.
   const spin = useSpin();
   const spinning = SPINNING_PHASES.has(spin.phase);
+  const waiting = WAITING_PHASES.has(spin.phase);
 
   const readout = useMemo(() => {
     if (!focused) return [];
@@ -89,7 +107,14 @@ export function GachaStage({
       </div>
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-[38%] h-[520px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full transition-[background] duration-700"
+        className={cn(
+          "pointer-events-none absolute left-1/2 top-[38%] h-[520px] w-[620px] -translate-x-1/2 -translate-y-1/2 rounded-full transition-[background] duration-700",
+          // Only while a paid spin is genuinely in flight. The glow is already
+          // the machine's ambient light, so making it breathe costs no new
+          // element and reads as the cabinet being powered rather than as a
+          // separate loading indicator bolted on top.
+          waiting && "wait-breathe",
+        )}
         style={{
           background:
             "radial-gradient(circle, rgb(var(--rarity-glow) / 0.10) 0%, transparent 66%)",

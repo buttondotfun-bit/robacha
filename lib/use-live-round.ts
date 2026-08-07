@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useReadContract } from "wagmi";
 import { ROBACHA_GACHA_ABI } from "@/lib/abi";
 import { ACTIVE_POOL_ID, chainConfig, contracts, isGachaConfigured } from "./config";
 import { RoundState } from "./use-pending-spins";
+import { useSecondsTick } from "./use-tick";
 
 /**
  * The round currently taking entries, for anyone — connected or not.
@@ -22,9 +23,6 @@ import { RoundState } from "./use-pending-spins";
  * state is checked anyway, because a round stays Open past its own deadline
  * until somebody calls `closeRound`.
  */
-
-/** Rounds are ~2 minutes, so a 30s clock would render a useless countdown. */
-const TICK_MS = 1_000;
 
 /** Rounds are short. Poll faster than the rest of the pool state. */
 const REFETCH_MS = 5_000;
@@ -46,16 +44,6 @@ export interface LiveRound {
   entryCount: number | null;
   /** Milliseconds until the deadline. 0 once it has passed. */
   msLeft: number | null;
-}
-
-function useSeconds(enabled: boolean): number {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (!enabled) return;
-    const id = window.setInterval(() => setNow(Date.now()), TICK_MS);
-    return () => window.clearInterval(id);
-  }, [enabled]);
-  return now;
 }
 
 export function useLiveRound(): LiveRound {
@@ -84,8 +72,9 @@ export function useLiveRound(): LiveRound {
     query: { enabled: enabled && hasRound, refetchInterval: REFETCH_MS },
   });
 
-  // Only tick while there is something to count down.
-  const now = useSeconds(enabled && hasRound);
+  // Shared with every other countdown on the page, so the pool bar's clock and
+  // the machine's ring can never sit on different seconds. See `useSecondsTick`.
+  const now = useSecondsTick();
 
   return useMemo<LiveRound>(() => {
     if (!enabled) return { status: "unknown", roundId: null, entryCount: null, msLeft: null };

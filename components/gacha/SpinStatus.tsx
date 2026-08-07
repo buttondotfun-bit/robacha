@@ -58,6 +58,13 @@ export const SPIN_COPY: Record<SpinPhase, StatusCopy> = {
   },
 };
 
+/** Waiting on the chain, not on the wallet or a block. Minutes, not seconds. */
+const SETTLING_PHASES = new Set<SpinPhase>([
+  "round-open",
+  "round-closed",
+  "randomness-pending",
+]);
+
 export function SpinStatus({
   phase,
   className,
@@ -82,9 +89,19 @@ export function SpinStatus({
         className,
       )}
     >
-      {copy.busy ? (
+      {/* A spinner means "this is turning over right now", which is true while
+          a wallet or a block is outstanding and false for the minutes spent
+          waiting on a word to be delivered. Those phases get the pulsing dot
+          the rest of the app already uses for "live", so the spinner keeps
+          meaning what it means everywhere else. */}
+      {copy.busy && !SETTLING_PHASES.has(phase) ? (
         <Loader2
           className="h-3.5 w-3.5 shrink-0 animate-spin"
+          aria-hidden="true"
+        />
+      ) : copy.busy ? (
+        <span
+          className="pulse-dot h-1.5 w-1.5 shrink-0 rounded-full bg-[#8ec500]"
           aria-hidden="true"
         />
       ) : phase === "settled" ? (

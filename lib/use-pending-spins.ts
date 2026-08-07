@@ -43,6 +43,8 @@ export interface PendingSpin {
   label: string;
   detail: string;
   closesAt: number | null;
+  /** When the round actually closed, so the wait since can be shown. Null while open. */
+  closedAt: number | null;
   refundableAt: number | null;
   withdrawable: boolean;
 }
@@ -225,6 +227,7 @@ export function usePendingSpins() {
         label,
         detail,
         closesAt: round.state === RoundState.Open ? Number(round.closesAt) * 1000 : null,
+        closedAt: closedAt > 0 ? closedAt * 1000 : null,
         refundableAt: timeout !== null && closedAt > 0 ? (closedAt + timeout) * 1000 : null,
         withdrawable:
           round.state === RoundState.Refundable ||

@@ -1,9 +1,10 @@
 "use client";
 
 import { Users } from "lucide-react";
-import { formatRoundClock, useLiveRound } from "@/lib/use-live-round";
+import { useLiveRound } from "@/lib/use-live-round";
 import { cn } from "@/lib/utils";
 import type { ActivePool } from "@/lib/use-pool";
+import { RoundCountdown } from "./RoundCountdown";
 
 /**
  * How full the current round is.
@@ -75,7 +76,11 @@ export function RoundFill({
         ))}
       </div>
 
-      <p className="min-w-0 flex-1 text-[11.5px] leading-snug text-ink-2">
+      {/* Its own line rather than sharing one with the pips. Adding the
+          countdown below gave this a third neighbour on a 375px row and it
+          collapsed into a four-word-wide column — readable in principle,
+          unreadable in practice. */}
+      <p className="w-full min-w-0 text-[11.5px] leading-snug text-ink-2">
         {!open ? (
           <>Your spin opens the next one and starts its clock.</>
         ) : remaining === 0 ? (
@@ -87,14 +92,23 @@ export function RoundFill({
             <span className="font-medium text-ink">
               {remaining} more {remaining === 1 ? "spin" : "spins"}
             </span>{" "}
-            and this round settles
-            {round.msLeft !== null ? (
-              <> — or in {formatRoundClock(round.msLeft)}, whichever comes first</>
-            ) : null}
-            .
+            and this round settles.
           </>
         )}
       </p>
+
+      {/* The other half of the same sentence, promoted out of it.
+          A round ends on whichever of two things happens first, and the pips
+          above only show one of them. Leaving the clock as a trailing clause
+          meant the half that is always ticking was the half nobody read. */}
+      {open ? (
+        <RoundCountdown
+          msLeft={round.msLeft}
+          durationSeconds={pool.roundDurationSeconds}
+          status={round.status === "closing" ? "closing" : "open"}
+          className="w-full border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-2.5"
+        />
+      ) : null}
 
       <span className="sr-only">
         {open ? `${filled} of ${cap} spins taken, ${remaining} remaining` : "No round open"}

@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Clock, Loader2 } from "lucide-react";
-import { useNow } from "@/lib/use-activity";
+import { ArrowUpRight, Loader2 } from "lucide-react";
+import { useSecondsTick } from "@/lib/use-tick";
+import { usePool } from "@/lib/use-pool";
 import { RoundState, usePendingSpins, type PendingSpin } from "@/lib/use-pending-spins";
 import { cn } from "@/lib/utils";
+import { RoundCountdown } from "./RoundCountdown";
+import { SpinProgress } from "./SpinProgress";
 
 /**
  * Spins this wallet is still waiting on.
@@ -63,10 +66,13 @@ export function PendingSpins({ className }: { className?: string }) {
 }
 
 function PendingRow({ row }: { row: PendingSpin }) {
-  const now = useNow();
+  const { pool } = usePool();
+
+  const now = useSecondsTick();
 
   const closesIn = row.closesAt !== null ? row.closesAt - now : null;
   const refundIn = row.refundableAt !== null ? row.refundableAt - now : null;
+  const isOpen = row.state === RoundState.Open;
 
   return (
     <li
@@ -94,11 +100,19 @@ function PendingRow({ row }: { row: PendingSpin }) {
 
       <p className="mt-1 text-[12px] leading-relaxed text-ink-2">{row.detail}</p>
 
-      {closesIn !== null && closesIn > 0 ? (
-        <p className="mt-1.5 flex items-center gap-1.5 text-[11.5px] text-ink-3">
-          <Clock className="h-3 w-3" aria-hidden="true" />
-          Round closes in {formatGap(closesIn)}
-        </p>
+      {/* While the round is open there is a real deadline, so it gets a real
+          clock. Afterwards there is none — the word arrives when it arrives —
+          so position and elapsed time replace it rather than a fake estimate. */}
+      {isOpen ? (
+        <RoundCountdown
+          msLeft={closesIn}
+          durationSeconds={pool?.roundDurationSeconds ?? 45}
+          status={closesIn !== null && closesIn > 0 ? "open" : "closing"}
+          size={48}
+          className="mt-2.5"
+        />
+      ) : !row.withdrawable ? (
+        <SpinProgress state={row.state} closedAt={row.closedAt} now={now} />
       ) : null}
 
       {/* Only worth showing while the draw could still land. Once it is

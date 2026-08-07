@@ -1072,6 +1072,73 @@
   animation-delay: var(--bar-delay, 120ms);
 }
 
+/* ============================================================
+   THE WAIT
+
+   Everything below runs while somebody has paid and is watching. The
+   brief is narrow: show that the machine is working and how far along
+   it is, without implying a result is closer than it is. So these are
+   all slow, looping, low-amplitude — the idiom of something running,
+   not of something resolving. A fast reel would read as "about to
+   land", which is a promise the chain has not made.
+============================================================ */
+
+/* The ring glides between ticks instead of stepping.
+   The clock updates once a second, so an untransitioned ring would jump in
+   1/45th increments and read as a progress bar being nudged rather than time
+   passing. Linear, and exactly one tick long, so the motion is always still
+   travelling when the next value lands and never stalls between them. */
+.countdown-ring {
+  transition: stroke-dashoffset 1000ms linear, stroke 400ms ease;
+}
+
+/* The last ten seconds. A slow breath, not an alarm — the round closing is
+   the good outcome, so this is a nudge to look, not a warning. */
+@keyframes countdown-urgent-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+.countdown-urgent {
+  animation: countdown-urgent-pulse 1000ms ease-in-out infinite;
+}
+
+/* An indeterminate wait, drawn honestly.
+   After the round closes there is no deadline to count toward: the word is
+   bought and delivered when it is delivered. A bar that filled toward an end
+   would be inventing a completion time, so this one sweeps and never
+   completes — it says "working", which is all that is known. */
+@keyframes wait-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(320%); }
+}
+.wait-sweep {
+  animation: wait-sweep 1800ms cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* The machine idling while a round is open. Barely there on purpose: it sits
+   under content that has to stay readable for the whole window. */
+/* `scale` rather than `transform: scale()` on purpose. The element this runs
+   on is centred with -translate-x-1/2, and a keyframe writing `transform`
+   replaces that translate outright — the glow would snap to the corner every
+   time the animation ran. The standalone property composes with an existing
+   transform instead of overwriting it. */
+@keyframes wait-breathe {
+  0%, 100% { scale: 1;    opacity: 0.5; }
+  50%      { scale: 1.04; opacity: 0.8; }
+}
+.wait-breathe {
+  animation: wait-breathe 3200ms ease-in-out infinite;
+}
+
+/* A step that is currently happening, in the phase list. */
+@keyframes step-active {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(142 197 0 / 0.5); }
+  70%      { box-shadow: 0 0 0 6px rgb(142 197 0 / 0); }
+}
+.step-active {
+  animation: step-active 2000ms ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -1101,8 +1168,23 @@
   .orbit-reverse,
   .marquee-track,
   .reward-reveal::after,
+  .countdown-urgent,
+  .wait-sweep,
+  .wait-breathe,
+  .step-active,
   .skeleton::after {
     animation: none !important;
+  }
+  /* The ring still has to move — it is the timer, not decoration. Snapping it
+     to each value keeps the information and drops the motion, which is what
+     the preference actually asks for. */
+  .countdown-ring {
+    transition: none !important;
+  }
+  /* An indeterminate wait needs *some* visible sign of life, so the sweep is
+     replaced by a static half-width bar rather than nothing at all. */
+  .wait-sweep {
+    transform: translateX(60%) !important;
   }
   /* Never leave revealed content invisible when its animation is disabled. */
   [data-reveal] {
