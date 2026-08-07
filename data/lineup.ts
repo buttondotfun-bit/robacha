@@ -98,6 +98,18 @@ export const LINEUP: LineupToken[] = [
     address: "0xe8fB470E0685437d7739BD2AacBA60b228800335",
   },
   {
+    // symbol() reads MANCER and name() reads Mancer, 18 decimals, 2.5bn supply,
+    // a plain contract rather than a proxy.
+    //
+    // The deepest market of anything queued or live: 95.8 WETH against 95.7m
+    // tokens in the 1% tier on the Gekko V3 factory, where the next best is
+    // STONKBROKER at 15.9. No V2 pair; the V4 singleton holds another 6.4m.
+    // Same route shape as THROBBIN, so nothing new is needed to reach it.
+    symbol: "MANCER",
+    name: "Mancer",
+    address: "0xc72F232a6869e6CF34dC06129AfFD07F8a2a246A",
+  },
+  {
     // Chosen deliberately from six contracts on this chain sharing the ticker.
     // symbol() reads HOODRAT and name() reads Hoodrat on this one, and its pair
     // on the AutoBuyer's default router is deep enough to restock through on

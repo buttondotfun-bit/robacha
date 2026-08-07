@@ -163,6 +163,7 @@ contract PublishGenesisLineup is Script {
     address constant DERP = 0x6543B7746ca744C4bb2198191E71f40FF04C41b9;
     address constant SUSHI = 0x0bb40D7fbaE7f0C69Bc5910C601987dce697d85F;
     address constant THROBBIN = 0xe8fB470E0685437d7739BD2AacBA60b228800335;
+    address constant MANCER = 0xc72F232a6869e6CF34dC06129AfFD07F8a2a246A;
 
     /// @dev Tier targets as a multiple of the base spin price, in basis points.
     uint256 constant COMMON_BPS = 5_000;
@@ -181,10 +182,12 @@ contract PublishGenesisLineup is Script {
 
         console2.log("active version before", registry.activeVersion(POOL_ID));
 
-        address[11] memory candidates =
-            [CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP, SUSHI, THROBBIN];
-        string[11] memory names = [
-            "CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES", "STONKBROKER", "DERP", "SUSHI", "THROBBIN"
+        address[12] memory candidates = [
+            CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP, SUSHI, THROBBIN, MANCER
+        ];
+        string[12] memory names = [
+            "CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES", "STONKBROKER", "DERP", "SUSHI", "THROBBIN",
+            "MANCER"
         ];
 
         // Decide the whole table before broadcasting anything, so a token that
@@ -394,6 +397,10 @@ contract PublishGenesisLineup is Script {
         // THROBBIN has no V2 pair at all and nothing on the Sushi factory; its
         // market is the 1% tier on the Gekko V3 factory, holding 12.4 WETH.
         if (token == THROBBIN) return 0xd17044bdbEe55C7bD09c185937C88B9007ab7Be6;
+        // The deepest market of any reward token here by some distance: 95.8
+        // WETH against 95.7m tokens, against 15.9 for the next best. Same
+        // shape as THROBBIN — no V2 pair, 1% tier on the Gekko V3 factory.
+        if (token == MANCER) return 0x543127d6a1932689fAaCc1Afad4A81146d9ccF54;
         return address(0);
     }
 
