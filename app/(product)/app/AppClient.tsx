@@ -5,6 +5,7 @@ import { ActivityFeed } from "@/components/activity/ActivityFeed";
 import { GachaStage } from "@/components/gacha/GachaStage";
 import { PoolBar } from "@/components/gacha/PoolBar";
 import { PendingSpins } from "@/components/gacha/PendingSpins";
+import { RobBurnedCard } from "@/components/gacha/RobBurnedCard";
 import { SpinAssistant } from "@/components/gacha/SpinAssistant";
 import { TokenLineup } from "@/components/landing/TokenLineup";
 import { UpcomingMachines } from "@/components/rewards/UpcomingMachines";
@@ -93,6 +94,7 @@ export function AppClient() {
           <TokenLineup variant="strip" />
         </div>
         <UpcomingMachines variant="strip" />
+        <RobBurnedCard />
         <div className="glass-panel overflow-hidden rounded-[24px]">
           <ActivityFeed maxHeight={380} />
         </div>
