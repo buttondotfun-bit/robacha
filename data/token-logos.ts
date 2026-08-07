@@ -30,6 +30,19 @@ export const LOCAL_TOKEN_LOGOS: Record<string, string> = {
   // control, not a screenshot or a reconstruction. The index knows all
   // seventeen of its pairs and carries no image for any of them.
   "0xc72f232a6869e6cf34dc06129affd07f8a2a246a": "/tokens/mancer.svg",
+  // APE. The ape mark from apecoin.com's own favicon, downscaled to 256px.
+  //
+  // Worth being explicit about, because it is the one entry here that breaks
+  // rule 2 above. This contract is not ApeCoin DAO's token: it carries 578,793
+  // supply and an `owner()`, where the DAO's is fixed at one billion and
+  // ownerless. It is a Robinhood Chain token using the name, and the artwork
+  // belongs to a project that did not issue it.
+  //
+  // Recorded as a deliberate operator decision rather than an oversight, so
+  // nobody later reads this as the ticker-matching mistake the rules exist to
+  // prevent — and so it is easy to reverse if the DAO ever objects or the
+  // deployer publishes a mark of their own, which would be the better answer.
+  "0x8f86a15ec17cb3369d8b3e666dadbc11daa82b79": "/tokens/ape.png",
 };
 
 /** The stored logo for a contract, or null if there is none. */
