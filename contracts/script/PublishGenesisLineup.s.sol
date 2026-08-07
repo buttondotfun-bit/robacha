@@ -38,6 +38,10 @@ interface IUniswapV2Router02 {
         returns (uint256[] memory amounts);
 }
 
+interface IPoolManagerView {
+    function extsload(bytes32 slot) external view returns (bytes32);
+}
+
 interface IUniswapV3Pool {
     function slot0()
         external
@@ -168,6 +172,12 @@ contract PublishGenesisLineup is Script {
 
     address constant WETH = 0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73;
     address constant V2_ROUTER = 0x89e5DB8B5aA49aA85AC63f691524311AEB649eba;
+    address constant V4_POOL_MANAGER = 0x8366a39CC670B4001A1121B8F6A443A643e40951;
+    /// Where `_pools` lives in the PoolManager. Probed against the live
+    /// contract rather than taken from a deployment doc, and cross-checked:
+    /// the spot price it yields for APE matches an executed fork swap to
+    /// within the pool's own 0.3% fee.
+    uint256 constant V4_POOLS_SLOT = 6;
 
     // All four verified on chain: symbol() matches the ticker, 18 decimals.
     address constant CASHCAT = 0x020bfC650A365f8BB26819deAAbF3E21291018b4;
@@ -182,6 +192,7 @@ contract PublishGenesisLineup is Script {
     address constant SUSHI = 0x0bb40D7fbaE7f0C69Bc5910C601987dce697d85F;
     address constant THROBBIN = 0xe8fB470E0685437d7739BD2AacBA60b228800335;
     address constant MANCER = 0xc72F232a6869e6CF34dC06129AfFD07F8a2a246A;
+    address constant APE = 0x8f86a15EC17cb3369d8b3E666dAdBC11daA82b79;
 
     /// @dev Tier targets as a multiple of the base spin price, in basis points.
     uint256 constant COMMON_BPS = 5_000;
@@ -200,12 +211,12 @@ contract PublishGenesisLineup is Script {
 
         console2.log("active version before", registry.activeVersion(POOL_ID));
 
-        address[12] memory candidates = [
-            CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP, SUSHI, THROBBIN, MANCER
+        address[13] memory candidates = [
+            CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP, SUSHI, THROBBIN, MANCER, APE
         ];
-        string[12] memory names = [
+        string[13] memory names = [
             "CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES", "STONKBROKER", "DERP", "SUSHI", "THROBBIN",
-            "MANCER"
+            "MANCER", "APE"
         ];
 
         // Decide the whole table before broadcasting anything, so a token that
@@ -344,12 +355,72 @@ contract PublishGenesisLineup is Script {
      */
     function _tokensFor(address token, uint256 ethAmount) internal view returns (uint256) {
         if (_v3PoolFor(token) != address(0)) return _v3Price(token, ethAmount);
+        if (_v4PoolIdFor(token) != bytes32(0)) return _v4Price(token, ethAmount);
 
         address[] memory path = new address[](2);
         path[0] = WETH;
         path[1] = token;
         try IUniswapV2Router02(V2_ROUTER).getAmountsOut(ethAmount, path) returns (uint256[] memory amounts) {
             return amounts[amounts.length - 1];
+        } catch {
+            return 0;
+        }
+    }
+
+    /**
+     * @dev The V4 pool id for a token whose market is only in the singleton.
+     *
+     * A fourth venue, and the third time this file has had to learn one. APE
+     * has no V2 pair at all and no V3 pool on any of the three factories, so
+     * every existing path returns nothing for it — `getAmountsOut` does not
+     * answer thinly, it reverts, and the token would be dropped as "no usable
+     * quote" while trading normally.
+     *
+     * PONS, FRONG and TENDIES are also V4 markets but each happens to have a
+     * V2 pair as well, which is the only reason they price here at all. Those
+     * pairs are near-empty — TENDIES' holds 1.8e-7 WETH — so they are priced
+     * off pools nothing could trade against, which is the same defect the V3
+     * override list exists to fix and is worth revisiting separately.
+     *
+     * The id is `keccak256(abi.encode(key))` and was verified against the id
+     * the index publishes for the pool before being written down.
+     */
+    function _v4PoolIdFor(address token) internal pure returns (bytes32) {
+        if (token == APE) return 0x4263743142da2c86b408e001af4de92738253bc70f2f4acdb3c9a313f22e59a8;
+        return bytes32(0);
+    }
+
+    /**
+     * @dev Price a token from its V4 pool's spot price.
+     *
+     * V4 keeps every pool in one contract, so there is no pool address to call
+     * `slot0` on. State is read with `extsload` at
+     * `keccak256(poolId . POOLS_SLOT)`, whose first word is slot0 with
+     * sqrtPriceX96 in the low 160 bits.
+     *
+     * Only correct for pools whose currency0 is native ETH, which is asserted
+     * rather than assumed: every entry in `_v4PoolIdFor` is an ETH pair, and a
+     * token-token pool would need the inversion the V3 helper does. Returning
+     * 0 for anything unexpected drops the token from the lineup, which is the
+     * safe direction — a missing prize is recoverable, a misplaced one is not.
+     *
+     * Staged through two shifts for the same reason as the V3 path: squaring
+     * sqrtPriceX96 outright overflows uint256.
+     */
+    function _v4Price(address token, uint256 ethAmount) internal view returns (uint256) {
+        bytes32 poolId = _v4PoolIdFor(token);
+        if (poolId == bytes32(0)) return 0;
+
+        bytes32 stateSlot = keccak256(abi.encodePacked(poolId, V4_POOLS_SLOT));
+
+        try IPoolManagerView(V4_POOL_MANAGER).extsload(stateSlot) returns (bytes32 slot0) {
+            uint256 sqrtP = uint256(slot0) & ((uint256(1) << 160) - 1);
+            if (sqrtP == 0) return 0;
+
+            // currency0 is native ETH for every id listed above, so
+            // (sqrtP / 2^96)^2 is token-per-ETH with no inversion needed.
+            uint256 staged = (ethAmount * sqrtP) >> 96;
+            return (staged * sqrtP) >> 96;
         } catch {
             return 0;
         }
