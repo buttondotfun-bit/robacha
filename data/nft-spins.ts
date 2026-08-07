@@ -26,6 +26,33 @@ export interface NftSpinCandidate {
 }
 
 export const NFT_SPIN_CANDIDATES: readonly NftSpinCandidate[] = [
+  // ---- Operator-picked, first in the reel. ----
+  // The collections behind tokens already in the live machine (MANCER,
+  // STONKBROKER, CASHCAT) plus PitBoys. Named by the operator via their
+  // OpenSea pages; the addresses were resolved from those pages and then
+  // verified on this chain — name(), symbol() and the ERC-721 interface all
+  // read back from the contract before being written down.
+  {
+    address: "0x797A2e030b7E49107C8F07Bf0300EA9caE88ca57",
+    name: "Chain Mancers",
+    symbol: "MANCERS",
+  },
+  {
+    address: "0x539CDd042C2F3d93eBC5bE7DFfF0c79F3b4FABf0",
+    name: "StonkBrokers",
+    symbol: "STONK",
+  },
+  {
+    address: "0xE3b34C4bb0F12C82143745eEe6A6CF4E3154b1fa",
+    name: "CASHCAT",
+    symbol: "CASHCAT",
+  },
+  {
+    address: "0x57069d845701B50F41327362C1c23789043f8DEc",
+    name: "PitBoys",
+    symbol: "PITBOY",
+  },
+  // ---- Top of the chain's explorer by holders, after the partners. ----
   {
     address: "0x6Ca58412EcA6F46E0A423a43B7E3ECdb2dE578A9",
     name: "/dev/daemons",
