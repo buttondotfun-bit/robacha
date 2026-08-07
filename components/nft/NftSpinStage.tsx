@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight, ExternalLink } from "lucide-react";
+import { Dialog } from "@/components/ui/Dialog";
+import { ButtonLink } from "@/components/ui/Button";
 import { explorerUrl } from "@/lib/config";
 import { cn, ringDelta } from "@/lib/utils";
-import { NFT_SPIN_CANDIDATES } from "@/data/nft-spins";
+import { NFT_SPIN_CANDIDATES, type NftSpinCandidate } from "@/data/nft-spins";
 
 /**
  * The NFT machine's stage — the same fan as the live carousel, turning idly.
@@ -39,6 +42,19 @@ export function NftSpinStage({ className }: { className?: string }) {
   const [pos, setPos] = useState(0);
   const posRef = useRef(0);
   const paused = useRef(false);
+
+  /**
+   * The card the viewer asked about. A click used to jump straight to the
+   * explorer, which answers "is this real?" but nothing else; the dialog
+   * answers the question first — what the collection is, where it trades,
+   * where to verify it — and then offers both doors. The reel holds still
+   * while it is open so the card that was tapped is the card behind it.
+   */
+  const [selected, setSelected] = useState<NftSpinCandidate | null>(null);
+  useEffect(() => {
+    if (selected) paused.current = true;
+    else paused.current = false;
+  }, [selected]);
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -106,15 +122,14 @@ export function NftSpinStage({ className }: { className?: string }) {
           const tint = TINTS[index % TINTS.length];
 
           return (
-            <a
+            <button
               key={candidate.address}
-              href={explorerUrl("token", candidate.address) ?? "#"}
-              target="_blank"
-              rel="noreferrer"
+              type="button"
+              onClick={() => setSelected(candidate)}
               tabIndex={isCentre ? 0 : -1}
               aria-hidden={!isCentre}
-              aria-label={`${candidate.name} on the explorer`}
-              className="absolute left-1/2 top-1/2 block h-[calc(var(--card-w)*1.72)] w-[var(--card-w)] will-change-transform"
+              aria-label={`About ${candidate.name}`}
+              className="absolute left-1/2 top-1/2 block h-[calc(var(--card-w)*1.72)] w-[var(--card-w)] cursor-pointer will-change-transform"
               style={{
                 transform: `translate3d(calc(-50% + var(--gap) * ${xFactor.toFixed(4)}), calc(-50% + var(--card-w) * ${yFactor.toFixed(4)}), 0) scale(${scale.toFixed(4)}) rotate(${rotate.toFixed(3)}deg)`,
                 zIndex: 60 - Math.round(distance * 10),
@@ -175,10 +190,77 @@ export function NftSpinStage({ className }: { className?: string }) {
                   </div>
                 </div>
               </article>
-            </a>
+            </button>
           );
         })}
       </div>
+
+      <Dialog
+        open={selected !== null}
+        onClose={() => setSelected(null)}
+        title={selected?.name ?? ""}
+        description={selected ? `${selected.symbol} · candidate for the NFT spins machine` : undefined}
+        className="w-full max-w-[420px]"
+      >
+        {selected ? (
+          <div className="flex flex-col gap-4">
+            <div className="overflow-hidden rounded-[16px] border border-[rgb(var(--edge-rgb)_/_0.8)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={selected.image}
+                alt={`Sample artwork from ${selected.name}`}
+                className="aspect-square w-full object-cover"
+              />
+            </div>
+
+            <dl className="flex flex-col gap-2 text-[13px]">
+              <div className="flex items-baseline justify-between gap-3">
+                <dt className="micro shrink-0">Contract</dt>
+                <dd className="num truncate text-ink-2" title={selected.address}>
+                  {`${selected.address.slice(0, 10)}…${selected.address.slice(-8)}`}
+                </dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-3">
+                <dt className="micro shrink-0">Chain</dt>
+                <dd className="text-ink-2">Robinhood Chain</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-3">
+                <dt className="micro shrink-0">Standard</dt>
+                <dd className="text-ink-2">ERC-721</dd>
+              </div>
+            </dl>
+
+            <p className="text-[11.5px] leading-relaxed text-ink-3">
+              A candidate for the NFT spins machine, not a confirmed prize. The
+              artwork above is a sample token, served by the collection&rsquo;s
+              own contract. Verify everything yourself below.
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <ButtonLink
+                href={selected.opensea}
+                external
+                variant="primary"
+                size="lg"
+                fullWidth
+              >
+                View on OpenSea
+                <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+              </ButtonLink>
+              <ButtonLink
+                href={explorerUrl("token", selected.address) ?? "#"}
+                external
+                variant="secondary"
+                size="lg"
+                fullWidth
+              >
+                Contract on Blockscout
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              </ButtonLink>
+            </div>
+          </div>
+        ) : null}
+      </Dialog>
     </div>
   );
 }

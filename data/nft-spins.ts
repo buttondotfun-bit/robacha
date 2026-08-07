@@ -33,30 +33,36 @@ export interface NftSpinCandidate {
    * The SVGs were checked for script vectors before being committed.
    */
   image: string;
+  /** The collection's OpenSea page, as supplied by the operator. */
+  opensea: string;
 }
 
 export const NFT_SPIN_CANDIDATES: readonly NftSpinCandidate[] = [
   {
     address: "0x797A2e030b7E49107C8F07Bf0300EA9caE88ca57",
     name: "Chain Mancers",
+    opensea: "https://opensea.io/collection/chain-mancers",
     image: "/nft-collections/chain-mancers.svg",
     symbol: "MANCERS",
   },
   {
     address: "0x539CDd042C2F3d93eBC5bE7DFfF0c79F3b4FABf0",
     name: "StonkBrokers",
+    opensea: "https://opensea.io/collection/stonkbrokers-434284142",
     image: "/nft-collections/stonkbrokers.svg",
     symbol: "STONK",
   },
   {
     address: "0xE3b34C4bb0F12C82143745eEe6A6CF4E3154b1fa",
     name: "CASHCAT",
+    opensea: "https://opensea.io/collection/cashcatss",
     image: "/nft-collections/cashcat.png",
     symbol: "CASHCAT",
   },
   {
     address: "0x57069d845701B50F41327362C1c23789043f8DEc",
     name: "PitBoys",
+    opensea: "https://opensea.io/collection/pitboys",
     image: "/nft-collections/pitboys.svg",
     symbol: "PITBOY",
   },
