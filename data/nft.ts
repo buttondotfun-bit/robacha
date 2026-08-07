@@ -8,17 +8,19 @@
  *
  * Two rules for anything added here:
  *
- *   1. The date below is a real target, not a rolling one. It is a fixed
- *      instant and the countdown does not restart when it passes — if the date
- *      slips, change it here and say so. A timer that quietly resets is the
- *      oldest trick in this category and it is worth more to be the project
- *      that does not do it.
+ *   1. The date below is a real target, not a rolling one. Nothing renders
+ *      it any more — the site says "follow X" and the date gets announced
+ *      once, when it is certain. It stays here as the internal target so the
+ *      plan has a written-down instant, and the old rule still applies the
+ *      day it is published: a fixed date, changed loudly or not at all. A
+ *      timer that quietly resets is the oldest trick in this category and it
+ *      is worth more to be the project that does not do it.
  *   2. No prize values on the spendable tiers until a vault exists to pay
  *      them. Odds and ranges get published before minting opens, from the
  *      contract, exactly as every pool's are.
  */
 
-/** Planned open of the mint window. A fixed instant — see rule 1 above. */
+/** Planned open of the mint window, internal only — see rule 1 above. */
 export const NFT_MINT_OPENS_AT = "2026-08-14T16:00:00Z";
 
 /** Planned mint price in US dollars. */

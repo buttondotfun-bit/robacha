@@ -1,105 +1,43 @@
-import { RobachaCapsuleRing } from "@/components/brand/RobachaLogo";
-import { CapsuleGlyph } from "./CapsuleGlyph";
+import Image from "next/image";
 
 /**
  * The capsule, large, as the hero of the mint page.
  *
- * Drawn rather than shown. The real artwork does not exist yet, and putting a
- * mockup here that looked like a finished asset would be selling something we
- * have not made — the same reasoning that keeps the upcoming machines blurred.
- * What this does instead is show the *form*: a capsule, in the tier colours the
- * machine already uses, so the drop reads as part of the same product.
+ * This used to draw itself. The artwork did not exist, and a mockup dressed up
+ * as a finished asset would have been selling something we had not made, so it
+ * rendered the *form* — a capsule in the machine's own tier colours — and said
+ * plainly underneath that it was a placeholder.
  *
- * Labelled as a placeholder on the page, not hidden in a caption nobody reads.
+ * The artwork exists now, so it is shown, and the placeholder caption is gone
+ * with it. Leaving that line up would be the mirror of the original problem:
+ * telling people the real thing is still coming while they are looking at it.
  *
- * Defaults to a Grail. Three of the five hundred are Grails and the collection
- * is built around them, so that is the one worth putting at size.
+ * Full bleed rather than floated on the glass. The render carries its own
+ * background — a soft pink-to-cream wash — so the panel's grid, noise and
+ * rarity glow would have shown as a rectangle of unrelated texture behind an
+ * opaque square. The art is square and the frame is square; it fills it.
+ *
+ * `priority` because this is the largest element above the fold on the mint
+ * page, and `sizes` so a phone is not handed the full 1254px render.
  */
 export function CapsulePreview({ rarity = "grail" }: { rarity?: string }) {
   return (
     <div
       data-rarity={rarity}
-      className="glass-panel glass-reflection glass-highlight relative aspect-square w-full overflow-hidden rounded-[28px]"
+      className="glass-panel glass-reflection relative aspect-square w-full overflow-hidden rounded-[28px]"
     >
-      <span className="noise-overlay" aria-hidden="true" />
-      <div className="cross-grid absolute inset-0" aria-hidden="true" />
-
-      {/* Rarity light behind the capsule. */}
-      <div
-        aria-hidden="true"
-        className="rarity-breathe pointer-events-none absolute left-1/2 top-1/2 h-[78%] w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[8px]"
-        style={{
-          background:
-            "radial-gradient(circle, rgb(var(--rarity-glow) / 0.34) 0%, transparent 68%)",
-        }}
+      <Image
+        src="/nft.png"
+        alt="A Robacha capsule: a glossy pink and white sphere with a lit centre button, floating among smaller capsules"
+        fill
+        priority
+        // The mint page is one column until lg, so anything narrower than that
+        // gets the full viewport. Claiming 50vw below 1024px made the browser
+        // fetch a 369px render for a 690px slot and the capsule came out soft.
+        // 680px covers the widest measured slot (655px on the mint page).
+        sizes="(max-width: 1024px) 100vw, 680px"
+        className="object-cover"
       />
-
-      {/* The other tiers, small and set back, so the hero reads as one capsule
-          out of a collection rather than a lone object. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <span data-rarity="common" className="absolute left-[9%] top-[16%] opacity-40">
-          <CapsuleGlyph id="float-a" className="capsule-drift-a h-12 w-12" />
-        </span>
-        <span data-rarity="rare" className="absolute right-[11%] top-[24%] opacity-45">
-          <CapsuleGlyph id="float-b" className="capsule-drift-b h-10 w-10" />
-        </span>
-        <span data-rarity="legendary" className="absolute bottom-[20%] left-[15%] opacity-40">
-          <CapsuleGlyph id="float-c" className="capsule-drift-c h-9 w-9" />
-        </span>
-      </div>
-
-      <div className="relative grid h-full place-items-center p-8">
-        <svg
-          viewBox="0 0 200 200"
-          className="capsule-float h-full w-full max-h-[340px] max-w-[340px] drop-shadow-[0_24px_48px_rgb(var(--ink-rgb)_/_0.28)]"
-          role="img"
-          aria-label={`Robacha ${rarity} capsule, placeholder artwork`}
-        >
-          <defs>
-            <linearGradient id="cap-lid" x1="0" y1="0" x2="0.3" y2="1">
-              <stop offset="0%" stopColor="rgb(var(--rarity-glow) / 1)" />
-              <stop offset="100%" stopColor="rgb(var(--rarity-glow) / 0.62)" />
-            </linearGradient>
-            <linearGradient id="cap-base" x1="0" y1="0" x2="0.2" y2="1">
-              <stop offset="0%" stopColor="rgb(var(--surface-rgb) / 0.95)" />
-              <stop offset="100%" stopColor="rgb(var(--surface-rgb) / 0.6)" />
-            </linearGradient>
-          </defs>
-
-          {/* Bottom half */}
-          <path d="M20 100a80 80 0 0 0 160 0Z" fill="url(#cap-base)" />
-          {/* Lid, carrying the rarity colour */}
-          <path d="M20 100a80 80 0 0 1 160 0Z" fill="url(#cap-lid)" />
-          {/* Seam */}
-          <rect
-            x="16"
-            y="93"
-            width="168"
-            height="15"
-            rx="7.5"
-            fill="rgb(var(--surface-rgb) / 0.96)"
-          />
-          <rect
-            x="16"
-            y="93"
-            width="168"
-            height="4"
-            rx="2"
-            fill="rgb(var(--sheen-rgb) / 0.5)"
-          />
-          {/* Specular highlight */}
-          <ellipse cx="68" cy="56" rx="24" ry="15" fill="rgb(var(--sheen-rgb) / 0.42)" />
-        </svg>
-
-        {/* Brand mark set into the capsule's face. */}
-        <span className="capsule-float absolute bottom-[26%] left-1/2 -translate-x-1/2">
-          <RobachaCapsuleRing style={{ height: 34, width: 34 }} />
-        </span>
-      </div>
-
-      <p className="absolute inset-x-0 bottom-4 text-center text-[11px] text-ink-3">
-        Placeholder artwork — the real capsules are still being drawn.
-      </p>
     </div>
   );
 }

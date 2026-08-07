@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 import { NETWORK_LABEL } from "@/lib/web3";
 import { CapsuleGlyph } from "./CapsuleGlyph";
 import { CapsulePreview } from "./CapsulePreview";
-import { MintCountdown } from "./MintCountdown";
+import { MintFollowCta } from "./MintFollowCta";
 import { MintPrice } from "./MintPrice";
 
 /**
@@ -105,7 +105,7 @@ export function NftTeaser() {
               <MintPrice />
 
               <div className="mt-5 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4">
-                <MintCountdown />
+                <MintFollowCta />
               </div>
 
               <button

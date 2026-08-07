@@ -1,6 +1,6 @@
+import Image from "next/image";
 import { ArrowUpRight, Lock } from "lucide-react";
-import { CapsuleGlyph } from "@/components/nft/CapsuleGlyph";
-import { MintCountdown } from "@/components/nft/MintCountdown";
+import { MintFollowCta } from "@/components/nft/MintFollowCta";
 import { PageContainer } from "@/components/shared/primitives";
 import { Reveal } from "@/components/shared/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
@@ -16,7 +16,8 @@ import {
  *
  * Deliberately not a second copy of the mint page. It carries only the four
  * things that make someone click — how many exist, what one costs, that three
- * are Grails, and how long is left — and sends them to /nft for the rest.
+ * are Grails, and where the date will be announced — and sends them to /nft
+ * for the rest.
  * Repeating the full pitch here would mean two places to keep honest, and the
  * numbers on this page are the ones most likely to be quoted back at us.
  *
@@ -34,50 +35,24 @@ export function NftPreview() {
 
           <div className="relative grid gap-3 lg:grid-cols-[1.05fr_1fr]">
             {/* ---- artwork ---- */}
-            <div
-              data-rarity="grail"
-              className="glass-quiet relative grid min-h-[280px] place-items-center overflow-hidden rounded-[24px] p-6"
-            >
-              <div
-                aria-hidden="true"
-                className="rarity-breathe pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[6px]"
-                style={{
-                  background:
-                    "radial-gradient(circle, rgb(var(--rarity-glow) / 0.3) 0%, transparent 68%)",
-                }}
+            {/* The render, full bleed. It carries its own pink-to-cream
+                background, so the glass-quiet surface and rarity glow that used
+                to sit behind the drawn glyphs would only have shown as a border
+                of unrelated texture. Cropped by object-cover on this non-square
+                panel, which the composition survives — the capsule is centred. */}
+            {/* Square until the two-column layout kicks in. The render is
+                square, and forcing it into a 656x280 band cropped the capsule
+                off at both poles. Above lg the artwork column is stretched to
+                the pitch beside it, which is near enough square that cover
+                barely trims. */}
+            <div className="relative aspect-square overflow-hidden rounded-[24px] lg:aspect-auto lg:min-h-[280px]">
+              <Image
+                src="/nft.png"
+                alt="A Robacha capsule: a glossy pink and white sphere with a lit centre button, floating among smaller capsules"
+                fill
+                sizes="(max-width: 1024px) 100vw, 680px"
+                className="object-cover"
               />
-
-              {/* One of each tier, the Grail leading. */}
-              <div className="relative flex items-end gap-3">
-                {NFT_TIERS.map((tier, index) => (
-                  <span
-                    key={tier.key}
-                    data-rarity={tier.key}
-                    className={
-                      tier.key === "grail"
-                        ? "capsule-float"
-                        : index === 0
-                          ? "capsule-drift-a opacity-70"
-                          : index === 1
-                            ? "capsule-drift-b opacity-70"
-                            : "capsule-drift-c opacity-70"
-                    }
-                  >
-                    <CapsuleGlyph
-                      id={`home-${tier.key}`}
-                      className={
-                        tier.key === "grail"
-                          ? "h-24 w-24 drop-shadow-[0_12px_28px_rgb(var(--rarity-glow)_/_0.45)]"
-                          : "h-12 w-12 drop-shadow-[0_6px_14px_rgb(var(--rarity-glow)_/_0.3)]"
-                      }
-                    />
-                  </span>
-                ))}
-              </div>
-
-              <p className="absolute bottom-4 text-[11px] text-ink-3">
-                Placeholder artwork — the real capsules are still being drawn.
-              </p>
             </div>
 
             {/* ---- pitch ---- */}
@@ -120,7 +95,7 @@ export function NftPreview() {
               </p>
 
               <div className="mt-5 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4">
-                <MintCountdown />
+                <MintFollowCta />
               </div>
 
               <ButtonLink href="/nft" variant="primary" size="lg" className="mt-5">
