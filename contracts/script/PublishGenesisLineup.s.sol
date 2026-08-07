@@ -376,11 +376,11 @@ contract PublishGenesisLineup is Script {
      * answer thinly, it reverts, and the token would be dropped as "no usable
      * quote" while trading normally.
      *
-     * PONS, FRONG and TENDIES are also V4 markets but each happens to have a
-     * V2 pair as well, which is the only reason they price here at all. Those
-     * pairs are near-empty — TENDIES' holds 1.8e-7 WETH — so they are priced
-     * off pools nothing could trade against, which is the same defect the V3
-     * override list exists to fix and is worth revisiting separately.
+     * PONS and FRONG are also V4 markets but each happens to have a V2 pair as
+     * well, which is the only reason they price here at all. Both pairs are
+     * thin, so they may be repeating the mistake TENDIES was — that one was
+     * priced off a pair holding 1.8e-7 WETH for eight versions and is now
+     * pinned to its real V3 pool in `_v3PoolFor`. Worth checking separately.
      *
      * The id is `keccak256(abi.encode(key))` and was verified against the id
      * the index publishes for the pool before being written down.
@@ -483,6 +483,15 @@ contract PublishGenesisLineup is Script {
         // pool is read directly here, so pricing needs no router — but buying
         // does, and that router speaks the older SwapRouter shape.
         if (token == SUSHI) return 0x7fff70d5748390779E573A1995952c3DdDF57a9c;
+        // TENDIES has the deepest market of any reward token here — 238.8 WETH
+        // against 22.8m tokens, more than MANCER's 186.5 — and it was being
+        // priced off a V2 pair holding 1.8e-7 WETH. That pair answers instead
+        // of reverting, so nothing caught it, and the quote it gave was 8,128x
+        // too expensive: 0.0063 tokens per spin price against a true 51.1.
+        // That is the whole explanation for the 0.0047-0.0079 TENDIES slot
+        // that has looked wrong for eight versions. It was never a thin token;
+        // it was a decoy pair. 1% tier on the Gekko V3 factory.
+        if (token == TENDIES) return 0x237609918F330ADD285b8bC5f8f2922283D1C4C5;
         // THROBBIN has no V2 pair at all and nothing on the Sushi factory; its
         // market is the 1% tier on the Gekko V3 factory, holding 12.4 WETH.
         if (token == THROBBIN) return 0xd17044bdbEe55C7bD09c185937C88B9007ab7Be6;
