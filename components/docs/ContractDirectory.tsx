@@ -1,5 +1,10 @@
 import { ExternalLink } from "lucide-react";
 import { chainConfig, contracts, explorerUrl } from "@/lib/config";
+import { publicClient } from "@/lib/server/chain";
+import {
+  activeRandomnessAdapter,
+  activeRandomnessReceiver,
+} from "@/lib/server/randomness-adapter";
 
 /**
  * The deployed contracts, read from configuration rather than written down.
@@ -7,6 +12,14 @@ import { chainConfig, contracts, explorerUrl } from "@/lib/config";
  * If an address is not configured for this deployment the row says so instead
  * of showing a stale one — the docs can never claim a contract exists that the
  * running app is not actually pointed at.
+ *
+ * The two randomness rows are a further step: they come from the gacha itself,
+ * not from configuration. This table is the page that tells a player which
+ * contract to go and check, so an address here that has fallen behind is not a
+ * cosmetic staleness — it points them at the wrong contract to audit and would
+ * survive as documentation of a swap that already happened. The env var is the
+ * one part of an adapter migration that lives outside the transaction, and it
+ * has been left behind before; the gacha's own pointer cannot be.
  */
 
 const ROWS: { key: keyof typeof contracts; name: string; role: string }[] = [
@@ -23,7 +36,22 @@ const ROWS: { key: keyof typeof contracts; name: string; role: string }[] = [
   { key: "randomnessReceiver", name: "RobachaStonkPitEntropy", role: "Receives the delivered word and hands it to the gacha" },
 ];
 
-export function ContractDirectory() {
+export async function ContractDirectory() {
+  // Resolved on the server at render time. A failure falls back to whatever is
+  // configured rather than blanking the table — a possibly-stale address with
+  // a working explorer link beats an empty security section.
+  const client = publicClient();
+  const [liveSender, liveReceiver] = await Promise.all([
+    activeRandomnessAdapter(client).catch(() => contracts.randomnessSender ?? null),
+    activeRandomnessReceiver(client).catch(() => contracts.randomnessReceiver ?? null),
+  ]);
+
+  const resolved = {
+    ...contracts,
+    randomnessSender: liveSender ?? contracts.randomnessSender,
+    randomnessReceiver: liveReceiver ?? contracts.randomnessReceiver,
+  };
+
   return (
     <div className="mt-2">
       <p className="micro mb-3">Deployed contracts · {chainConfig.name}</p>
@@ -39,7 +67,7 @@ export function ContractDirectory() {
           </thead>
           <tbody>
             {ROWS.map((row) => {
-              const address = contracts[row.key];
+              const address = resolved[row.key];
               const url = address ? explorerUrl("address", address) : null;
 
               return (

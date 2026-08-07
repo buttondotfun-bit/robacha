@@ -8,6 +8,16 @@ import { DOC_SECTIONS, type DocBlock } from "@/data/docs";
 import { chainConfig } from "@/lib/config";
 import { RISK_NOTICE } from "@/lib/constants";
 
+/**
+ * Re-rendered periodically so the contract table can follow the chain.
+ *
+ * The security section resolves the live randomness adapter from the gacha, and
+ * a fully static page would freeze whatever was true at build time — which is
+ * the same staleness the chain read exists to avoid, just moved to a different
+ * layer. Five minutes is far quicker than any adapter swap.
+ */
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Docs",
   description:
