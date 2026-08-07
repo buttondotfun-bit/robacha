@@ -193,6 +193,7 @@ contract PublishGenesisLineup is Script {
     address constant THROBBIN = 0xe8fB470E0685437d7739BD2AacBA60b228800335;
     address constant MANCER = 0xc72F232a6869e6CF34dC06129AfFD07F8a2a246A;
     address constant APE = 0x8f86a15EC17cb3369d8b3E666dAdBC11daA82b79;
+    address constant INDEX = 0x56910D4409F3a0C78C64DD8D0545FF0705389870;
 
     /// @dev Tier targets as a multiple of the base spin price, in basis points.
     uint256 constant COMMON_BPS = 5_000;
@@ -211,12 +212,12 @@ contract PublishGenesisLineup is Script {
 
         console2.log("active version before", registry.activeVersion(POOL_ID));
 
-        address[13] memory candidates = [
-            CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP, SUSHI, THROBBIN, MANCER, APE
+        address[14] memory candidates = [
+            CASHCAT, WOOD, ROB, DICE, PONS, FRONG, TENDIES, STONKBROKER, DERP, SUSHI, THROBBIN, MANCER, APE, INDEX
         ];
-        string[13] memory names = [
+        string[14] memory names = [
             "CASHCAT", "WOOD", "ROB", "DICE", "PONS", "FRONG", "TENDIES", "STONKBROKER", "DERP", "SUSHI", "THROBBIN",
-            "MANCER", "APE"
+            "MANCER", "APE", "INDEX"
         ];
 
         // Decide the whole table before broadcasting anything, so a token that
@@ -499,6 +500,11 @@ contract PublishGenesisLineup is Script {
         // WETH against 95.7m tokens, against 15.9 for the next best. Same
         // shape as THROBBIN — no V2 pair, 1% tier on the Gekko V3 factory.
         if (token == MANCER) return 0x543127d6a1932689fAaCc1Afad4A81146d9ccF54;
+        // INDEX has a V4 ETH pool too, but the V3 pool at the 1% tier is the
+        // deeper, busier market by far — 100.9 WETH and $1.48m/day against the
+        // V4 pool's ~$175k — so it is priced and bought there. Same Gekko V3
+        // factory as MANCER and THROBBIN.
+        if (token == INDEX) return 0xD29893fFac8b29eC4Db2cfE0CDB3FE1377c028Ff;
         return address(0);
     }
 
