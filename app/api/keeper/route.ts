@@ -7,6 +7,7 @@ import { keccak256, encodeAbiParameters } from "viem";
 import { chainConfig, contracts } from "@/lib/config";
 import { keeper, rpc } from "@/lib/env/server";
 import { publicClient, robinhoodChain } from "@/lib/server/chain";
+import { sweepEntropyFloat } from "@/lib/server/entropy-float";
 import { restockVault } from "@/lib/server/restock";
 
 export const dynamic = "force-dynamic";
@@ -442,6 +443,23 @@ export async function GET(request: Request) {
           );
         }
       }
+    }
+
+    // Carry the surcharge across into the entropy float. Runs before the
+    // restock because a thin float stops spins being sold at all, whereas a
+    // thin vault only stops one token's prize — and both are paid for out of
+    // money already earned rather than topped up by hand.
+    try {
+      const swept = await sweepEntropyFloat(client, account, sendOnce);
+      for (const r of swept) {
+        actions.push({ roundId: 0, action: r.action, txHash: r.txHash, skipped: r.skipped });
+      }
+    } catch (error) {
+      actions.push({
+        roundId: 0,
+        action: "sweepEntropyFloat",
+        skipped: error instanceof Error ? error.message.split("\n")[0] : "failed",
+      });
     }
 
     // Turn the accrued reward reserve back into prizes. Runs last so
