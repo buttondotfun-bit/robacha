@@ -56,6 +56,7 @@ type Send = (
     abi: readonly unknown[];
     functionName: string;
     args: readonly unknown[];
+    value?: bigint;
   },
 ) => Promise<`0x${string}` | null>;
 

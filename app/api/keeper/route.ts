@@ -10,6 +10,7 @@ import { publicClient, robinhoodChain } from "@/lib/server/chain";
 import { activeRandomnessAdapter } from "@/lib/server/randomness-adapter";
 import { sweepEntropyFloat } from "@/lib/server/entropy-float";
 import { restockVault } from "@/lib/server/restock";
+import { buybackAndBurnRob } from "@/lib/server/rob-burn";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -229,7 +230,7 @@ export async function GET(request: Request) {
     }
   }
 
-  /** Simulate, send, wait — shared with the restock step. */
+  /** Simulate, send, wait — shared with the restock and buyback steps. */
   async function sendOnce(
     label: string,
     params: {
@@ -237,6 +238,9 @@ export async function GET(request: Request) {
       abi: readonly unknown[];
       functionName: string;
       args: readonly unknown[];
+      // Native ETH to attach. Only the buyback swap uses it; every other
+      // caller omits it and pays nothing, exactly as before.
+      value?: bigint;
     },
   ): Promise<`0x${string}` | null> {
     try {
@@ -245,6 +249,7 @@ export async function GET(request: Request) {
         abi: params.abi as never,
         functionName: params.functionName as never,
         args: params.args as never,
+        value: params.value,
         account,
       });
       const hash = await wallet.writeContract(sim);
@@ -499,6 +504,23 @@ export async function GET(request: Request) {
       actions.push({
         roundId: 0,
         action: "restock",
+        skipped: error instanceof Error ? error.message.split("\n")[0] : "failed",
+      });
+    }
+
+    // Buy back and burn ROB from protocol margin — dead last, after prizes and
+    // the entropy float, because those are obligations and this is a choice.
+    // It self-gates on accrued margin and a keeper gas floor, so at low volume
+    // it does nothing at all. See `buybackAndBurnRob`.
+    try {
+      const burned = await buybackAndBurnRob(client, account, sendOnce);
+      for (const r of burned) {
+        actions.push({ roundId: 0, action: r.action, txHash: r.txHash, skipped: r.skipped });
+      }
+    } catch (error) {
+      actions.push({
+        roundId: 0,
+        action: "buybackAndBurn",
         skipped: error instanceof Error ? error.message.split("\n")[0] : "failed",
       });
     }
