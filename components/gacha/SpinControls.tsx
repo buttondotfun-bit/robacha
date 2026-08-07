@@ -15,6 +15,7 @@ import {
 } from "@/lib/config";
 import { shortAddress, shortHash } from "@/lib/formatters";
 import { useSpin } from "@/lib/spin-store";
+import { useRobZap } from "@/lib/use-rob-zap";
 import { usePendingSpins, RoundState } from "@/lib/use-pending-spins";
 import { useMoney } from "@/lib/use-money";
 import { useWalletCap } from "@/lib/use-wallet-cap";
@@ -56,6 +57,14 @@ export function SpinControls({
   const [confirming, setConfirming] = useState(false);
   const { pending } = usePendingSpins();
 
+  // Paying in ROB is the swap-then-spin zap: the player's own wallet turns ROB
+  // into exactly the ETH the spin costs, then spins, so the prize is theirs and
+  // no contract changed. `useRobZap` owns the swap half; the spin below is the
+  // same call either way.
+  const robZap = useRobZap();
+  const [payWith, setPayWith] = useState<"eth" | "rob">("eth");
+  const zapBusy = robZap.phase === "approving" || robZap.phase === "swapping";
+
   // Lifetime allowance for this pool version. A wallet at its cap used to see
   // a live button and pay gas for a guaranteed WalletCapExceeded revert.
   const walletCap = useWalletCap(pool);
@@ -65,11 +74,12 @@ export function SpinControls({
   const pendingTotal = pending.reduce((sum, row) => sum + row.entries, 0);
   const openRound = pending.find((row) => row.state === RoundState.Open);
 
-  const busy = SPIN_COPY[spin.phase].busy;
+  const busy = SPIN_COPY[spin.phase].busy || zapBusy;
 
   const baseWei = pool?.spinPriceWei ?? 0n;
   const surchargeWei = pool?.surchargeWei ?? 0n;
   const perEntryWei = baseWei + surchargeWei;
+  const robEstimate = robZap.estimateRob(perEntryWei * BigInt(spin.quantity));
   const quantity = BigInt(spin.quantity);
   const totalBaseWei = baseWei * quantity;
   const totalSurchargeWei = surchargeWei * quantity;
@@ -177,6 +187,60 @@ export function SpinControls({
         disabled={busy || !contractReady || walletCap.exhausted}
       />
 
+      {/* Pay in ETH or in ROB. The choice only changes how the ETH is sourced;
+          the spin, the odds, the prize and every downstream path are identical.
+          Hidden until a price exists, because a toggle with nothing to price is
+          just noise. */}
+      {baseWei > 0n ? (
+        <div className="mt-3">
+          <div
+            role="tablist"
+            aria-label="Pay with"
+            className="grid grid-cols-2 gap-1 rounded-full bg-[rgb(var(--ink-rgb)_/_0.05)] p-1"
+          >
+            {(["eth", "rob"] as const).map((method) => {
+              const active = payWith === method;
+              return (
+                <button
+                  key={method}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  disabled={busy || zapBusy}
+                  onClick={() => setPayWith(method)}
+                  className={cn(
+                    "rounded-full py-2 text-[12.5px] font-medium transition-colors",
+                    active
+                      ? "bg-[rgb(var(--surface-rgb))] text-ink shadow-[0_1px_2px_rgb(var(--ink-rgb)_/_0.08)]"
+                      : "text-ink-3 hover:text-ink-2",
+                  )}
+                >
+                  {method === "eth" ? "Pay in ETH" : "Pay in $ROB"}
+                </button>
+              );
+            })}
+          </div>
+
+          {payWith === "rob" ? (
+            <div className="mt-2 rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.03)] px-3.5 py-3 text-[12px]">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-ink-2">Approx. cost</span>
+                <span className="num font-medium text-ink">
+                  {robEstimate !== null
+                    ? `≈ ${formatRob(robEstimate)} ROB`
+                    : "Reading price…"}
+                </span>
+              </div>
+              <p className="mt-1.5 leading-relaxed text-ink-3">
+                Your wallet swaps ROB to the exact ETH this spin costs, then
+                spins — two signatures. You pay the pool&rsquo;s swap fee, and
+                the estimate settles to the real amount when you sign.
+              </p>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       {/* Full cost and routing disclosure, before any signature is requested. */}
       <dl className="mt-4 space-y-2 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-3.5 text-[13px]">
         <Row label="Spin price">
@@ -280,7 +344,31 @@ export function SpinControls({
         </p>
       ) : null}
 
-      {spin.phase === "error" && spin.error ? (
+      {robZap.phase === "error" && robZap.error ? (
+        <ErrorState
+          className="mt-3"
+          title="ROB swap not completed"
+          description={robZap.error}
+          action={
+            <Button size="sm" variant="secondary" onClick={robZap.reset}>
+              Dismiss
+            </Button>
+          }
+        />
+      ) : zapBusy ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="glass-quiet mt-3 flex items-center gap-2 rounded-xl border px-3 py-2 text-[12.5px] text-ink-2"
+        >
+          <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" aria-hidden="true" />
+          <span>
+            {robZap.phase === "approving"
+              ? "Approve ROB in your wallet — one-time, so the swap can pull it…"
+              : "Swapping ROB for the exact ETH your spin costs…"}
+          </span>
+        </div>
+      ) : spin.phase === "error" && spin.error ? (
         <ErrorState
           className="mt-3"
           title="Spin not sent"
@@ -446,10 +534,22 @@ export function SpinControls({
             className="flex-1"
             onClick={() => {
               setConfirming(false);
-              void spin.spin(perEntryWei);
+              void (async () => {
+                // Paying in ROB: buy the exact ETH first, and only spin if that
+                // succeeds. A failed or rejected swap must not leave a spin
+                // half-attempted — the zap sets its own error and we stop.
+                if (payWith === "rob") {
+                  try {
+                    await robZap.buyEth(perEntryWei * BigInt(spin.quantity));
+                  } catch {
+                    return;
+                  }
+                }
+                await spin.spin(perEntryWei);
+              })();
             }}
           >
-            Confirm &amp; sign
+            {payWith === "rob" ? "Swap ROB & spin" : "Confirm & sign"}
           </Button>
         </div>
       </Dialog>
@@ -469,6 +569,16 @@ export function SpinControls({
       />
     </div>
   );
+}
+
+/**
+ * ROB is an 18-decimal token trading in the thousands per spin, so it reads as
+ * a rounded whole number with thousands separators — decimals here would be
+ * false precision on a spot estimate that the swap resettles anyway.
+ */
+function formatRob(wei: bigint): string {
+  const whole = wei / 1_000_000_000_000_000_000n;
+  return whole.toLocaleString("en-US");
 }
 
 function Row({
