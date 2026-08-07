@@ -142,7 +142,25 @@ contract PublishGenesisLineup is Script {
      */
     uint256 constant RANDOMNESS_SURCHARGE_WEI = 0.0002 ether;
     uint16 constant MAX_ENTRIES_PER_ROUND = 5;
-    uint32 constant ROUND_DURATION = 120;
+    /**
+     * @dev How long a round stays open before it can be closed.
+     *
+     *      Was 120. Measured occupancy is 3.29 seats and most rounds hold one,
+     *      so a round almost never fills — meaning the window is not a chance
+     *      for others to join, it is a fixed wait a lone player sits through
+     *      before anything can happen at all.
+     *
+     *      45 keeps enough overlap for a second and third spin to share a word,
+     *      which is what makes the entropy affordable, while cutting the
+     *      guaranteed wait to a third. Anyone arriving after it closes simply
+     *      opens the next round rather than being turned away.
+     *
+     *      Worth being clear this was the smaller half of the problem. Rounds
+     *      were sitting up to 1,008 seconds past their window waiting for the
+     *      keeper to call closeRound, so shortening the window alone would have
+     *      moved a two minute wait inside a sixteen minute one.
+     */
+    uint32 constant ROUND_DURATION = 45;
     uint16 constant MAX_QUANTITY_PER_TX = 5;
 
     /// 0 = unlimited. Five-per-round still holds, via MAX_ENTRIES_PER_ROUND.

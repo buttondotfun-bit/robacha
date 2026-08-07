@@ -14,6 +14,20 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 /**
+ * Seconds this route may run for.
+ *
+ * Undeclared, it takes the platform default of ten. Every action here waits
+ * for its receipt before starting the next, so four transactions routinely ran
+ * past that and the run was killed partway — which is why round timings came
+ * out anywhere between four seconds and sixteen minutes with no pattern. The
+ * work was never the slow part; the function was being cut off.
+ *
+ * Sixty is the ceiling this plan allows. Worth remembering the cron lesson
+ * here: exceeding a plan limit in configuration does not degrade gracefully.
+ */
+export const maxDuration = 60;
+
+/**
  * Advances rounds that are waiting on somebody to push them along.
  *
  * A spin does not settle itself. The contract deliberately leaves
@@ -69,12 +83,20 @@ const State = {
 const SCAN_DEPTH = 25n;
 const SETTLE_BATCH = 25;
 /**
- * Actions attempted per invocation. Each now waits to be mined, so an
- * unbounded loop could outlive the serverless timeout and be killed
- * mid-sequence. Stopping early is safe: the run is idempotent and the next
- * tick resumes from whatever is still outstanding.
+ * Actions attempted per invocation.
+ *
+ * A round needs three of these to go from paid to paid-out: close, request,
+ * settle. At four per tick the keeper could fully advance barely one round a
+ * minute, so any burst queued behind itself — five spins in a minute took four
+ * minutes to clear, and players read that as the machine being slow when it
+ * was the keeper being rationed.
+ *
+ * Twelve is four rounds a tick, comfortably ahead of observed arrival rate,
+ * and it fits the sixty seconds declared above with room for slow receipts.
+ * Stopping early is still safe: the run is idempotent and the next tick
+ * resumes from whatever is outstanding.
  */
-const MAX_ACTIONS_PER_RUN = 4;
+const MAX_ACTIONS_PER_RUN = 12;
 
 /**
  * Secret for a commitment index, derived rather than stored.
