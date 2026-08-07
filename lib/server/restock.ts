@@ -87,12 +87,47 @@ export async function restockVault(
   send: Send,
 ): Promise<RestockAction[]> {
   const actions: RestockAction[] = [];
-  const buyer = autoBuyer.address as Address | null;
   const router = contracts.feeRouter;
   const registry = contracts.poolRegistry;
 
-  if (!buyer || !router) {
-    return [{ action: "restock", skipped: "auto-buyer or fee router not configured" }];
+  if (!router) {
+    return [{ action: "restock", skipped: "fee router not configured" }];
+  }
+
+  /**
+   * Which buyer, asked of the router.
+   *
+   * `ROBACHA_AUTO_BUYER` named the previous auto-buyer for the whole of the
+   * period after it was redeployed, and the failure was silent in the worst
+   * possible way: the accrual is looked up *per address*, so this read the old
+   * contract's balance, got zero, decided there was nothing to restock, and
+   * reported a clean run. Meanwhile 0.09 ETH of prize money — already earned,
+   * already reserved — piled up against the live buyer while the legendary
+   * tier had no inventory and refunded instead of paying.
+   *
+   * The router is the contract that credits the reserve, so its own
+   * `rewardReserveTreasury` is the address that money is actually sitting
+   * under; nothing else can be right about it. Same reasoning as
+   * `randomnessTreasury` in `entropy-float.ts`, and the same underlying lesson:
+   * a redeployed address in an env var is a step outside the transaction, and
+   * that is the step that gets missed.
+   */
+  const fromRouter = await client
+    .readContract({
+      address: router,
+      abi: ROBACHA_FEE_ROUTER_ABI,
+      functionName: "rewardReserveTreasury",
+    })
+    .catch(() => null);
+
+  const buyer =
+    typeof fromRouter === "string" &&
+    fromRouter !== "0x0000000000000000000000000000000000000000"
+      ? (fromRouter as Address)
+      : (autoBuyer.address as Address | null);
+
+  if (!buyer) {
+    return [{ action: "restock", skipped: "auto-buyer not configured" }];
   }
 
   // 1. Move the accrued reserve out of the router. Accrual is a claim, not a
