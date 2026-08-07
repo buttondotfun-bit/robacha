@@ -25,6 +25,11 @@ export const LOCAL_TOKEN_LOGOS: Record<string, string> = {
   // on Ethereum. The contract here is the bridged representation, so the index
   // has a pair for it but no image.
   "0x0bb40d7fbae7f0c69bc5910c601987dce697d85f": "/tokens/sushi.jpg",
+  // MANCER. Their site renders client-side and exposes no <img>, so this came
+  // from the icon.svg their own page links as its favicon — an asset they
+  // control, not a screenshot or a reconstruction. The index knows all
+  // seventeen of its pairs and carries no image for any of them.
+  "0xc72f232a6869e6cf34dc06129affd07f8a2a246a": "/tokens/mancer.svg",
 };
 
 /** The stored logo for a contract, or null if there is none. */
