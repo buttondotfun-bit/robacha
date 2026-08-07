@@ -9,6 +9,8 @@ import {
   useRef,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
+import { useMounted } from "@/lib/use-mounted";
 import { cn } from "@/lib/utils";
 
 const FOCUSABLE =
@@ -111,7 +113,23 @@ export function Dialog({
 
   const isSheet = variant === "sheet";
 
-  return (
+  /**
+   * Rendered into `document.body` rather than in place.
+   *
+   * A dialog opened from anywhere inside a glass surface would otherwise be
+   * positioned against that surface instead of the viewport: `backdrop-filter`
+   * makes an element the containing block for `position: fixed` descendants,
+   * and every panel, card and nav in this app has one. The mobile menu hit
+   * exactly this and rendered its scrim inside the header bar. Nothing here is
+   * currently mounted under a glass ancestor, which is the only reason this
+   * component has been fine — that is a property of today's call sites, not of
+   * the component, and it silently breaks the first time someone opens a dialog
+   * from inside a card.
+   */
+  const mounted = useMounted();
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open ? (
         <div
@@ -122,7 +140,7 @@ export function Dialog({
           onKeyDown={onKeyDown}
         >
           <motion.div
-            className="absolute inset-0 bg-[rgb(var(--ink-rgb)_/_0.24)] backdrop-blur-[3px]"
+            className="absolute inset-0 bg-[rgb(var(--ink-rgb)_/_0.5)] backdrop-blur-[3px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -146,7 +164,7 @@ export function Dialog({
             }
             transition={{ type: "spring", stiffness: 420, damping: 38, mass: 0.8 }}
             className={cn(
-              "glass-panel glass-reflection glass-highlight relative z-10 flex flex-col outline-none",
+              "glass-modal glass-reflection glass-highlight relative z-10 flex flex-col outline-none",
               isSheet
                 ? "h-full w-full max-w-[460px] rounded-none border-y-0 border-r-0 sm:rounded-l-[32px]"
                 : "max-h-[calc(100dvh-2rem)] w-full max-w-[440px] rounded-[28px]",
@@ -194,6 +212,7 @@ export function Dialog({
           </motion.div>
         </div>
       ) : null}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }

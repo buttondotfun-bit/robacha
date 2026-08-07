@@ -247,6 +247,35 @@
   }
 
   /* ============================================================
+     MODAL SURFACE — the one place legibility outranks translucency
+
+     Every other glass level floats over the page and is *meant* to let it
+     through: that is the whole effect, and those surfaces sit next to content
+     rather than on top of it. A modal is the opposite. It covers the page, it
+     is the only thing the reader is supposed to be reading, and the text
+     behind it is pure interference — the menu rendered its links directly over
+     "My Bag" and the age gate put its three checkboxes on top of body copy.
+
+     Translucent modals also stake legibility on `backdrop-filter`, which is
+     precisely what in-app browsers and older mobile webviews are worst at.
+     There is a fallback below for browsers that admit they lack it, but the
+     bad case is the browser that claims support and composites it weakly —
+     nothing can feature-detect that. So this surface is opaque enough to read
+     on its own, and the blur is decoration on top rather than the thing
+     holding the contrast up.
+
+     Still glass: same edge, same reflection, same shadow. Just not see-through.
+  ============================================================ */
+  .glass-modal {
+    position: relative;
+    background: rgb(var(--surface-rgb) / 0.97);
+    -webkit-backdrop-filter: blur(var(--blur-panel)) saturate(150%);
+    backdrop-filter: blur(var(--blur-panel)) saturate(150%);
+    border: 1px solid var(--glass-edge);
+    box-shadow: var(--shadow-panel);
+  }
+
+  /* ============================================================
      GLASS LEVEL 3 — standard content card
   ============================================================ */
   .glass-card {
@@ -721,6 +750,12 @@
   .glass-quiet,
   .glass-input {
     background: rgb(var(--surface-rgb) / 0.94);
+  }
+  /* Fully opaque here. Elsewhere 0.94 is a reasonable stand-in for glass, but
+     a modal without blur is read against whatever it happens to be covering,
+     and 6% of a headline still shows through as ghosting. */
+  .glass-modal {
+    background: rgb(var(--surface-rgb));
   }
 }
 
