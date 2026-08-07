@@ -65,6 +65,42 @@ const ROUND_SCAN = 25;
 /** A refund for a failed draw is worth shouting about for this long. */
 const REFUND_ALERT_WINDOW_SECONDS = 48 * 3600;
 
+/**
+ * How far back to scan for refund events.
+ *
+ * Blocks are about 0.10s here, so 48h is roughly 1.7m of them; this is a
+ * generous multiple of that, and still a fraction of the chain. The timestamp
+ * filter below is what actually decides the window — this only keeps the query
+ * answerable.
+ */
+const REFUND_SCAN_BLOCKS = 2_500_000n;
+
+/**
+ * The StonkPit entropy adapter's surface, and the conductor's.
+ *
+ * Only what this file reads. The adapter is detected rather than configured:
+ * `randomnessSender` is one env var pointing at whichever source is wired, and
+ * the two implementations answer entirely different questions. Asking the
+ * wrong one does not degrade — it reverts, which took the whole randomness
+ * block down and with it the commitment, missed-reveal and keeper-secret
+ * checks, silently, from the moment the source was switched.
+ */
+const ENTROPY_ADAPTER_ABI = [
+  { type: "function", name: "conductor", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
+  { type: "function", name: "runwayRounds", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  {
+    type: "function", name: "isReady", stateMutability: "view", inputs: [],
+    outputs: [{ type: "bool" }, { type: "string" }],
+  },
+] as const;
+
+const CONDUCTOR_ABI = [
+  { type: "function", name: "liveTapeCount", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+] as const;
+
+/** Below this many rounds of runway the machine is close to closing itself. */
+const MIN_ENTROPY_RUNWAY = 8;
+
 const ROUND_REFUNDABLE = parseAbiItem(
   "event RoundRefundable(uint256 indexed roundId, string reason)",
 );
@@ -268,7 +304,64 @@ export async function GET() {
     failed.push(`stuckRounds: ${error instanceof Error ? error.message : "read failed"}`);
   }
 
-  // ---- 3. Randomness: commitments left, and any reveal missed ----
+  // ---- 3. Randomness ----
+  //
+  // Which source is wired decides what is worth asking. Under commit-reveal the
+  // risks are running out of commitments and failing to reveal; under bought
+  // entropy neither exists — there is nothing to reveal and no commitment
+  // queue — and the risk moves to the float that pays for words and to whether
+  // the mining floor is alive at all.
+  const entropyConductor = await client
+    .readContract({ address: randomness, abi: ENTROPY_ADAPTER_ABI, functionName: "conductor" })
+    .catch(() => null);
+
+  if (entropyConductor) {
+    facts.randomnessSource = "stonkpit";
+    facts.entropyConductor = entropyConductor;
+    try {
+      const [runway, ready, floatWei, tapes] = await Promise.all([
+        client.readContract({ address: randomness, abi: ENTROPY_ADAPTER_ABI, functionName: "runwayRounds" }) as Promise<bigint>,
+        client.readContract({ address: randomness, abi: ENTROPY_ADAPTER_ABI, functionName: "isReady" }) as Promise<readonly [boolean, string]>,
+        client.getBalance({ address: randomness }),
+        client.readContract({ address: entropyConductor as `0x${string}`, abi: CONDUCTOR_ABI, functionName: "liveTapeCount" }).catch(() => null) as Promise<bigint | null>,
+      ]);
+
+      facts.entropyRunwayRounds = Number(runway);
+      facts.entropyFloatWei = floatWei.toString();
+      facts.entropyReady = ready[0];
+      if (tapes !== null) facts.liveTapeCount = Number(tapes);
+
+      // Not ready means the gacha refuses to sell spins. That is the correct
+      // behaviour and also an outage, so it is the loudest thing here.
+      if (!ready[0]) {
+        alerts.push({
+          check: "entropyNotReady",
+          severity: "critical",
+          detail:
+            `the entropy adapter reports not ready — "${ready[1]}". The gacha will refuse to sell ` +
+            "spins until this clears, so the machine is closed to new players.",
+        });
+      } else if (runway < BigInt(MIN_ENTROPY_RUNWAY)) {
+        alerts.push({
+          check: "entropyRunway",
+          severity: "warning",
+          detail:
+            `${runway} rounds of entropy runway left at the fee ceiling, below ${MIN_ENTROPY_RUNWAY}. ` +
+            "Sweep the randomness treasury into the adapter before it closes the machine on its own.",
+        });
+      }
+
+      if (tapes !== null && tapes === 0n) {
+        alerts.push({
+          check: "quietFloor",
+          severity: "critical",
+          detail: "the entropy conductor reports no live mining tapes — requests will revert and rounds cannot draw",
+        });
+      }
+    } catch (error) {
+      failed.push(`entropy: ${error instanceof Error ? error.message : "read failed"}`);
+    }
+  } else
   try {
     const [available, missed] = (await Promise.all([
       client.readContract({
@@ -370,7 +463,13 @@ export async function GET() {
     const logs = await client.getLogs({
       address: gacha,
       event: ROUND_REFUNDABLE,
-      fromBlock: 0n,
+      // Bounded to the window we actually alert on. This scanned from block 0,
+      // which worked when the chain was young and now simply dies: nearly 30m
+      // blocks is past what the node will answer, and the failure surfaced as
+      // "missing or invalid parameters" rather than anything about size. The
+      // alert only ever looks 48h back, so the extra 29m blocks were never
+      // read for a reason.
+      fromBlock: head > REFUND_SCAN_BLOCKS ? head - REFUND_SCAN_BLOCKS : 0n,
       toBlock: head,
     });
 
