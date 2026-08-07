@@ -1,13 +1,12 @@
 /**
  * Collections shown in the NFT-spins teaser reel.
  *
- * Every entry is a real ERC-721 on Robinhood Chain, verified by reading
- * `name()` and `symbol()` from the contract before being written down.
- * Selection is the top collections by holder count on the chain's own
- * explorer, minus two categories that would be dishonest to show:
- * infrastructure NFTs (Uniswap position tokens — huge holder counts, not
- * collectibles) and obvious spam (a collection literally named
- * "# IMPORTANT ALERT" does not go on our site).
+ * Every entry is a real ERC-721 on Robinhood Chain, picked by the operator:
+ * the collections behind tokens already in the live machine (MANCER,
+ * STONKBROKER, CASHCAT) plus PitBoys. Each was named via its OpenSea page,
+ * resolved to an address, and then verified against this chain before being
+ * written down — name(), symbol() and the ERC-721 interface all read back
+ * from the contract itself.
  *
  * These are candidates, not confirmed prizes, and the page says so. The rule
  * is the same one the upcoming-token lineup follows: names may be listed
@@ -23,64 +22,42 @@ export interface NftSpinCandidate {
   address: `0x${string}`;
   name: string;
   symbol: string;
+  /**
+   * A sample of the collection's own artwork, stored locally.
+   *
+   * Each image is what the collection's contract itself serves: tokenURI was
+   * read on chain, the metadata followed to its image — on-chain SVG, IPFS,
+   * or the project's own API — and the result saved here, downscaled where
+   * raster. Stored rather than hotlinked for the usual two reasons: the
+   * artwork cannot change under us, and no third party learns who is looking.
+   * The SVGs were checked for script vectors before being committed.
+   */
+  image: string;
 }
 
 export const NFT_SPIN_CANDIDATES: readonly NftSpinCandidate[] = [
-  // ---- Operator-picked, first in the reel. ----
-  // The collections behind tokens already in the live machine (MANCER,
-  // STONKBROKER, CASHCAT) plus PitBoys. Named by the operator via their
-  // OpenSea pages; the addresses were resolved from those pages and then
-  // verified on this chain — name(), symbol() and the ERC-721 interface all
-  // read back from the contract before being written down.
   {
     address: "0x797A2e030b7E49107C8F07Bf0300EA9caE88ca57",
     name: "Chain Mancers",
+    image: "/nft-collections/chain-mancers.svg",
     symbol: "MANCERS",
   },
   {
     address: "0x539CDd042C2F3d93eBC5bE7DFfF0c79F3b4FABf0",
     name: "StonkBrokers",
+    image: "/nft-collections/stonkbrokers.svg",
     symbol: "STONK",
   },
   {
     address: "0xE3b34C4bb0F12C82143745eEe6A6CF4E3154b1fa",
     name: "CASHCAT",
+    image: "/nft-collections/cashcat.png",
     symbol: "CASHCAT",
   },
   {
     address: "0x57069d845701B50F41327362C1c23789043f8DEc",
     name: "PitBoys",
+    image: "/nft-collections/pitboys.svg",
     symbol: "PITBOY",
-  },
-  // ---- Top of the chain's explorer by holders, after the partners. ----
-  {
-    address: "0x6Ca58412EcA6F46E0A423a43B7E3ECdb2dE578A9",
-    name: "/dev/daemons",
-    symbol: "DAEMON",
-  },
-  {
-    address: "0xAFE255DB0cf73a96977297C9F421EC5676050711",
-    name: "'Much Good for Poor Dogs' by Hood Inu",
-    symbol: "HOODINU",
-  },
-  {
-    address: "0x2ef6501dd3b8Dc4Ffc5F3385902b9E7B3dBead25",
-    name: "Monsters",
-    symbol: "MONSTER",
-  },
-  {
-    address: "0x505Ff588f148721867a8dc61C79DdfD4B22ec318",
-    name: "Green Market Operators",
-    symbol: "GMOP",
-  },
-  {
-    address: "0x34B4Cf2fB036247058c7154499127DD951D47Eaa",
-    name: "Robinhood Distorted",
-    symbol: "RHD",
-  },
-  {
-    address: "0x10D17578E519015A671A553377eA33bf90066f8e",
-    name: "MechVoid",
-    symbol: "MECH",
   },
 ] as const;

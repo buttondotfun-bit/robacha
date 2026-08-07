@@ -6,6 +6,7 @@ import { HowItWorks } from "@/components/landing/HowItWorks";
 import { LivePoolPreview } from "@/components/landing/LivePoolPreview";
 import { NextRelease } from "@/components/landing/NextRelease";
 import { NftPreview } from "@/components/landing/NftPreview";
+import { NftSpinsCallout } from "@/components/nft/NftSpinsCallout";
 import { RewardTiers } from "@/components/landing/RewardTiers";
 import { RobToken } from "@/components/landing/RobToken";
 import { Testimonials } from "@/components/landing/Testimonials";
@@ -26,6 +27,7 @@ export default function LandingPage() {
       <RobToken />
       <NextRelease />
       <NftPreview />
+      <NftSpinsCallout className="-mt-6 pb-4" />
       <WhyRobacha />
       <Testimonials />
       <ActivityPreview />

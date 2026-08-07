@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { explorerUrl } from "@/lib/config";
 import { cn, ringDelta } from "@/lib/utils";
 import { NFT_SPIN_CANDIDATES } from "@/data/nft-spins";
-import { CapsuleGlyph } from "./CapsuleGlyph";
 
 /**
  * The NFT machine's stage — the same fan as the live carousel, turning idly.
@@ -140,15 +139,20 @@ export function NftSpinStage({ className }: { className?: string }) {
                   </span>
                 </div>
 
-                {/* Where the live card shows the token's artwork, this shows a
-                    capsule: no collection image is stored or hotlinked, and an
-                    unopened capsule is the truthful picture of an unrevealed
-                    prize anyway. */}
+                {/* The collection's own artwork — a sample token's image, read
+                    from the contract's tokenURI and stored locally (see
+                    data/nft-spins.ts). A plain img rather than next/image:
+                    half of these are on-chain SVGs, which the optimizer
+                    refuses without dangerouslyAllowSVG, and a 320px local
+                    file gains nothing from it anyway. */}
                 <div className="relative px-2.5 pt-2">
                   <div className="grid aspect-square w-full place-items-center overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.8)] bg-[radial-gradient(circle_at_50%_38%,rgb(var(--rarity-glow)_/_0.22),transparent_72%)] shadow-[0_4px_12px_-6px_rgb(var(--ink-rgb)_/_0.32)]">
-                    <CapsuleGlyph
-                      id={`stage-${index}`}
-                      className="capsule-float h-[52%] w-[52%] drop-shadow-[0_10px_22px_rgb(var(--rarity-glow)_/_0.4)]"
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={candidate.image}
+                      alt={`Sample artwork from ${candidate.name}`}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { Lock } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, Lock } from "lucide-react";
 import { PageContainer, Pill, SectionHeader } from "@/components/shared/primitives";
 
 /**
@@ -17,7 +18,15 @@ import { PageContainer, Pill, SectionHeader } from "@/components/shared/primitiv
  * honest picture of "nothing here yet", and every card still says so in words —
  * the tone is excited, the claim is not.
  */
-const UPCOMING = [
+const UPCOMING: { name: string; theme: string; href?: string }[] = [
+  {
+    // The one machine on this list with a page of its own — it has a public
+    // teaser with a real candidate reel, so its card links out where the
+    // others stay sealed.
+    name: "NFT spins",
+    theme: "Same spin, but the capsule holds an NFT from a top Robinhood Chain collection.",
+    href: "/nft-spins",
+  },
   {
     name: "Blue chip machine",
     theme: "The big names on Robinhood Chain. Bigger pulls, bigger price.",
@@ -87,9 +96,19 @@ export function UpcomingMachines({
                 {m.name}
               </h3>
               <p className="mt-1.5 text-[12.5px] leading-relaxed text-ink-2">{m.theme}</p>
-              <p className="mt-3 border-t border-[rgb(var(--line-rgb)_/_0.07)] pt-3 text-[11.5px] text-ink-3">
-                Nothing loaded in yet.
-              </p>
+              {m.href ? (
+                <Link
+                  href={m.href}
+                  className="mt-3 inline-flex items-center gap-1 border-t border-[rgb(var(--line-rgb)_/_0.07)] pt-3 text-[11.5px] font-medium text-accent-ink underline decoration-dotted underline-offset-2"
+                >
+                  See the teaser
+                  <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                </Link>
+              ) : (
+                <p className="mt-3 border-t border-[rgb(var(--line-rgb)_/_0.07)] pt-3 text-[11.5px] text-ink-3">
+                  Nothing loaded in yet.
+                </p>
+              )}
             </li>
           ))}
         </ul>
@@ -122,6 +141,9 @@ function UpcomingStrip() {
             key={m.name}
             className="relative overflow-hidden rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.04)] px-3 py-3"
           >
+            {m.href ? (
+              <Link href={m.href} className="absolute inset-0 z-10" aria-label={`${m.name} teaser`} />
+            ) : null}
             {/* Same idea as the full cards: shapes, not numbers. */}
             <div aria-hidden="true" className="absolute inset-0 blur-[6px]">
               <span className="absolute left-3 top-3 h-6 w-6 rounded-lg bg-[rgb(var(--ink-rgb)_/_0.14)]" />
