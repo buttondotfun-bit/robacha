@@ -20,10 +20,6 @@ import { autoBuyer } from "@/lib/env/server";
  * swap is skipped: stalling a restock is recoverable, being sandwiched is not.
  */
 
-/** Uniswap V2 router and WETH, hardcoded in RobachaAutoBuyer. */
-const SWAP_ROUTER = "0x89e5DB8B5aA49aA85AC63f691524311AEB649eba" as const;
-const WETH = "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73" as const;
-
 /** Don't bother moving dust; gas would eat it. */
 const MIN_WITHDRAW_WEI = 1_000_000_000_000_000n; // 0.001 ETH
 const MIN_SPEND_WEI = 1_000_000_000_000_000n; // 0.001 ETH
@@ -44,19 +40,6 @@ const AUTO_BUYER_ABI = [
       { name: "minAmountOut", type: "uint256" },
     ],
     outputs: [{ type: "uint256" }],
-  },
-] as const;
-
-const V2_ROUTER_ABI = [
-  {
-    type: "function",
-    name: "getAmountsOut",
-    stateMutability: "view",
-    inputs: [
-      { name: "amountIn", type: "uint256" },
-      { name: "path", type: "address[]" },
-    ],
-    outputs: [{ type: "uint256[]" }],
   },
 ] as const;
 
@@ -195,17 +178,33 @@ export async function restockVault(
   }
 
   // 4. Quote, then floor. A zero floor is an unprotected market buy.
+  //
+  //    Quoted by simulating the real call rather than by asking the V2 router.
+  //    The buyer routes per token now — V2, V3, the legacy SwapRouter, or the
+  //    V4 singleton — and `getAmountsOut` only knows V2, so for every token
+  //    whose liquidity is anywhere else the quote threw and restock skipped
+  //    with "no usable quote". That is what left MANCER, a V3 route, unfunded
+  //    while the ETH to buy it sat in the buyer: the withdraw half of the loop
+  //    ran every minute and the spend half could never fire.
+  //
+  //    `swapAndFund` returns `amountOut`, so an `eth_call` against it with a
+  //    zero floor reports exactly what the swap would yield, through whatever
+  //    venue that token is actually routed to. Nothing is sent — the zero floor
+  //    exists only inside the simulation, and the real call below carries the
+  //    derived one. It also stays correct through the next routing change,
+  //    which a hardcoded venue would not.
   let minOut: bigint;
   try {
-    const amounts = (await client.readContract({
-      address: SWAP_ROUTER,
-      abi: V2_ROUTER_ABI,
-      functionName: "getAmountsOut",
-      args: [spend, [WETH, target]],
-    })) as readonly bigint[];
+    const { result } = await client.simulateContract({
+      address: buyer,
+      abi: AUTO_BUYER_ABI,
+      functionName: "swapAndFund",
+      args: [target, 3000, spend, 0n],
+      account,
+    });
 
-    const quoted = amounts[amounts.length - 1];
-    if (quoted === 0n) throw new Error("router quoted zero");
+    const quoted = result as bigint;
+    if (quoted === 0n) throw new Error("simulation returned zero out");
     minOut = (quoted * (10_000n - SLIPPAGE_BPS)) / 10_000n;
   } catch (error) {
     actions.push({
