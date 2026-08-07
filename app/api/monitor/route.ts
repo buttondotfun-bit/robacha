@@ -9,6 +9,7 @@ import {
 import { ACTIVE_POOL_ID, contracts } from "@/lib/config";
 import { keeper } from "@/lib/env/server";
 import { publicClient } from "@/lib/server/chain";
+import { activeRandomnessAdapter } from "@/lib/server/randomness-adapter";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -173,7 +174,7 @@ export async function GET() {
   const facts: Record<string, unknown> = {};
   const failed: string[] = [];
 
-  if (!contracts.gacha || !contracts.randomnessSender || !contracts.poolRegistry) {
+  if (!contracts.gacha || !contracts.poolRegistry) {
     return NextResponse.json(
       { status: "unknown", reason: "contracts not configured", alerts: [], checkedAt: new Date().toISOString() },
       { status: 503, headers: { "Cache-Control": "no-store" } },
@@ -181,9 +182,19 @@ export async function GET() {
   }
 
   const gacha = contracts.gacha;
-  const randomness = contracts.randomnessSender;
   const registry = contracts.poolRegistry;
   const client = publicClient();
+
+  // Asked of the gacha, not of configuration — see `activeRandomnessAdapter`.
+  // A monitor pointed at a retired adapter reports its emptiness as an outage.
+  const randomness = await activeRandomnessAdapter(client);
+  if (!randomness) {
+    return NextResponse.json(
+      { status: "unknown", reason: "contracts not configured", alerts: [], checkedAt: new Date().toISOString() },
+      { status: 503, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+  facts.randomnessAdapter = randomness;
   const nowSeconds = Math.floor(Date.now() / 1000);
 
   // ---- 1. Can the keeper still pay for its own transactions? ----

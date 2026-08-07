@@ -7,6 +7,7 @@ import { keccak256, encodeAbiParameters } from "viem";
 import { chainConfig, contracts } from "@/lib/config";
 import { keeper, rpc } from "@/lib/env/server";
 import { publicClient, robinhoodChain } from "@/lib/server/chain";
+import { activeRandomnessAdapter } from "@/lib/server/randomness-adapter";
 import { sweepEntropyFloat } from "@/lib/server/entropy-float";
 import { restockVault } from "@/lib/server/restock";
 
@@ -260,7 +261,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    const randomnessSender = contracts.randomnessSender as Address;
+    // The gacha names the adapter; configuration has been stale before, and a
+    // write aimed at a retired contract is a transaction to the wrong address.
+    // See `activeRandomnessAdapter`.
+    const randomnessSender = await activeRandomnessAdapter(client);
 
     if (randomnessSender) {
       try {

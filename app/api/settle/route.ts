@@ -8,6 +8,7 @@ import {
 import { chainConfig, contracts } from "@/lib/config";
 import { keeper, rpc } from "@/lib/env/server";
 import { publicClient, robinhoodChain } from "@/lib/server/chain";
+import { activeRandomnessAdapter } from "@/lib/server/randomness-adapter";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
   if (!Number.isInteger(roundId) || roundId <= 0) {
     return NextResponse.json({ error: "roundId required" }, { status: 400 });
   }
-  if (!contracts.gacha || !contracts.randomnessSender) {
+  if (!contracts.gacha) {
     return NextResponse.json({ error: "contracts not configured" }, { status: 503 });
   }
   const rawKey = keeper.privateKey?.trim();
@@ -76,8 +77,14 @@ export async function POST(request: Request) {
   }
 
   const gacha = contracts.gacha as Address;
-  const randomness = contracts.randomnessSender as Address;
   const client = publicClient();
+  // Read from the gacha rather than from configuration — a reveal aimed at a
+  // retired adapter is a transaction sent to the wrong contract. See
+  // `activeRandomnessAdapter`.
+  const randomness = await activeRandomnessAdapter(client);
+  if (!randomness) {
+    return NextResponse.json({ error: "contracts not configured" }, { status: 503 });
+  }
   const account = privateKeyToAccount(rawKey as `0x${string}`);
   const wallet = createWalletClient({
     account,

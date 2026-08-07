@@ -3,9 +3,29 @@ import { ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI, ROBACHA_GACHA_ABI } from "@/lib/a
 import { ACTIVE_POOL_ID, chainConfig, configSummary, contracts } from "@/lib/config";
 import { database, keeper, serverEnvSummary } from "@/lib/env/server";
 import { hasArchiveRpc, publicClient, usingFallbackRpc } from "@/lib/server/chain";
+import {
+  activeRandomnessAdapter,
+  activeRandomnessReceiver,
+} from "@/lib/server/randomness-adapter";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+/**
+ * The StonkPit entropy adapter's surface, and only what this file reads.
+ *
+ * `conductor` doubles as the detector: the commit-reveal contract has no such
+ * function, so a successful call identifies the implementation before anything
+ * implementation-specific is asked of it.
+ */
+const ENTROPY_ADAPTER_ABI = [
+  { type: "function", name: "conductor", stateMutability: "view", inputs: [], outputs: [{ type: "address" }] },
+  { type: "function", name: "runwayRounds", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  {
+    type: "function", name: "isReady", stateMutability: "view", inputs: [],
+    outputs: [{ type: "bool" }, { type: "string" }],
+  },
+] as const;
 
 /**
  * Production health.
@@ -31,6 +51,19 @@ export async function GET() {
     string,
     { ok: boolean; required: boolean; detail?: string }
   > = {};
+
+  /**
+   * The adapter the gacha actually routes to.
+   *
+   * Resolved once and used for both the readiness check and the published
+   * contract map. The map is what the docs page renders as "verify this
+   * address", so serving it from configuration means a stale env var puts a
+   * retired contract in front of players as the thing securing their draw.
+   */
+  const [activeRandomness, activeReceiver] = await Promise.all([
+    activeRandomnessAdapter(publicClient()).catch(() => contracts.randomnessSender ?? null),
+    activeRandomnessReceiver(publicClient()).catch(() => contracts.randomnessReceiver ?? null),
+  ]);
 
   // ---- 1. RPC reachable and on the expected chain ----
   let headBlock: number | null = null;
@@ -158,39 +191,64 @@ export async function GET() {
 
     if (!ok) {
       detail = `not configured: ${missing.join(", ")} unset`;
-    } else if (!contracts.randomnessSender) {
-      ok = false;
-      detail = "randomness contract address is not configured";
     } else {
-      try {
-        const rpc = publicClient();
-        const [available, bond, ready] = (await Promise.all([
-          rpc.readContract({
-            address: contracts.randomnessSender,
-            abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
-            functionName: "availableCommitments",
-          }),
-          rpc.readContract({
-            address: contracts.randomnessSender,
-            abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
-            functionName: "bond",
-          }),
-          rpc.readContract({
-            address: contracts.randomnessSender,
-            abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
-            functionName: "isReady",
-          }),
-        ])) as [bigint, bigint, readonly [boolean, string]];
+      const rpc = publicClient();
+      const randomness = activeRandomness;
 
-        const commitments = Number(available);
-        const reason = ready[1];
-        ok = ready[0] && commitments > 0;
-        detail = ok
-          ? `configured; ${commitments} commitments queued, bond ${bond.toString()} wei`
-          : `randomness not ready: ${reason || "unknown"}; ${commitments} commitments queued`;
-      } catch (error) {
+      if (!randomness) {
         ok = false;
-        detail = error instanceof Error ? error.message : "randomness read failed";
+        detail = "randomness contract address is not configured";
+      } else {
+        try {
+          // Which implementation is wired? Only the StonkPit adapter answers
+          // `conductor`, and the two share no other surface — every reading
+          // below is specific to one of them, so asking the wrong one reverts
+          // rather than degrades. That is what made this check report a raw
+          // revert string from the moment the source was switched.
+          const conductor = await rpc
+            .readContract({ address: randomness, abi: ENTROPY_ADAPTER_ABI, functionName: "conductor" })
+            .catch(() => null);
+
+          if (conductor) {
+            const [runway, ready, float] = (await Promise.all([
+              rpc.readContract({ address: randomness, abi: ENTROPY_ADAPTER_ABI, functionName: "runwayRounds" }),
+              rpc.readContract({ address: randomness, abi: ENTROPY_ADAPTER_ABI, functionName: "isReady" }),
+              rpc.getBalance({ address: randomness }),
+            ])) as [bigint, readonly [boolean, string], bigint];
+
+            ok = ready[0];
+            detail = ok
+              ? `configured; StonkPit entropy, ${runway.toString()} rounds of runway, float ${float.toString()} wei`
+              : `randomness not ready: ${ready[1] || "unknown"}; ${runway.toString()} rounds of runway`;
+          } else {
+            const [available, bond, ready] = (await Promise.all([
+              rpc.readContract({
+                address: randomness,
+                abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+                functionName: "availableCommitments",
+              }),
+              rpc.readContract({
+                address: randomness,
+                abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+                functionName: "bond",
+              }),
+              rpc.readContract({
+                address: randomness,
+                abi: ROBACHA_COMMIT_REVEAL_RANDOMNESS_ABI,
+                functionName: "isReady",
+              }),
+            ])) as [bigint, bigint, readonly [boolean, string]];
+
+            const commitments = Number(available);
+            ok = ready[0] && commitments > 0;
+            detail = ok
+              ? `configured; ${commitments} commitments queued, bond ${bond.toString()} wei`
+              : `randomness not ready: ${ready[1] || "unknown"}; ${commitments} commitments queued`;
+          }
+        } catch (error) {
+          ok = false;
+          detail = error instanceof Error ? error.message : "randomness read failed";
+        }
       }
     }
 
@@ -223,7 +281,14 @@ export async function GET() {
       chainId: chainConfig.id,
       headBlock,
       checks,
-      contracts: config.contracts,
+      // Both randomness entries are one contract in the current design, and
+      // both are overridden with what the gacha names rather than what the
+      // environment claims.
+      contracts: {
+        ...config.contracts,
+        ...(activeRandomness ? { randomnessSender: activeRandomness } : {}),
+        ...(activeReceiver ? { randomnessReceiver: activeReceiver } : {}),
+      },
       contractsDeployed: deployed,
       server,
       checkedAt: new Date().toISOString(),
