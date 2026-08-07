@@ -67,14 +67,14 @@ export const metadata: Metadata = {
     title: OG_TITLE,
     description: "The memecoin gacha built for Robinhood Chain.",
     url: "/",
-    // Replace with a rendered 1200×630 card before launch.
-    images: [{ url: "/brand/og.svg", width: 1200, height: 630, alt: "ROBACHA" }],
+    // Rendered by /api/og-card — a PNG, because X refuses SVG card images.
+    images: [{ url: "/api/og-card", width: 1200, height: 630, alt: "ROBACHA" }],
   },
   twitter: {
     card: "summary_large_image",
     title: OG_TITLE,
     description: "Spin, pull and discover trending tokens across Robinhood Chain.",
-    images: ["/brand/og.svg"],
+    images: ["/api/og-card"],
     // Add the project handle once a real account exists. None is invented here.
   },
   robots: { index: true, follow: true },
