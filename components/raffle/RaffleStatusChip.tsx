@@ -56,6 +56,58 @@ export function RaffleStatusChip({ className }: { className?: string }) {
 }
 
 /**
+ * A compact live-status line for the detail hero: a gently pulsing dot, the
+ * state, and the time left — all from the contract's own timestamps, never a
+ * frontend-only clock started on page load.
+ */
+export function RaffleStatusLine({ className }: { className?: string }) {
+  const raffle = useRaffle();
+  const now = useSecondsTick();
+
+  let dot = false;
+  let label = "Opening soon";
+  let time: string | null = null;
+
+  if (raffle.configured && raffle.state !== null) {
+    const msLeft = raffle.closesAt !== null ? raffle.closesAt * 1000 - now : 0;
+    if (raffle.state === RaffleState.Open && msLeft > 0) {
+      dot = true;
+      label = "Live";
+      const h = Math.floor(msLeft / 3_600_000);
+      const m = Math.floor((msLeft % 3_600_000) / 60_000);
+      time = `${h}h ${String(m).padStart(2, "0")}m remaining`;
+    } else if (raffle.state === RaffleState.AwaitingDraw) {
+      label = "Sold out · drawing";
+    } else if (raffle.state === RaffleState.Complete) {
+      label = "Winner drawn";
+    } else if (raffle.state === RaffleState.Refundable) {
+      label = "Refunds open";
+    } else {
+      label = "Closed";
+    }
+  }
+
+  return (
+    <div className={cn("flex items-center gap-2 text-[12px]", className)}>
+      <span className="inline-flex items-center gap-1.5 font-semibold uppercase tracking-wide text-ink-2">
+        {dot ? (
+          <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-[#8ec500]" aria-hidden="true" />
+        ) : (
+          <Ticket className="h-3 w-3 text-ink-3" aria-hidden="true" />
+        )}
+        {label}
+      </span>
+      {time ? (
+        <>
+          <span className="text-ink-3" aria-hidden="true">·</span>
+          <span className="num tabular-nums text-ink-3">{time}</span>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/**
  * The cross-chain / trust note under the outcomes, swapped for the live state.
  *
  * Before a raffle exists it says tickets aren't on sale yet; once one is
