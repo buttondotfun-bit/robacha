@@ -118,6 +118,13 @@ export const contracts = {
     "0x8BEe0584c4932fAEdcB0084844F328606cC95AaC",
     "RobachaRaffle",
   ),
+  // The permissionless NFT-raffle launchpad. Read from the env var: unset until
+  // the hub is deployed, at which point the launchpad opens. Until then every
+  // launchpad surface degrades to an honest "not live yet" state.
+  raffleHub: readAddress(
+    process.env.NEXT_PUBLIC_ROBACHA_RAFFLE_HUB_ADDRESS,
+    "NEXT_PUBLIC_ROBACHA_RAFFLE_HUB_ADDRESS",
+  ),
 } as const;
 
 /**
