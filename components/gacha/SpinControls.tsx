@@ -157,26 +157,26 @@ export function SpinControls({
 
   return (
     <div className={cn("flex flex-col", className)}>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[13px] font-semibold tracking-[-0.02em]">How many spins?</p>
-        <div className="flex items-center gap-2">
-          <span className="num text-[12px] text-ink-2">
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <p className="text-[15px] font-semibold tracking-[-0.02em]">Spin the machine</p>
+          <p className="num mt-0.5 text-[12px] text-ink-3">
             {baseWei > 0n ? `${money.format(perEntryWei)} / spin` : "Price unavailable"}
-          </span>
-          <CurrencyToggle />
+          </p>
         </div>
+        <CurrencyToggle />
       </div>
 
       {walletCap.cap > 0 && wallet.isConnected ? (
-        <p className="mt-1.5 text-[11.5px] text-ink-3">
+        <p className="mt-2 text-[11.5px] text-ink-3">
           {walletCap.exhausted
             ? `You've used all ${walletCap.cap} of your spins on this pool.`
             : `${walletCap.remaining} of ${walletCap.cap} spins left on this pool.`}
         </p>
       ) : null}
 
+      <p className="micro mb-1.5 mt-4">How many spins?</p>
       <QuantitySelector
-        className="mt-3"
         value={spin.quantity}
         onChange={spin.setQuantity}
         // Never offer more than the wallet could actually buy.
@@ -268,18 +268,19 @@ export function SpinControls({
       </dl>
 
       {pool ? (
-        <dl className="mt-3 space-y-1.5 rounded-2xl bg-[rgb(var(--ink-rgb)_/_0.03)] p-3 text-[11.5px]">
-          <p className="micro mb-1.5">Where your spin price goes</p>
-          <Row small label="Into prizes">
-            {(pool.rewardReserveBps / 100).toFixed(2)}%
-          </Row>
-          <Row small label="To ROBACHA">
-            {(pool.protocolFeeBps / 100).toFixed(2)}%
-          </Row>
-          <Row small label="Running costs">
-            {(pool.operationsFeeBps / 100).toFixed(2)}%
-          </Row>
-        </dl>
+        <div className="mt-3 rounded-2xl bg-[rgb(var(--ink-rgb)_/_0.03)] p-3">
+          <p className="micro mb-2">Where your spin price goes</p>
+          <div className="flex h-2 w-full overflow-hidden rounded-full" aria-hidden="true">
+            <span className="h-full bg-[#8ec500]" style={{ width: `${pool.rewardReserveBps / 100}%` }} />
+            <span className="h-full bg-[rgb(var(--ink-rgb)_/_0.28)]" style={{ width: `${pool.protocolFeeBps / 100}%` }} />
+            <span className="h-full bg-[rgb(var(--ink-rgb)_/_0.14)]" style={{ width: `${pool.operationsFeeBps / 100}%` }} />
+          </div>
+          <ul className="mt-2 flex flex-wrap gap-x-3.5 gap-y-1 text-[11px] text-ink-2">
+            <Alloc dot="bg-[#8ec500]" label="Prizes" bps={pool.rewardReserveBps} />
+            <Alloc dot="bg-[rgb(var(--ink-rgb)_/_0.28)]" label="Robacha" bps={pool.protocolFeeBps} />
+            <Alloc dot="bg-[rgb(var(--ink-rgb)_/_0.14)]" label="Operations" bps={pool.operationsFeeBps} />
+          </ul>
+        </div>
       ) : null}
 
       <dl className="mt-3 space-y-2 text-[13px]">
@@ -304,14 +305,22 @@ export function SpinControls({
         ) : null}
       </dl>
 
-      <p className="mt-3 text-[11.5px] leading-relaxed text-ink-3">
-        Every spin has the same odds shown above — one pull never changes the
-        next. Your round closes before any number is drawn, and the number is
-        then folded from mining work that hasn&rsquo;t happened yet, so nobody
-        knows it while you can still enter. Yours is mixed with your own
-        address, so everyone in a round draws separately. Token values go up
-        and down.
-      </p>
+      {/* Kept in full, but collapsed by default so the console reads at a
+          glance. The honesty stays one tap away rather than as a wall of text. */}
+      <details className="group mt-3">
+        <summary className="flex cursor-pointer list-none items-center gap-1.5 text-[11.5px] font-medium text-ink-2 hover:text-ink">
+          <span>How spins stay fair</span>
+          <span className="text-ink-3 transition-transform group-open:rotate-180" aria-hidden="true">⌄</span>
+        </summary>
+        <p className="mt-2 text-[11.5px] leading-relaxed text-ink-3">
+          Every spin has the same odds shown above — one pull never changes the
+          next. Your round closes before any number is drawn, and the number is
+          then folded from mining work that hasn&rsquo;t happened yet, so nobody
+          knows it while you can still enter. Yours is mixed with your own
+          address, so everyone in a round draws separately. Token values go up
+          and down.
+        </p>
+      </details>
 
       {gachaLink || vaultLink ? (
         <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-ink-3">
@@ -579,6 +588,17 @@ export function SpinControls({
 function formatRob(wei: bigint): string {
   const whole = wei / 1_000_000_000_000_000_000n;
   return whole.toLocaleString("en-US");
+}
+
+/** One legend item under the allocation bar: dot + label + real percentage. */
+function Alloc({ dot, label, bps }: { dot: string; label: string; bps: number }) {
+  const pct = bps / 100;
+  return (
+    <li className="flex items-center gap-1.5">
+      <span className={cn("h-2 w-2 rounded-full", dot)} aria-hidden="true" />
+      {label} <span className="num text-ink">{pct % 1 === 0 ? pct.toFixed(0) : pct.toFixed(2)}%</span>
+    </li>
+  );
 }
 
 function Row({
