@@ -1,12 +1,11 @@
 import { ActivityPreview } from "@/components/landing/ActivityPreview";
+import { EcosystemMap } from "@/components/landing/EcosystemMap";
 import { FaqPreview } from "@/components/landing/FaqPreview";
 import { FinalCta } from "@/components/landing/FinalCta";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { LivePoolPreview } from "@/components/landing/LivePoolPreview";
-import { NextRelease } from "@/components/landing/NextRelease";
 import { NftPreview } from "@/components/landing/NftPreview";
-import { NftSpinsCallout } from "@/components/nft/NftSpinsCallout";
 import { RafflePromo } from "@/components/raffle/RafflePromo";
 import { PageContainer } from "@/components/shared/primitives";
 import { RewardTiers } from "@/components/landing/RewardTiers";
@@ -15,31 +14,61 @@ import { Testimonials } from "@/components/landing/Testimonials";
 import { TokenLineup } from "@/components/landing/TokenLineup";
 import { WhyRobacha } from "@/components/landing/WhyRobacha";
 
+/**
+ * The homepage, ordered as one story rather than a list of features:
+ *
+ *   hero → live raffle → how it works → odds + pool → inside the machine →
+ *   the real $ROB → Capsules → the wider ecosystem → why it's a discovery
+ *   machine → word of mouth → live activity → the closing spin → the FAQ.
+ *
+ * Capsules sit mid-page (a major expansion shouldn't arrive last), the closing
+ * CTA lands before the FAQ tail rather than after it, and the old "next
+ * release" teaser and NFT-spins callout are folded into one ecosystem map so
+ * the expansion is told once.
+ */
 export default function LandingPage() {
   return (
     <>
       <Hero />
-      {/* Live Meebit raffle, front and centre for arriving visitors. Renders
-          nothing whenever no raffle is open, so the funnel stays clean. */}
+
+      {/* Live Meebit raffle as a slim cross-product rail, not a second hero.
+          Renders nothing when no raffle is open, so the funnel stays clean. */}
       <PageContainer width="wide" className="pb-2">
-        <RafflePromo variant="banner" />
+        <RafflePromo variant="bar" />
       </PageContainer>
+
       <HowItWorks />
+
+      {/* Odds then the live pool they belong to — read together as "here are
+          the tiers, here's what's actually inside". */}
       <RewardTiers />
       <LivePoolPreview />
+
+      {/* Inside the machine — the loaded assets as a compact strip. */}
       <TokenLineup />
-      {/* Sits right after the lineup: both answer "which contract is the real
-          one", and someone who has just read four reward-token addresses is
-          already in the habit of checking. */}
+
+      {/* The real $ROB: contract, utility and burn in one transparency beat. */}
       <RobToken />
-      <NextRelease />
+
+      {/* Capsules — the collectible expansion, mid-page rather than buried. */}
       <NftPreview />
-      <NftSpinsCallout className="-mt-6 pb-4" />
+
+      {/* One machine, the ways to play it, each with its real status. */}
+      <EcosystemMap />
+
+      {/* The positioning: a discovery machine, not a lottery. */}
       <WhyRobacha />
+
+      {/* Real, public, linked quotes — self-hides when there are none. */}
       <Testimonials />
+
+      {/* Live on-chain activity: the strongest proof the machine is running. */}
       <ActivityPreview />
-      <FaqPreview />
+
+      {/* The closing spin, before the FAQ tail. */}
       <FinalCta />
+
+      <FaqPreview />
     </>
   );
 }
