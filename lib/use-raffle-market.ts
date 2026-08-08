@@ -6,9 +6,9 @@ import { RaffleState, useRaffle, type RaffleView } from "./use-raffle";
 import { useHubRaffles, type HubRaffle } from "./use-raffle-hub";
 
 /**
- * One read of the whole raffle market: the platform's featured Meebit raffle
- * (its own `RobachaRaffle` contract) and every community raffle on the hub,
- * plus a few headline figures derived from them.
+ * One read of the whole raffle market: the platform's featured raffle (its own
+ * `RobachaRaffle` contract — currently the Chimpers #2272 draw) and every
+ * community raffle on the hub, plus a few headline figures derived from them.
  *
  * Nothing here is invented. Each stat is a straight aggregate of contract
  * state — counts of raffles in a given state, a sum of tickets sold — so the
@@ -29,7 +29,8 @@ export interface RaffleMarketStats {
 }
 
 export interface RaffleMarket {
-  meebit: RaffleView;
+  /** The platform's own featured raffle (its standalone `RobachaRaffle`). */
+  featured: RaffleView;
   community: HubRaffle[];
   communityConfigured: boolean;
   stats: RaffleMarketStats;
@@ -37,32 +38,32 @@ export interface RaffleMarket {
 }
 
 export function useRaffleMarket(): RaffleMarket {
-  const meebit = useRaffle();
+  const featured = useRaffle();
   const { raffles, configured: communityConfigured, isLoading: communityLoading } = useHubRaffles();
 
   const stats = useMemo<RaffleMarketStats>(() => {
-    const meebitLive = meebit.configured && meebit.state === RaffleState.Open ? 1 : 0;
-    const meebitSold = meebit.ticketsSold ?? 0;
-    const meebitAwarded = meebit.winner ? 1 : 0;
-    const meebitExists = meebit.configured ? 1 : 0;
+    const featuredLive = featured.configured && featured.state === RaffleState.Open ? 1 : 0;
+    const featuredSold = featured.ticketsSold ?? 0;
+    const featuredAwarded = featured.winner ? 1 : 0;
+    const featuredExists = featured.configured ? 1 : 0;
 
     const communityLive = raffles.filter((r) => r.state === HubRaffleState.Open).length;
     const communitySold = raffles.reduce((sum, r) => sum + r.ticketsSold, 0);
     const communityAwarded = raffles.filter((r) => r.state === HubRaffleState.Complete).length;
 
     return {
-      liveRaffles: meebitLive + communityLive,
-      ticketsSold: meebitSold + communitySold,
-      nftsAwarded: meebitAwarded + communityAwarded,
-      totalRaffles: meebitExists + raffles.length,
+      liveRaffles: featuredLive + communityLive,
+      ticketsSold: featuredSold + communitySold,
+      nftsAwarded: featuredAwarded + communityAwarded,
+      totalRaffles: featuredExists + raffles.length,
     };
-  }, [meebit.configured, meebit.state, meebit.ticketsSold, meebit.winner, raffles]);
+  }, [featured.configured, featured.state, featured.ticketsSold, featured.winner, raffles]);
 
   return {
-    meebit,
+    featured,
     community: raffles,
     communityConfigured,
     stats,
-    isLoading: meebit.isLoading || communityLoading,
+    isLoading: featured.isLoading || communityLoading,
   };
 }

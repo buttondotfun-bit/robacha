@@ -36,7 +36,7 @@ export function ShareRaffle() {
   }
 
   const tweet = `https://x.com/intent/tweet?text=${encodeURIComponent(
-    "I'm entering the Meebit raffle on @robachadotfun 🎰\n\n200 tickets. One Meebit.",
+    "I'm entering the Chimpers raffle on @robachadotfun 🎰\n\n200 tickets. One Chimper.",
   )}&url=${encodeURIComponent(url())}`;
 
   return (

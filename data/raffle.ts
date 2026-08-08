@@ -1,5 +1,5 @@
 /**
- * The Meebit raffle, before its ticket mechanism exists.
+ * The Chimpers raffle, before its ticket mechanism exists.
  *
  * Everything here is a rule, in one file, the same discipline the NFT drop
  * follows: the terms are fixed and quotable, and no number appears that a
@@ -9,7 +9,7 @@
  * exactly the manufactured-progress trick this project does not use.
  *
  * The prize lives on Ethereum and the platform on Robinhood Chain, so whatever
- * mechanism sells tickets, the Meebit itself is delivered by hand across
+ * mechanism sells tickets, the Chimper itself is delivered by hand across
  * chains. That is stated plainly on the page rather than buried — it is the
  * one part of this that cannot be made trustless, and pretending otherwise
  * would be worse than owning it.
@@ -21,45 +21,57 @@ export interface RaffleRule {
   hint?: string;
 }
 
-/** The prize. A real collection; the figures are marked as references, not quotes. */
+/**
+ * The prize — one specific Chimper (token #2272), not a stand-in for the
+ * collection. Its actual token artwork is shown on the page.
+ */
 export const RAFFLE_PRIZE = {
-  name: "1 Meebit",
-  collection: "Meebits",
+  name: "Chimper #2272",
+  collection: "Chimpers",
   chain: "Ethereum",
-  /**
-   * The official Meebits brand mark, supplied by the operator. It stands for
-   * the collection rather than claiming to be the specific prize token — the
-   * exact Meebit is shown at the draw, which the page's caption says.
-   */
-  image: "/meebit-logo.png",
-  /** The canonical Meebits contract on Ethereum, for anyone verifying the collection. */
-  contract: "0x7Bd29408f11D2bFC23c34f18275bBf23bB716Bc7",
+  /** The exact token being raffled. */
+  tokenId: "2272",
+  /** The real artwork for token #2272, the prize itself. */
+  image: "/chimper-2272.png",
+  /** The canonical Chimpers contract on Ethereum, for anyone verifying the collection. */
+  contract: "0x307af7d28afee82092aa95d35644898311ca5360",
 } as const;
 
 /**
- * Collection stats, snapshotted from OpenSea with the date they were read.
- *
- * A floor and a volume move by the minute, and this file is not a price feed —
- * so each is stamped "as of" and the page links to OpenSea for the live number
- * rather than pretending this one is current. The same honesty the rest of the
- * site keeps by reading from chain; here the chain is Ethereum and the source
- * is OpenSea, so it is a dated snapshot, said to be one.
+ * Collection facts. Supply is a fixed property of the collection (5,555) and is
+ * stated. Floor, volume and owners move by the minute and this file is not a
+ * price feed, so rather than quote a stale snapshot they are left null and the
+ * page links to OpenSea for the live numbers. The same honesty the rest of the
+ * site keeps by reading from chain; here the chain is Ethereum, so only what is
+ * genuinely fixed is quoted, and everything live is linked, not faked.
  */
-export const RAFFLE_PRIZE_STATS = {
-  asOf: "8 Aug 2026",
-  floor: "0.36 ETH",
-  totalVolume: "189.3K ETH",
-  owners: "6,343",
-  supply: "20,000",
-} as const;
+export const RAFFLE_PRIZE_STATS: {
+  asOf: string | null;
+  floor: string | null;
+  totalVolume: string | null;
+  owners: string | null;
+  supply: string | null;
+} = {
+  asOf: null,
+  floor: null,
+  totalVolume: null,
+  owners: null,
+  supply: "5,555",
+};
 
-/** Official Meebits links, verified against the collection's own OpenSea page. */
-export const RAFFLE_PRIZE_LINKS = {
-  opensea: "https://opensea.io/collection/meebits",
-  website: "https://meebits.app/",
-  x: "https://twitter.com/MeebitsNFTs",
-  discord: "https://discord.com/invite/meebits",
-} as const;
+/** Official Chimpers links, verified against the collection's own channels. */
+export const RAFFLE_PRIZE_LINKS: {
+  opensea: string;
+  website: string;
+  x: string;
+  discord: string | null;
+} = {
+  opensea: "https://opensea.io/collection/chimpers",
+  website: "https://chimpers.xyz/",
+  x: "https://twitter.com/ChimpersNFT",
+  // No verified public invite to link, so it stays null rather than guessed.
+  discord: null,
+};
 
 export const RAFFLE_RULES: readonly RaffleRule[] = [
   { label: "Ticket price", value: "$10", hint: "Paid on Robinhood Chain when tickets open." },
@@ -76,7 +88,7 @@ export const RAFFLE_RULES: readonly RaffleRule[] = [
  */
 export const RAFFLE_OUTCOMES = {
   soldOut:
-    "If all 200 tickets sell, one entry is drawn and that wallet receives the Meebit.",
+    "If all 200 tickets sell, one entry is drawn and that wallet receives Chimper #2272.",
   notSoldOut:
     "If fewer than 200 sell inside the 24 hours, every ticket is refunded in full. No draw, no deductions.",
 } as const;

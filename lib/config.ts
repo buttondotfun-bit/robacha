@@ -106,17 +106,21 @@ export const contracts = {
     process.env.NEXT_PUBLIC_ROBACHA_RANDOMNESS_SENDER_ADDRESS,
     "NEXT_PUBLIC_ROBACHA_RANDOMNESS_SENDER_ADDRESS",
   ),
-  // The live Meebit raffle, pinned in code rather than read from the env var.
+  // The featured raffle contract on Robinhood Chain — the one that sells tickets
+  // for whatever NFT the /raffle page currently features. It is the Chimpers
+  // #2272 raffle, live and pinned.
   //
-  // Pinned on purpose: the env var on the host still points at the first,
-  // mispriced ($5) deploy, and reading it would let that stale value override
-  // the correct one. This is a single one-shot contract, verified on chain
-  // (right conductor, 200/25 caps, 0.005225848 ETH ≈ $10 ticket, open), so the
-  // address that must win is the one written here. When this raffle ends, clear
-  // this line (and the stale host env var) rather than repointing it.
+  // Pinned to the deployed address (env still overrides). Verified on chain:
+  // ticketPriceWei 5206650000000000 (≈ $10 at deploy), TICKET_CAP 200,
+  // MAX_PER_WALLET 25, a 24h window (closesAt − openAt = 86400), drawing from
+  // the same StonkPit conductor as the gacha. Deliberately NOT the previous
+  // Meebit contract (0x8BEe0584c4932fAEdcB0084844F328606cC95AaC): that is a
+  // separate, standalone raffle whose own buyers settle or refund on it
+  // directly. When this raffle ends, clear this line rather than repointing it.
   raffle: readAddress(
-    "0x8BEe0584c4932fAEdcB0084844F328606cC95AaC",
-    "RobachaRaffle",
+    process.env.NEXT_PUBLIC_ROBACHA_CHIMPERS_RAFFLE_ADDRESS ??
+      "0x6676D4Bda98716e386B271eF06b5Ee1dE460772a",
+    "NEXT_PUBLIC_ROBACHA_CHIMPERS_RAFFLE_ADDRESS",
   ),
   // The permissionless NFT-raffle launchpad. Read from the env var: unset until
   // the hub is deployed, at which point the launchpad opens. Until then every

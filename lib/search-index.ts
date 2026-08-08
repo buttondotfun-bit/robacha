@@ -35,7 +35,7 @@ const PAGES: Omit<SearchItem, "kind" | "priority">[] = [
   { id: "page-leaderboard", title: "Leaderboard", subtitle: "Records from inside the machine", href: "/leaderboard", keywords: "records explorers biggest pulls" },
   { id: "page-transparency", title: "Transparency", subtitle: "Live status, totals and contracts", href: "/transparency", keywords: "status health contracts burn onchain" },
   { id: "page-mint", title: "Mint Capsules", subtitle: "The Robacha Capsules drop", href: "/mint", keywords: "nft capsule mint drop grail" },
-  { id: "page-raffle", title: "Raffles", subtitle: "Trustless NFT raffles", href: "/raffle", keywords: "meebit win raffle" },
+  { id: "page-raffle", title: "Raffles", subtitle: "Trustless NFT raffles", href: "/raffle", keywords: "chimpers chimper win raffle nft" },
   { id: "page-rob", title: "$ROB", subtitle: "The official $ROB utility token", href: "/rob", keywords: "token rob utility" },
   { id: "page-passport", title: "Passport", subtitle: "Your badges, derived from chain", href: "/passport", keywords: "achievements badges you" },
   { id: "page-receipts", title: "Receipts", subtitle: "Your spend and pull ledger", href: "/receipts", keywords: "history ledger spent" },

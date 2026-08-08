@@ -4,6 +4,7 @@ import { useState } from "react";
 import { formatEther, parseEther } from "viem";
 import { useAccount, useReadContract } from "wagmi";
 import { ROBACHA_RAFFLE_ABI, ROBACHA_RAFFLE_ADMIN_ABI, RaffleState } from "@/lib/abi/robacha-raffle";
+import { RAFFLE_PRIZE } from "@/data/raffle";
 import { chainConfig, contracts, explorerUrl } from "@/lib/config";
 import { shortAddress } from "@/lib/formatters";
 import { useRaffle } from "@/lib/use-raffle";
@@ -12,7 +13,7 @@ import type { AdminTabProps } from "../types";
 import { AdminSection, Metric, ModuleError } from "../ui";
 
 /**
- * The Meebit raffle, from the operator's side.
+ * The featured raffle, from the operator's side.
  *
  * Answers the one question the read pages don't: once it sells out, how do the
  * proceeds come out. The contract's flow is fund the draw → request it → and,
@@ -67,7 +68,7 @@ export function RaffleTab({ refreshAll }: AdminTabProps) {
 
   return (
     <div className="space-y-4">
-      <AdminSection title="Meebit raffle" description="1 Meebit · single raffle">
+      <AdminSection title={`${RAFFLE_PRIZE.collection} raffle`} description={`${RAFFLE_PRIZE.name} · single raffle`}>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Metric label="State" value={state != null ? STATE_LABEL[state] ?? `#${state}` : "—"} />
           <Metric label="Tickets" value={r.ticketsSold != null && r.cap != null ? `${r.ticketsSold} / ${r.cap}` : "—"} />

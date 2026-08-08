@@ -11,7 +11,7 @@ import { useMoney } from "@/lib/use-money";
 import { useSecondsTick } from "@/lib/use-tick";
 
 /**
- * The market's featured raffle — the platform's own Meebit draw, rendered as
+ * The market's featured raffle — the platform's own Chimpers draw, rendered as
  * the page centerpiece. Every figure (price, caps, sold count, remaining time,
  * winner, status) is read from the RobachaRaffle contract via `useRaffle`; the
  * collection, chain and links come from the configured prize. Nothing is
@@ -19,7 +19,7 @@ import { useSecondsTick } from "@/lib/use-tick";
  *
  * Honesty note: this raffle's NFT lives on Ethereum and is delivered by hand,
  * so this card claims only what its contract enforces — the money, the draw and
- * the refunds — and never that the contract custodies the Meebit.
+ * the refunds — and never that the contract custodies the Chimper.
  */
 export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
   const money = useMoney();
@@ -52,7 +52,7 @@ export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
         <div className="group relative aspect-square w-full overflow-hidden lg:aspect-auto lg:min-h-[340px]">
           <Image
             src={RAFFLE_PRIZE.image}
-            alt="The official Meebits collection mark"
+            alt="Chimper #2272, the raffle prize"
             fill
             priority
             sizes="(max-width: 1024px) 100vw, 440px"
@@ -73,7 +73,7 @@ export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
         <div className="flex flex-col p-5 sm:p-7">
           <p className="micro text-ink-3">Featured raffle</p>
           <h2 className="mt-1.5 text-[26px] font-semibold leading-tight tracking-[-0.02em] sm:text-[30px]">
-            Win a Meebit
+            Win a Chimper
           </h2>
           <p className="mt-1.5 text-[13px] text-ink-2">
             {cap > 0 ? `${cap} tickets` : "—"} · {priceLabel} each ·{" "}
@@ -111,7 +111,7 @@ export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
           {/* Reassurance — true of this contract: funds escrow + refunds. */}
           <p className="mt-4 rounded-[12px] bg-[rgb(var(--ink-rgb)_/_0.03)] px-3 py-2.5 text-[11.5px] leading-relaxed text-ink-2">
             {cap > 0 ? (
-              <>If all {cap} tickets sell, one wallet wins the Meebit. If it doesn&rsquo;t sell out, every ticket is refunded in full.</>
+              <>If all {cap} tickets sell, one wallet wins Chimper #2272. If it doesn&rsquo;t sell out, every ticket is refunded in full.</>
             ) : (
               <>Sell out and one wallet wins; otherwise every ticket is refunded in full.</>
             )}
@@ -120,7 +120,7 @@ export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
           {/* CTA + secondary links */}
           <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link
-              href="/raffle/meebit"
+              href="/raffle/chimpers"
               className="btn-cta group inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[linear-gradient(168deg,rgba(226,255,120,0.96)_0%,rgba(204,255,0,0.98)_46%,rgba(186,232,0,0.98)_100%)] text-[14px] font-semibold text-[var(--on-accent)] shadow-[var(--shadow-neon)] transition-transform hover:-translate-y-0.5"
             >
               {live ? "Enter the raffle" : "View the raffle"}

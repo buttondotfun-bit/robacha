@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
     return [
       { source: "/nft", destination: "/mint", permanent: true },
       { source: "/rewards", destination: "/app", permanent: true },
+      // The featured raffle's prize changed from the Meebit to Chimpers #2272,
+      // so its detail page moved from /raffle/meebit to /raffle/chimpers. Keep
+      // the old path alive for existing links.
+      { source: "/raffle/meebit", destination: "/raffle/chimpers", permanent: true },
       // Friendly short path for the coming-soon Stock Machine preview, mirroring
       // /app (token) and /nft-spins (NFT).
       { source: "/stock-spins", destination: "/machines/tokenized-stocks", permanent: false },

@@ -79,7 +79,7 @@ export function RaffleContractDetails({ className }: { className?: string }) {
           <dl className="grid grid-cols-1 gap-x-6 gap-y-3 border-t border-[rgb(var(--line-rgb)_/_0.08)] px-4 py-4 text-[12.5px] sm:grid-cols-2">
             <DetailLink label="Raffle contract" value={contracts.raffle ? shortAddress(contracts.raffle) : "—"} href={raffleLink} />
             <DetailLink label="Prize NFT contract" value={shortAddress(RAFFLE_PRIZE.contract)} href={nftLink} />
-            <Detail label="Token ID" value="Revealed at draw" />
+            <Detail label="Token ID" value={`#${RAFFLE_PRIZE.tokenId}`} />
             <Detail label="Ticket currency" value="ETH (Robinhood Chain)" />
             <Detail label="Total tickets" value={raffle.cap !== null ? String(raffle.cap) : "—"} />
             <Detail label="Max per wallet" value={raffle.maxPerWallet !== null ? String(raffle.maxPerWallet) : "—"} />

@@ -24,7 +24,7 @@ import { useSecondsTick } from "@/lib/use-tick";
 import { useWallet } from "@/lib/use-wallet";
 
 /**
- * The Meebit raffle's entry module. Every number — sold count, price, caps, the
+ * The Chimpers raffle's entry module. Every number — sold count, price, caps, the
  * caller's own entries and allowance, the total owed — is read from the raffle
  * contract, and each of the contract's four states gets its own face. It never
  * shows a total, an allowance or an "entered" count the chain wouldn't confirm,
@@ -103,8 +103,8 @@ export function RaffleTicketPanel({ fallback }: { fallback: React.ReactNode }) {
           </div>
           <p className="num mt-1.5 text-[13px] text-ink">{shortAddress(winner)}</p>
           <p className="mt-1 text-[11.5px] leading-relaxed text-ink-3">
-            Drawn on chain from StonkPit entropy. The Meebit is delivered to the
-            winner on Ethereum by the team.
+            Drawn on chain from StonkPit entropy. Chimper #2272 is delivered to
+            the winner on Ethereum by the team.
           </p>
           {iAmWinner ? (
             <p className="mt-2 text-[12px] font-semibold text-accent-ink">Congratulations — you&rsquo;ll be contacted for delivery.</p>

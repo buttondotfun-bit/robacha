@@ -21,7 +21,7 @@ function countdown(ms: number): string {
 }
 
 /**
- * A cross-site promo for the live Meebit raffle.
+ * A cross-site promo for the live Chimpers raffle.
  *
  * One component, told entirely by the contract, dropped onto every page that
  * can carry it — the spin page, the home page, the NFT teaser, the rest of the
@@ -32,7 +32,7 @@ function countdown(ms: number): string {
  * a countdown or a "sold" bar that nothing behind it can move.
  *
  * Two shapes: a `banner` for the top of a page, and a slim `bar` for chrome
- * that repeats across a section. Both link to /raffle/meebit, where the actual
+ * that repeats across a section. Both link to /raffle/chimpers, where the actual
  * ticket-buying and the full rules live.
  */
 export function RafflePromo({
@@ -68,7 +68,7 @@ export function RafflePromo({
     return (
       <div className={cn("flex justify-center", className)}>
       <Link
-        href="/raffle/meebit"
+        href="/raffle/chimpers"
         className="group glass-chip flex max-w-full items-center gap-3 rounded-full py-1.5 pl-2 pr-2.5 text-[12.5px] transition-colors hover:text-ink"
       >
         <span className="relative flex h-6 w-6 shrink-0 overflow-hidden rounded-full ring-1 ring-[rgb(var(--edge-rgb)_/_0.8)]">
@@ -77,7 +77,7 @@ export function RafflePromo({
         <span className="flex min-w-0 items-center gap-1.5 font-medium text-ink-2">
           <span className="pulse-dot h-1.5 w-1.5 shrink-0 rounded-full bg-[#8ec500]" aria-hidden="true" />
           <span className="truncate">
-            <span className="text-ink">Win a Meebit</span>
+            <span className="text-ink">Win a Chimper</span>
             <span className="hidden text-ink-3 sm:inline"> · {sold}/{cap} sold · {left} left</span>
           </span>
         </span>
@@ -102,11 +102,11 @@ export function RafflePromo({
       <div className="relative flex flex-wrap items-center gap-4 sm:flex-nowrap">
         {/* Prize thumb */}
         <Link
-          href="/raffle/meebit"
+          href="/raffle/chimpers"
           className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[16px] ring-1 ring-[rgb(var(--edge-rgb)_/_0.8)]"
-          aria-label="Meebit raffle"
+          aria-label="Chimpers raffle"
         >
-          <Image src={RAFFLE_PRIZE.image} alt="Meebit" fill sizes="64px" className="object-cover" />
+          <Image src={RAFFLE_PRIZE.image} alt="Chimper #2272" fill sizes="64px" className="object-cover" />
         </Link>
 
         {/* Pitch */}
@@ -116,7 +116,7 @@ export function RafflePromo({
             <span className="micro text-accent-ink">Live raffle · {left} left</span>
           </div>
           <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.02em]">
-            Win a Meebit — $10 a ticket
+            Win a Chimper — $10 a ticket
           </h2>
           <p className="mt-0.5 truncate text-[12px] leading-relaxed text-ink-2">
             {remaining !== null && remaining <= 50
@@ -141,7 +141,7 @@ export function RafflePromo({
         </div>
 
         {/* CTA */}
-        <ButtonLink href="/raffle/meebit" variant="primary" size="md" className="shrink-0">
+        <ButtonLink href="/raffle/chimpers" variant="primary" size="md" className="shrink-0">
           <Ticket className="h-4 w-4" aria-hidden="true" />
           Get tickets
         </ButtonLink>

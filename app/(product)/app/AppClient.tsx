@@ -24,7 +24,7 @@ import { usePool } from "@/lib/use-pool";
  * path resolves to a named unavailable state with the action disabled — the
  * page never shows a stage, odds or a price it could not read from chain.
  *
- * `lean` drops the Genesis-flavoured ecosystem content (the Meebit raffle promo,
+ * `lean` drops the Genesis-flavoured ecosystem content (the featured raffle promo,
  * the memecoin token lineup, the upcoming-machines strip and the activity/burn
  * row) so a second machine — the Stock Machine — can reuse the exact spin core
  * without borrowing the token machine's surrounding pitch.
@@ -38,7 +38,7 @@ export function AppClient({ lean = false }: { lean?: boolean }) {
       <SpinTabs className="mb-4" />
 
       {/* Cross-product raffle promo, shown as the full banner so the live
-          Meebit raffle is impossible to miss on the spin page. Self-hides when
+          featured raffle is impossible to miss on the spin page. Self-hides when
           the raffle sells out, draws, or isn't running. Genesis-only. */}
       {lean ? null : <RafflePromo variant="banner" className="mb-4" />}
 

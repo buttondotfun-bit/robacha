@@ -13,14 +13,14 @@ import { RaffleContractDetails } from "./RaffleContractDetails";
 import { ShareRaffle } from "./ShareRaffle";
 
 /**
- * The Meebit raffle detail page.
+ * The Chimpers raffle detail page.
  *
  * A two-column entry surface: everything a buyer needs to decide and act sits
  * above the fold — what they can win, the live clock, how full it is, the price
  * and the button — with the prize, the collection and the on-chain proofs
  * beside and below it. Every dynamic value is read from the raffle contract or
  * the configured prize; the one thing this contract cannot do, hold the
- * cross-chain Meebit, is stated as the mechanism it actually is rather than
+ * cross-chain Chimper, is stated as the mechanism it actually is rather than
  * dressed up as on-chain custody.
  */
 export function RaffleClient() {
@@ -41,10 +41,10 @@ export function RaffleClient() {
         {/* LEFT — info + entry */}
         <Reveal className="min-w-0">
           <RaffleStatusLine />
-          <h1 className="text-page-title mt-2">Win a Meebit.</h1>
+          <h1 className="text-page-title mt-2">Win a Chimper.</h1>
           <p className="mt-2 text-[13.5px] text-ink-2">
-            One sold-out draw. One wallet receives the Meebit — a voxel character
-            from the 20,000-piece Meebits collection on Ethereum.
+            One sold-out draw. One wallet receives Chimper #2272 — a pixel-art
+            character from the 5,555-piece Chimpers collection on Ethereum.
           </p>
 
           <div className="mt-4">
@@ -53,7 +53,7 @@ export function RaffleClient() {
                 <div className="glass-card rounded-[20px] p-5 text-[13px] text-ink-3">
                   The raffle isn&rsquo;t open yet. Follow{" "}
                   <a href={RAFFLE_PRIZE_LINKS.x} target="_blank" rel="noreferrer" className="text-ink-2 underline decoration-dotted underline-offset-2">
-                    @MeebitsNFTs
+                    @ChimpersNFT
                   </a>{" "}
                   for the drop.
                 </div>
@@ -66,7 +66,7 @@ export function RaffleClient() {
             <div className="glass-card rounded-[14px] p-4">
               <p className="text-[12px] font-semibold">If it sells out</p>
               <p className="mt-1 text-[11.5px] leading-relaxed text-ink-3">
-                One valid entry is drawn on chain and that wallet receives the Meebit.
+                One valid entry is drawn on chain and that wallet receives Chimper #2272.
               </p>
             </div>
             <div className="glass-card rounded-[14px] p-4">
@@ -100,7 +100,7 @@ export function RaffleClient() {
           <HowStep n="01" title="Enter" body="Buy up to 25 tickets with your connected wallet, on Robinhood Chain." />
           <HowStep n="02" title="Sell out" body="All 200 tickets must sell inside the 24-hour window for a draw to happen." />
           <HowStep n="03" title="Draw" body="The contract requests StonkPit's on-chain entropy and picks one weighted ticket." />
-          <HowStep n="04" title="Settle" body="The winner receives the Meebit; if it didn't sell out, every ticket refunds in full." />
+          <HowStep n="04" title="Settle" body="The winner receives Chimper #2272; if it didn't sell out, every ticket refunds in full." />
         </div>
       </section>
 
@@ -111,9 +111,11 @@ export function RaffleClient() {
       <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-6">
         <span className="micro mr-1 text-ink-3">Verify the collection</span>
         <PrizeLink href={RAFFLE_PRIZE_LINKS.opensea} icon={<ArrowUpRight className="h-3 w-3" />}>OpenSea</PrizeLink>
-        <PrizeLink href={RAFFLE_PRIZE_LINKS.website} icon={<Globe className="h-3 w-3" />}>meebits.app</PrizeLink>
-        <PrizeLink href={RAFFLE_PRIZE_LINKS.x} icon={<XIcon className="h-3 w-3" />}>@MeebitsNFTs</PrizeLink>
-        <PrizeLink href={RAFFLE_PRIZE_LINKS.discord} icon={<MessageCircle className="h-3 w-3" />}>Discord</PrizeLink>
+        <PrizeLink href={RAFFLE_PRIZE_LINKS.website} icon={<Globe className="h-3 w-3" />}>chimpers.xyz</PrizeLink>
+        <PrizeLink href={RAFFLE_PRIZE_LINKS.x} icon={<XIcon className="h-3 w-3" />}>@ChimpersNFT</PrizeLink>
+        {RAFFLE_PRIZE_LINKS.discord ? (
+          <PrizeLink href={RAFFLE_PRIZE_LINKS.discord} icon={<MessageCircle className="h-3 w-3" />}>Discord</PrizeLink>
+        ) : null}
       </div>
     </PageContainer>
   );

@@ -26,7 +26,7 @@ import { isDenylisted } from "@/data/collections";
 /**
  * The raffle marketplace.
  *
- * A real product surface built from real state: the featured Meebit raffle
+ * A real product surface built from real state: the featured raffle
  * (its own contract) leads, a stats strip sums what the contracts actually
  * hold, and a filterable grid shows the community raffles on the hub — with an
  * honest empty state, never a fabricated card, when none exist yet. Every
@@ -36,7 +36,7 @@ import { isDenylisted } from "@/data/collections";
 type TabKey = "live" | "upcoming" | "ended";
 
 export function RaffleGallery() {
-  const { meebit, community, stats } = useRaffleMarket();
+  const { featured, community, stats } = useRaffleMarket();
   const now = useSecondsTick();
   const [tab, setTab] = useState<TabKey>("live");
 
@@ -97,7 +97,7 @@ export function RaffleGallery() {
 
       {/* ---------------- Featured ---------------- */}
       <Reveal delay={60} className="mt-6">
-        <FeaturedRaffleCard raffle={meebit} />
+        <FeaturedRaffleCard raffle={featured} />
       </Reveal>
 
       {/* ---------------- Gallery ---------------- */}

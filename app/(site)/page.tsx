@@ -36,7 +36,7 @@ export default function LandingPage() {
       <JsonLd data={[websiteJsonLd(), organizationJsonLd()]} />
       <Hero />
 
-      {/* Live Meebit raffle, front and centre for arriving visitors as a full
+      {/* Live featured raffle, front and centre for arriving visitors as a full
           banner. Renders nothing when no raffle is open, so the funnel stays
           clean. */}
       <PageContainer width="wide" className="pb-2">

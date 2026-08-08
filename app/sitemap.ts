@@ -9,8 +9,9 @@ import { canonicalUrl, INDEXABLE } from "@/lib/seo";
  * The sitemap — canonical, indexable pages only.
  *
  * Excludes every noindex surface (admin, My Bag, the wallet-specific win
- * pages, the create-raffle flow) and all data API routes. The featured Meebit
- * raffle is a real, standing public page and is included; per-creator hub
+ * pages, the create-raffle flow) and all data API routes. The featured raffle
+ * (currently the Chimpers draw) is a real, standing public page and is included;
+ * per-creator hub
  * raffles would be appended here once the launchpad hub is deployed (it isn't
  * yet, so none are invented).
  *
@@ -53,7 +54,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // The standing featured raffle — only when its contract is actually pinned.
   if (contracts.raffle) {
     entries.push({
-      url: canonicalUrl("/raffle/meebit"),
+      url: canonicalUrl("/raffle/chimpers"),
       lastModified: now,
       changeFrequency: "hourly",
       priority: 0.7,

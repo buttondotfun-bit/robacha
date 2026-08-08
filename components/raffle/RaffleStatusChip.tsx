@@ -119,8 +119,8 @@ export function RaffleDisclosure({ className }: { className?: string }) {
 
   return (
     <p className={className}>
-      The Meebit is an Ethereum NFT and ROBACHA runs on Robinhood Chain, so the
-      prize is sent to the winner by hand across chains.{" "}
+      Chimper #2272 is an Ethereum NFT and ROBACHA runs on Robinhood Chain, so
+      the prize is sent to the winner by hand across chains.{" "}
       {raffle.configured
         ? "Everything else — the money, the caps, the draw and the refund — is held and enforced by the contract, not by us."
         : "Tickets are not on sale yet; how they are bought, drawn and refunded is published before the raffle opens."}
