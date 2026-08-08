@@ -142,6 +142,26 @@ export const isGachaConfigured =
   contracts.gacha !== null && contracts.poolRegistry !== null;
 
 /**
+ * The Stock Machine's pool id — the switch that makes the tokenized-stock gacha
+ * real.
+ *
+ * Unset until the operator deploys and funds a tokenized-stock pool on chain
+ * (see contracts/script/PublishStockPool.s.sol: create the pool version,
+ * allowlist the token addresses, set economics/odds, fund the reward vault, then
+ * activate). Until then the Stock Machine stays a locked coming-soon preview —
+ * there is nothing to spin. Pointing NEXT_PUBLIC_ROBACHA_STOCK_POOL_ID at the
+ * deployed pool id flips the same spin UI live for that pool. Nothing here can
+ * conjure inventory: if the pool isn't funded, the gacha's own readiness check
+ * keeps the spin button honest.
+ */
+const envStockPoolId = Number.parseInt(process.env.NEXT_PUBLIC_ROBACHA_STOCK_POOL_ID ?? "", 10);
+export const STOCK_POOL_ID: bigint | null =
+  Number.isFinite(envStockPoolId) && envStockPoolId > 0 ? BigInt(envStockPoolId) : null;
+
+/** Whether the Stock Machine is live (a pool id is configured and the gacha is up). */
+export const isStockMachineLive = STOCK_POOL_ID !== null && isGachaConfigured;
+
+/**
  * The operator's deliberate switch for public paid spins.
  *
  * This is one control among several, never the only one — the gacha contract's

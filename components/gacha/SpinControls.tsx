@@ -15,6 +15,7 @@ import {
 } from "@/lib/config";
 import { shortAddress, shortHash } from "@/lib/formatters";
 import { useSpin } from "@/lib/spin-store";
+import { usePoolId } from "@/lib/pool-context";
 import { useRobZap } from "@/lib/use-rob-zap";
 import { usePendingSpins, RoundState } from "@/lib/use-pending-spins";
 import { useMoney } from "@/lib/use-money";
@@ -51,6 +52,9 @@ export function SpinControls({
   className?: string;
 }) {
   const spin = useSpin();
+  // Which machine's pool this spin targets — Genesis by default, the Stock
+  // Machine's pool when rendered inside its provider.
+  const poolId = usePoolId();
   const wallet = useWallet();
   const money = useMoney();
   const { history } = useWalletHistory();
@@ -588,7 +592,7 @@ export function SpinControls({
                     return;
                   }
                 }
-                await spin.spin(perEntryWei);
+                await spin.spin(perEntryWei, poolId);
               })();
             }}
           >

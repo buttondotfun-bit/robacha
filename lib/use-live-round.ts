@@ -3,7 +3,8 @@
 import { useMemo } from "react";
 import { useReadContract } from "wagmi";
 import { ROBACHA_GACHA_ABI } from "@/lib/abi";
-import { ACTIVE_POOL_ID, chainConfig, contracts, isGachaConfigured } from "./config";
+import { chainConfig, contracts, isGachaConfigured } from "./config";
+import { usePoolId } from "./pool-context";
 import { RoundState } from "./use-pending-spins";
 import { useSecondsTick } from "./use-tick";
 
@@ -50,12 +51,13 @@ export function useLiveRound(): LiveRound {
   // contracts.gacha is null when unset; wagmi wants undefined.
   const gacha = contracts.gacha ?? undefined;
   const enabled = Boolean(gacha) && isGachaConfigured;
+  const poolId = usePoolId();
 
   const openQuery = useReadContract({
     address: gacha,
     abi: ROBACHA_GACHA_ABI,
     functionName: "openRound",
-    args: [ACTIVE_POOL_ID],
+    args: [poolId],
     chainId: chainConfig.id,
     query: { enabled, refetchInterval: REFETCH_MS },
   });

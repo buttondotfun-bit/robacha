@@ -8,7 +8,8 @@ import {
   ROBACHA_POOL_REGISTRY_ABI,
   ROBACHA_REWARD_VAULT_ABI,
 } from "./abi";
-import { ACTIVE_POOL_ID, chainConfig, contracts, isGachaConfigured } from "./config";
+import { chainConfig, contracts, isGachaConfigured } from "./config";
+import { usePoolId } from "./pool-context";
 import type { Rarity } from "@/types/token";
 
 /**
@@ -157,13 +158,16 @@ export function usePool() {
   const gachaAddress = contracts.gacha ?? undefined;
   const vaultAddress = contracts.rewardVault ?? undefined;
   const enabled = isGachaConfigured;
+  // The pool this subtree operates on (Genesis by default; the Stock Machine
+  // provides its own id when live).
+  const poolId = usePoolId();
 
   // ---- 1. Which version is live right now? ----
   const versionQuery = useReadContract({
     address: registryAddress,
     abi: ROBACHA_POOL_REGISTRY_ABI,
     functionName: "currentPoolVersion",
-    args: [ACTIVE_POOL_ID],
+    args: [poolId],
     chainId: chainConfig.id,
     query: { enabled, refetchInterval: REFETCH_MS },
   });
@@ -180,21 +184,21 @@ export function usePool() {
         address: registryAddress,
         abi: ROBACHA_POOL_REGISTRY_ABI,
         functionName: "getVersion",
-        args: [ACTIVE_POOL_ID, version],
+        args: [poolId, version],
         chainId: chainConfig.id,
       },
       {
         address: registryAddress,
         abi: ROBACHA_POOL_REGISTRY_ABI,
         functionName: "getProbabilities",
-        args: [ACTIVE_POOL_ID, version],
+        args: [poolId, version],
         chainId: chainConfig.id,
       },
       {
         address: registryAddress,
         abi: ROBACHA_POOL_REGISTRY_ABI,
         functionName: "getRewards",
-        args: [ACTIVE_POOL_ID, version],
+        args: [poolId, version],
         chainId: chainConfig.id,
       },
     ],
@@ -207,7 +211,7 @@ export function usePool() {
     address: gachaAddress,
     abi: ROBACHA_GACHA_ABI,
     functionName: "spinReadiness",
-    args: [ACTIVE_POOL_ID],
+    args: [poolId],
     chainId: chainConfig.id,
     query: { enabled, refetchInterval: REFETCH_MS },
   });

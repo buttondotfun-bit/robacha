@@ -39,7 +39,7 @@ interface SpinContextValue {
    *   held in this store — a cached price could go stale between a pool version
    *   change and the signature, and the contract rejects any mismatch.
    */
-  spin: (perEntryWei: bigint) => Promise<void>;
+  spin: (perEntryWei: bigint, poolId?: bigint) => Promise<void>;
   reset: () => void;
 }
 
@@ -68,7 +68,7 @@ export function SpinProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const spin = useCallback(
-    async (perEntryWei: bigint) => {
+    async (perEntryWei: bigint, poolId: bigint = ACTIVE_POOL_ID) => {
       setError(null);
 
       if (!isGachaConfigured || !contracts.gacha) {
@@ -85,7 +85,7 @@ export function SpinProvider({ children }: { children: React.ReactNode }) {
           address: contracts.gacha,
           abi: ROBACHA_GACHA_ABI,
           functionName: "spin",
-          args: [ACTIVE_POOL_ID, quantity],
+          args: [poolId, quantity],
           // The contract requires exactly (base + surcharge) * quantity and
           // reverts on anything else, so an interface that has fallen out of
           // date fails loudly rather than overpaying.
