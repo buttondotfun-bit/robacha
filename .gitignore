@@ -60,3 +60,39 @@ contracts/broadcast/
 # guarantee. Never commit, never bundle, never log.
 keeper-secrets.json
 keeper-secrets*.json
+
+# Local agent/skill tooling — scaffolding, not app source.
+.agents/
+/agent/
+.claude/skills/
+data/skills/
+skills-lock.json
+
+# Local pitch deck (not part of the app build).
+/public/deck.html
+
+# One-off exploratory foundry scripts kept local. Legit deploy/config scripts in
+# contracts/script/ are committed and unaffected (git ignores only untracked files).
+/contracts/script/AddApeCoin.s.sol
+/contracts/script/AllowlistAndRouteSushi.s.sol
+/contracts/script/AllowlistStonkDerp.s.sol
+/contracts/script/BuyMoreInventory.s.sol
+/contracts/script/BuyStonkDerp.s.sol
+/contracts/script/BuySushi.s.sol
+/contracts/script/BuyTokens.s.sol
+/contracts/script/CheckFRONGGraduated.s.sol
+/contracts/script/CheckPONS.s.sol
+/contracts/script/FindFRONGPool.s.sol
+/contracts/script/FindFRONGPoolUSDG.s.sol
+/contracts/script/FindFRONGPoolsWithGetLogs.s.sol
+/contracts/script/FindTENDIESPool.s.sol
+/contracts/script/FindV4Keys.s.sol
+/contracts/script/FixFRONGRoute.s.sol
+/contracts/script/FixFRONGRoute2500.s.sol
+/contracts/script/FixSushiRoute.s.sol
+/contracts/script/FundApeInventory.s.sol
+/contracts/script/RestoreAllRoutes.s.sol
+/contracts/script/SetStonkDerpRoutes.s.sol
+/contracts/script/SetV4Routes.s.sol
+/contracts/script/TestAllFRONGSwaps.s.sol
+/contracts/script/VerifyApeRoute.s.sol

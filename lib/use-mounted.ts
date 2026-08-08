@@ -2,27 +2,25 @@
 
 import { useSyncExternalStore } from "react";
 
-/** Never fires: the value is constant per environment, so there is nothing to subscribe to. */
-const subscribe = () => () => {};
-
 /**
- * False while rendering on the server, true once running in the browser.
+ * True once the component has mounted on the client, false during SSR and the
+ * initial hydration pass.
  *
- * Used to gate `createPortal`, which needs a real `document.body`. The obvious
- * spelling is `useState(false)` plus an effect that sets it true, but that
- * schedules a second render on every mount purely to learn something already
- * known — and it is the pattern `react-hooks/set-state-in-effect` exists to
- * flag.
+ * The idiom this replaces — `const [m, setM] = useState(false); useEffect(() =>
+ * setM(true), [])` — trips react-hooks/set-state-in-effect and schedules an
+ * extra render. `useSyncExternalStore` gives the same "am I on the client yet"
+ * signal for free: the server snapshot is `false`, the client snapshot is
+ * `true`, and React reconciles the difference without a synchronous setState.
  *
- * `useSyncExternalStore` answers it directly instead: React calls the server
- * snapshot when rendering on the server and the client one in the browser, so
- * the hydration pass still sees `false` and matches the server HTML, and the
- * value is `true` from the first client render onward. No extra render, no
- * mismatch.
+ * Use it to defer client-only, hydration-sensitive reads (localStorage, wallet
+ * connection state) until after the first paint so server and client markup
+ * match.
  */
+const noop = () => () => {};
+
 export function useMounted(): boolean {
   return useSyncExternalStore(
-    subscribe,
+    noop,
     () => true,
     () => false,
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ArrowRight,
   Bell,
@@ -20,6 +20,7 @@ import { SpinTabs } from "@/components/gacha/SpinTabs";
 import { useWatchlist } from "@/lib/use-watchlist";
 import { useLiveRound } from "@/lib/use-live-round";
 import { usePool } from "@/lib/use-pool";
+import { useMounted } from "@/lib/use-mounted";
 import { useStockTokens } from "@/lib/use-stock-tokens";
 import type { StockToken } from "@/app/api/stock-tokens/route";
 import { cn } from "@/lib/utils";
@@ -551,9 +552,8 @@ function RevealCard({ n, obscured }: { n: string; obscured?: boolean }) {
 
 function FollowCard() {
   const watch = useWatchlist();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
   const [copied, setCopied] = useState(false);
-  useEffect(() => setMounted(true), []);
 
   const following = mounted && watch.canFollow && watch.isFollowing(MACHINE_KEY);
 

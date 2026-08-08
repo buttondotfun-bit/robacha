@@ -2,6 +2,7 @@
 
 import { Check, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useMounted } from "@/lib/use-mounted";
 import { useWatchlist } from "@/lib/use-watchlist";
 import { cn } from "@/lib/utils";
 
@@ -24,12 +25,11 @@ export function FollowButton({
 }) {
   const watch = useWatchlist();
   const [hint, setHint] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useMounted();
 
   // Avoid a hydration flash: render the neutral state until mounted, then the
   // real local follow state. Gated on canFollow so "Following" can never show
   // without a connected wallet to own the saved list.
-  useEffect(() => setMounted(true), []);
   const following = mounted && watch.canFollow && watch.isFollowing(address);
 
   useEffect(() => {
