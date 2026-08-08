@@ -151,118 +151,78 @@ export function TokenLineup({
         {live.length > 0 ? (
           <>
             <p className="micro mb-3">In the machine now</p>
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {/* A compact wrap of loaded tokens rather than a wall of cards —
+                the full inventory, odds and amounts live on the pool page. */}
+            <ul className="flex flex-wrap gap-2">
               {live.map((entry) => (
                 <li
                   key={entry.token}
-                  className="glass-card flex items-center gap-3 rounded-[18px] p-4"
+                  className="glass-chip flex items-center gap-2 rounded-full py-1 pl-1.5 pr-3"
+                  title="In the published reward slots right now"
                 >
-                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.85)] [container-type:inline-size]">
+                  <span className="h-6 w-6 shrink-0 overflow-hidden rounded-full border border-[rgb(var(--edge-rgb)_/_0.85)] [container-type:inline-size]">
                     <TokenAvatar
                       address={entry.token}
                       symbol={entry.symbol}
                       logoUrl={market.get(entry.token)?.logoUrl}
-                      size={40}
+                      size={24}
                       rounded="none"
                     />
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13.5px] font-semibold tracking-[-0.02em]">
-                      {entry.name ?? entry.symbol ?? "Unknown token"}
-                    </p>
-                    <p className="num truncate text-[11.5px] text-ink-3">
-                      ${entry.symbol ?? "?"}
-                    </p>
-                  </div>
-                  <span
-                    className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[10.5px] font-medium text-accent-ink"
-                    title="In the published reward slots right now"
-                  >
-                    <Check className="h-3 w-3" aria-hidden="true" />
-                    Loaded
+                  <span className="num text-[12px] font-medium text-ink">
+                    {entry.symbol ? `$${entry.symbol}` : (entry.name ?? "?")}
                   </span>
                 </li>
               ))}
             </ul>
+            <p className="num mt-3 flex items-center gap-1.5 text-[12px] text-ink-3">
+              <Check className="h-3.5 w-3.5 text-accent-ink" aria-hidden="true" />
+              {live.length} reward {live.length === 1 ? "asset" : "assets"} loaded
+              {upcoming.length ? ` · ${upcoming.length} next` : ""}
+            </p>
           </>
         ) : null}
 
         {upcoming.length > 0 ? (
           <>
             <p className="micro mb-3 mt-8">Next in</p>
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <ul className="flex flex-wrap gap-2">
               {upcoming.map((token) => (
                 <li
                   key={token.address}
-                  className="glass-card flex items-center gap-3 rounded-[18px] p-4"
+                  className="glass-chip flex items-center gap-2 rounded-full py-1 pl-1.5 pr-2.5"
+                  title={
+                    !token.onThisChain
+                      ? "Lives on another chain — needs a Robinhood Chain contract before it can be a reward"
+                      : token.allowlisted
+                        ? "Approved as a reward token on the registry, not yet in a pool"
+                        : "Not yet approved on the registry"
+                  }
                 >
-                  <span className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[rgb(var(--edge-rgb)_/_0.85)] opacity-70 [container-type:inline-size]">
+                  <span className="h-6 w-6 shrink-0 overflow-hidden rounded-full border border-[rgb(var(--edge-rgb)_/_0.85)] opacity-80 [container-type:inline-size]">
                     <TokenAvatar
                       address={token.address}
                       symbol={token.symbol}
-                      // A stored logo wins: the token index only knows this
-                      // chain, so an off-chain token has no entry there.
                       logoUrl={token.logo ?? market.get(token.address)?.logoUrl}
-                      size={40}
+                      size={24}
                       rounded="none"
                     />
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13.5px] font-semibold tracking-[-0.02em]">
-                      {token.name}
-                    </p>
-                    <p className="num truncate text-[11.5px] text-ink-3">
-                      ${token.symbol}
-                      {!token.onThisChain ? (
-                        <span className="text-ink-3">
-                          {" · "}
-                          {FOREIGN_CHAINS[token.chain ?? ""]?.label ?? "another chain"}
-                        </span>
-                      ) : null}
-                    </p>
-                  </div>
-                  <span
-                    className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--ink-rgb)_/_0.06)] px-2 py-0.5 text-[10.5px] font-medium text-ink-3"
-                    title={
-                      !token.onThisChain
-                        ? "Lives on another chain — needs a Robinhood Chain contract before it can be a reward"
-                        : token.allowlisted
-                          ? "Approved as a reward token on the registry, not yet in a pool"
-                          : "Not yet approved on the registry"
-                    }
-                  >
-                    <Clock className="h-3 w-3" aria-hidden="true" />
-                    {!token.onThisChain
-                      ? "Watching"
-                      : token.allowlisted
-                        ? "Approved"
-                        : "Lined up"}
+                  <span className="num text-[12px] font-medium text-ink-2">${token.symbol}</span>
+                  <span className="inline-flex items-center gap-1 text-[10px] text-ink-3">
+                    <Clock className="h-2.5 w-2.5" aria-hidden="true" />
+                    {!token.onThisChain ? "Watching" : token.allowlisted ? "Approved" : "Lined up"}
                   </span>
                 </li>
               ))}
             </ul>
 
-            <p className="mt-4 max-w-[76ch] text-[11.5px] leading-relaxed text-ink-3">
-              These are going in — we&rsquo;re working through approving each
-              one on the contract and stocking the vault before it can pay out.
-              Until a token shows as loaded above, it isn&rsquo;t in the machine
-              and can&rsquo;t be pulled. No odds or amounts are set for them yet,
-              so we&rsquo;re not going to invent any.
+            <p className="mt-3 max-w-[70ch] text-[11.5px] leading-relaxed text-ink-3">
+              Being approved on the contract and stocked before they can pay out —
+              until a token shows as loaded above it can&rsquo;t be pulled, and no
+              odds or amounts are set for it yet.
               {upcoming.some((t) => !t.onThisChain) ? (
-                <>
-                  {" "}
-                  Anything marked <span className="text-ink-2">Watching</span>{" "}
-                  lives on another chain today — the machine only holds and pays{" "}
-                  {NETWORK_LABEL} tokens, so one of those needs a{" "}
-                  {NETWORK_LABEL} contract before it can be a reward at all.
-                </>
-              ) : null}
-              {upcoming.some((t) => t.allowlisted) ? (
-                <>
-                  {" "}
-                  &ldquo;Approved&rdquo; means the pool registry accepts it as a
-                  reward token — you can check that yourself on the contract.
-                </>
+                <>{" "}<span className="text-ink-2">Watching</span> means it lives on another chain and needs a {NETWORK_LABEL} contract first.</>
               ) : null}
             </p>
 

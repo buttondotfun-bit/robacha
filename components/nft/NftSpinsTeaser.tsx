@@ -17,6 +17,7 @@ import { SOCIAL_LINKS } from "@/lib/constants";
 import { NFT_SPIN_CANDIDATES } from "@/data/nft-spins";
 import { NETWORK_LABEL } from "@/lib/web3";
 import { RafflePromo } from "@/components/raffle/RafflePromo";
+import { RobContextLink } from "@/components/rob/RobContextLink";
 import { SpinTabs } from "@/components/gacha/SpinTabs";
 import { NftSpinStage } from "./NftSpinStage";
 
@@ -231,6 +232,12 @@ export function NftSpinsTeaser() {
           </div>
         </div>
       </section>
+
+      {/* Quiet ecosystem footnote — a link, not a payment path (NFT Spins is
+          native ETH). Discovery without a shill. */}
+      <div className="mt-10 flex justify-center">
+        <RobContextLink />
+      </div>
     </PageContainer>
   );
 }

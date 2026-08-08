@@ -1,4 +1,5 @@
 import type { Address } from "viem";
+import { ROB_TOKEN_ADDRESS } from "@/data/rob-token";
 
 /**
  * Paying for a spin in $ROB, without changing the gacha.
@@ -22,7 +23,8 @@ import type { Address } from "viem";
  * ROB/WETH pool at the 1% tier, reached through its SwapRouter02.
  */
 
-export const ROB_TOKEN: Address = "0x7B7D785a2BA95d39F97FCe44f5B2169895855b7E";
+/** Re-exported from the canonical descriptor so the address lives in one place. */
+export const ROB_TOKEN: Address = ROB_TOKEN_ADDRESS;
 export const WETH_TOKEN: Address = "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73";
 export const ROB_WETH_POOL: Address = "0x1490b8cB62e567F862DeC48E4C100e2DBFb10092";
 /** Gekko's SwapRouter02 — the same router the AutoBuyer uses for ROB. */

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { PageContainer } from "@/components/shared/primitives";
 import { Reveal } from "@/components/shared/Reveal";
+import { RobContextLink } from "@/components/rob/RobContextLink";
 import { ButtonLink } from "@/components/ui/Button";
 import { XIcon } from "@/components/brand/XIcon";
 import { SOCIAL_LINKS } from "@/lib/constants";
@@ -305,6 +306,12 @@ export function LaunchpadClient() {
           </div>
         </div>
       </section>
+
+      {/* Quiet ecosystem footnote — a link, not a payment path (the launchpad
+          takes native ETH). */}
+      <div className="mt-10 flex justify-center">
+        <RobContextLink />
+      </div>
     </PageContainer>
   );
 }

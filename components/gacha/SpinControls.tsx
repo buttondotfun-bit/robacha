@@ -81,6 +81,9 @@ export function SpinControls({
   const perEntryWei = baseWei + surchargeWei;
   const robEstimate = robZap.estimateRob(perEntryWei * BigInt(spin.quantity));
   const quantity = BigInt(spin.quantity);
+  // Display-only: whether the wallet can cover even the padded estimate. Never
+  // gates the button (the swap itself is the source of truth) — just warns.
+  const robInsufficient = robZap.insufficient(perEntryWei * BigInt(spin.quantity));
   const totalBaseWei = baseWei * quantity;
   const totalSurchargeWei = surchargeWei * quantity;
   const totalWei = perEntryWei * quantity;
@@ -231,11 +234,42 @@ export function SpinControls({
                     : "Reading price…"}
                 </span>
               </div>
+              {robZap.robBalance !== null ? (
+                <div className="mt-1 flex items-baseline justify-between gap-3">
+                  <span className="text-ink-3">Your $ROB</span>
+                  <span
+                    className={cn(
+                      "num",
+                      robInsufficient ? "text-[#d8642f]" : "text-ink-2",
+                    )}
+                  >
+                    {formatRob(robZap.robBalance)} ROB
+                  </span>
+                </div>
+              ) : null}
               <p className="mt-1.5 leading-relaxed text-ink-3">
                 Your wallet swaps ROB to the exact ETH this spin costs, then
                 spins — two signatures. You pay the pool&rsquo;s swap fee, and
                 the estimate settles to the real amount when you sign.
               </p>
+              {robInsufficient ? (
+                <p className="mt-1.5 leading-relaxed text-[#d8642f]">
+                  That&rsquo;s more $ROB than this wallet holds.{" "}
+                  <Link
+                    href="/rob"
+                    className="underline decoration-dotted underline-offset-2 hover:opacity-80"
+                  >
+                    About $ROB
+                  </Link>
+                </p>
+              ) : (
+                <Link
+                  href="/rob"
+                  className="mt-1.5 inline-block text-ink-3 underline decoration-dotted underline-offset-2 hover:text-ink-2"
+                >
+                  What&rsquo;s $ROB?
+                </Link>
+              )}
             </div>
           ) : null}
         </div>

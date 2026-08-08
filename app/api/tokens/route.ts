@@ -38,6 +38,16 @@ export interface TokenMarket {
   price: number | null;
   priceReliable: boolean;
   liquidityUsd: number | null;
+  /**
+   * Rolling 24h stats and valuation from the same deepest pair. Present only
+   * when the pair backs a reliable price and the upstream actually reported the
+   * field — never inferred, so the caller renders "—" on null rather than a
+   * fabricated figure. `change24h` is a signed percent; the rest are USD.
+   */
+  volume24h: number | null;
+  change24h: number | null;
+  fdv: number | null;
+  marketCap: number | null;
   dex: string | null;
   pairAddress: string | null;
   /** Why a price is missing, when it is. */
@@ -51,7 +61,16 @@ interface DexPair {
   priceUsd?: string;
   baseToken?: { address?: string; name?: string; symbol?: string };
   liquidity?: { usd?: number };
+  volume?: { h24?: number };
+  priceChange?: { h24?: number };
+  fdv?: number;
+  marketCap?: number;
   info?: { imageUrl?: string };
+}
+
+/** A finite number or null — used to keep unreported upstream fields honest. */
+function finiteOrNull(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
 export async function GET(request: Request) {
@@ -129,6 +148,10 @@ export async function GET(request: Request) {
           price: null,
           priceReliable: false,
           liquidityUsd: null,
+          volume24h: null,
+          change24h: null,
+          fdv: null,
+          marketCap: null,
           dex: null,
           pairAddress: null,
           unavailableReason: "no-pair",
@@ -148,6 +171,12 @@ export async function GET(request: Request) {
         price: reliable ? parsed : null,
         priceReliable: reliable,
         liquidityUsd,
+        // Tied to the same reliability gate as the price: a pair too thin to
+        // quote is too thin for its volume or valuation to mean anything either.
+        volume24h: reliable ? finiteOrNull(pair.volume?.h24) : null,
+        change24h: reliable ? finiteOrNull(pair.priceChange?.h24) : null,
+        fdv: reliable ? finiteOrNull(pair.fdv) : null,
+        marketCap: reliable ? finiteOrNull(pair.marketCap) : null,
         dex: pair.dexId ?? null,
         pairAddress: pair.pairAddress ?? null,
         unavailableReason: reliable ? null : "insufficient-liquidity",
@@ -173,6 +202,10 @@ export async function GET(request: Request) {
           price: null,
           priceReliable: false,
           liquidityUsd: null,
+          volume24h: null,
+          change24h: null,
+          fdv: null,
+          marketCap: null,
           dex: null,
           pairAddress: null,
           unavailableReason: "upstream-error",

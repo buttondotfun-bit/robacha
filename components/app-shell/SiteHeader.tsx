@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Home } from "lucide-react";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
 import { XIcon } from "@/components/brand/XIcon";
+import { RobTokenPopover } from "@/components/rob/RobTokenPopover";
 import { GlassChip } from "@/components/ui/Glass";
 import { WalletButton } from "./WalletButton";
 import { SITE_NAV, SOCIAL_LINKS } from "@/lib/constants";
@@ -17,8 +18,12 @@ import { NETWORK_LABEL } from "@/lib/web3";
 import { MobileNavigation } from "./MobileNavigation";
 
 // SITE_NAV now leads with Home, so the mobile list no longer prepends its own.
+// $ROB rides in the mobile menu because the header row can't fit its chip next
+// to a full-width "Connect Wallet" at phone widths — on sm+ the chip shows in
+// the header instead (see below).
 const MOBILE_ITEMS = [
   ...SITE_NAV,
+  { label: "$ROB", href: "/rob" },
   { label: "My Bag", href: "/bag", walletOnly: true },
 ];
 
@@ -99,10 +104,20 @@ export function SiteHeader() {
             <ThemeToggle />
           </span>
 
-          <GlassChip dot className="hidden h-9 lg:inline-flex">
-            <RobinhoodChainMark className="h-3.5 w-auto opacity-80" title={null} />
-            {NETWORK_LABEL}
-          </GlassChip>
+          {/* Wrapped in a span so `hidden` actually hides it: `.glass-chip`
+              sets its own display, which beats Tailwind's `hidden` when applied
+              to the chip directly — the same reason ThemeToggle above is
+              wrapped rather than classed. */}
+          <span className="hidden lg:block">
+            <GlassChip dot className="h-9">
+              <RobinhoodChainMark className="h-3.5 w-auto opacity-80" title={null} />
+              {NETWORK_LABEL}
+            </GlassChip>
+          </span>
+
+          <span className="hidden sm:block">
+            <RobTokenPopover />
+          </span>
 
           <WalletButton />
 

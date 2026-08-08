@@ -7,6 +7,7 @@ import { ArrowRight, ArrowUpRight, ExternalLink, Gift, RefreshCw, Wallet } from 
 import { TokenAvatar } from "@/components/brand/TokenAvatar";
 import { RarityChip } from "@/components/shared/RarityChip";
 import { ShareWin } from "@/components/rewards/ShareWin";
+import { RobBagCard } from "@/components/rob/RobBagCard";
 import { ClaimButton } from "./ClaimButton";
 import { RefundPanel } from "./RefundPanel";
 import { WalletHistory } from "./WalletHistory";
@@ -186,6 +187,9 @@ export function BagClient() {
       {tab === "overview" ? (
         <div className="space-y-6">
           <RefundPanel />
+
+          {/* $ROB — the platform's own token, pinned as a first-class holding. */}
+          <RobBagCard />
 
           {/* Your bag — token inventory */}
           <section>

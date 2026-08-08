@@ -11,12 +11,16 @@ import { useScrolled } from "@/lib/use-scrolled";
 import { cn } from "@/lib/utils";
 import { MobileNavigation } from "./MobileNavigation";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { RobTokenPopover } from "@/components/rob/RobTokenPopover";
 import { NetworkBadge } from "./NetworkBadge";
 import { WalletButton } from "./WalletButton";
 
 // APP_NAV already leads with Home, so it isn't appended again here.
+// $ROB rides in the mobile menu at phone widths (the header row can't fit its
+// chip next to a full-width "Connect Wallet"); on sm+ the chip shows inline.
 const MOBILE_ITEMS = [
   ...APP_NAV,
+  { label: "$ROB", href: "/rob" },
   { label: "FAQ", href: "/faq" },
   { label: "Help", href: "/support" },
 ];
@@ -95,6 +99,10 @@ export function AppHeader() {
           >
             <XIcon />
           </a>
+
+          <span className="hidden sm:block">
+            <RobTokenPopover />
+          </span>
 
           <WalletButton />
           <span className="block md:hidden">

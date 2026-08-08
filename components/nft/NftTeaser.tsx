@@ -32,6 +32,7 @@ import { MintFaqAccordion } from "./MintFaqAccordion";
 import { NftSpinsCallout } from "./NftSpinsCallout";
 import { MintFollowCta } from "./MintFollowCta";
 import { MintPrice } from "./MintPrice";
+import { RobContextLink } from "@/components/rob/RobContextLink";
 
 /**
  * The Robacha Capsules mint.
@@ -341,6 +342,12 @@ export function NftTeaser() {
       {/* ---------------- Next machine ---------------- */}
       <div className="pt-14">
         <NftSpinsCallout />
+      </div>
+
+      {/* Quiet ecosystem footnote — a link, not a payment path (the mint is
+          priced in ETH / listed tokens, never $ROB). */}
+      <div className="flex justify-center pb-2 pt-12">
+        <RobContextLink />
       </div>
     </>
   );

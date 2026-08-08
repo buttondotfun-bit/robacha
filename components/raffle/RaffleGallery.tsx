@@ -16,6 +16,7 @@ import { Tabs } from "@/components/ui/Tabs";
 import { CapsuleGlyph } from "@/components/nft/CapsuleGlyph";
 import { RaffleCard } from "@/components/launchpad/RaffleCard";
 import { FeaturedRaffleCard } from "./FeaturedRaffleCard";
+import { RobContextLink } from "@/components/rob/RobContextLink";
 import { HubRaffleState } from "@/lib/abi/robacha-raffle-hub";
 import { useRaffleMarket } from "@/lib/use-raffle-market";
 import { useSecondsTick } from "@/lib/use-tick";
@@ -203,6 +204,12 @@ export function RaffleGallery() {
           The winner is drawn from StonkPit&rsquo;s onchain entropy, and every raffle is inspectable onchain.
         </Trust>
       </section>
+
+      {/* Quiet ecosystem footnote — a link, not a payment path (raffles take
+          native ETH). Kept well away from the buy panel. */}
+      <div className="mt-10 flex justify-center">
+        <RobContextLink />
+      </div>
     </PageContainer>
   );
 }

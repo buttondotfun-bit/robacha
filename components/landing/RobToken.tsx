@@ -1,162 +1,143 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Copy, ExternalLink, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Flame, Gift, Sparkles } from "lucide-react";
+import type { ReactNode } from "react";
 import { PageContainer, SectionHeader } from "@/components/shared/primitives";
-import { ROB_TOKEN } from "@/data/rob-token";
-import { explorerUrl } from "@/lib/config";
+import { ButtonLink } from "@/components/ui/Button";
+import { RobContractLine, RobOfficialPill } from "@/components/rob/RobContract";
+import { ROB_MARKET_URL, ROB_TOKEN } from "@/data/rob-token";
 import { NETWORK_LABEL } from "@/lib/web3";
 
 /**
- * The official $ROB contract address.
+ * $ROB on the home page: what it is, what it does, and — crucially — the real
+ * address so a copy can't pass for it.
  *
- * Published for one reason: a ticker cannot be owned, so the address is the
- * only thing that tells the real token apart from a copy deployed under the
- * same symbol. That makes this section a safety control rather than
- * promotion, and it shapes every decision below.
+ * The address block stays a safety control rather than promotion. A ticker
+ * cannot be owned, so this address is the only thing that tells the real token
+ * apart from an impersonator deployed under the same symbol, which is why it is
+ * shown in full, selectable, copyable and linked to the explorer via
+ * `RobContractLine` — the same verifiable block the footer and /rob page use.
  *
- * The address is shown in full rather than truncated. A shortened address is
- * exactly what an impersonator needs — matching first and last characters is
- * cheap to grind, and someone comparing `0x7B7D…5b7E` against a fake has
- * checked almost nothing. It is also selectable text with a copy button, so
- * nobody has to retype it, since a hand-copied address is how people lose
- * money to a single wrong character.
- *
- * The explorer link matters as much as the address. Anyone can put an address
- * on a website; the point is that the reader can leave and verify the symbol
- * and supply against the chain rather than trusting this page.
- *
- * No price, market cap, or utility claim. $ROB does nothing in the product
- * today — spins are priced in native ETH and the gacha has no ERC-20 payment
- * path — so anything beyond identity would be a promise the contracts do not
- * back.
+ * What changed from "identity only": $ROB now has real, on-chain utility — it
+ * can be spent to spin (the wallet swaps it to the exact ETH a spin costs), it
+ * can be won from a pool that loads it, and protocol fees buy it back and burn
+ * it. Those are stated as what the contracts do, never as a reason to buy, and
+ * the deeper page carries the live market. No price, target, or projection sits
+ * on the home page.
  */
-const addressId = "rob-contract-address";
+
+function UtilityRow({
+  icon,
+  title,
+  body,
+}: {
+  icon: ReactNode;
+  title: string;
+  body: string;
+}) {
+  return (
+    <li className="flex gap-3">
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent-soft text-accent-ink">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className="text-[13.5px] font-semibold tracking-[-0.02em]">{title}</p>
+        <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-2">{body}</p>
+      </div>
+    </li>
+  );
+}
 
 export function RobToken() {
-  const [copied, setCopied] = useState(false);
-  /** True when the clipboard refused and the address was selected instead. */
-  const [fallback, setFallback] = useState(false);
-  const tokenLink = explorerUrl("token", ROB_TOKEN.address);
-
   return (
-    <section className="relative py-11 sm:py-14" aria-label="ROB token contract">
+    <section className="relative py-11 sm:py-14" aria-label="ROB token">
       <PageContainer width="wide">
         <SectionHeader
-          eyebrow="Our token"
-          title={`This is the real $${ROB_TOKEN.symbol}.`}
-          description="Anyone can launch a token using our ticker, and people do. The address below is the only one that's ours — check it before you buy anything."
+          eyebrow="The token behind the machine"
+          title={`Meet $${ROB_TOKEN.symbol}.`}
+          description="Robacha's official utility token. Use it in the machine, win it from pools, watch it burn — and always check you've got the real one."
           className="mb-6"
+          action={
+            <ButtonLink href={ROB_TOKEN.route} variant="secondary" size="md">
+              Explore ${ROB_TOKEN.symbol}
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </ButtonLink>
+          }
         />
 
-        <div className="glass-card rounded-[22px] p-5 sm:p-6">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[15px] font-semibold tracking-[-0.02em]">
-              ${ROB_TOKEN.symbol}
-            </span>
-            <span className="num text-[12.5px] text-ink-3">{ROB_TOKEN.name}</span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 text-[10.5px] font-medium text-accent-ink">
-              <ShieldCheck className="h-3 w-3" aria-hidden="true" />
-              Official
-            </span>
+        <div className="grid gap-4 lg:grid-cols-[1fr_1.05fr]">
+          {/* What it does */}
+          <div className="glass-card rounded-[22px] p-5 sm:p-6">
+            <ul className="space-y-4">
+              <UtilityRow
+                icon={<Sparkles className="h-4 w-4" aria-hidden="true" />}
+                title="Use it to spin"
+                body="Pay for a spin in $ROB — your wallet swaps it for exactly the ETH the spin costs, then spins."
+              />
+              <UtilityRow
+                icon={<Gift className="h-4 w-4" aria-hidden="true" />}
+                title="Win it from pools"
+                body="When a live pool loads $ROB as a reward, you can pull it like any other token — read straight from the pool."
+              />
+              <UtilityRow
+                icon={<Flame className="h-4 w-4" aria-hidden="true" />}
+                title="Watch it burn"
+                body="Protocol fees buy $ROB back and send it to a dead address — a running total anyone can verify."
+              />
+            </ul>
+            <div className="mt-5 flex flex-wrap gap-2 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4">
+              <ButtonLink href={ROB_TOKEN.route} variant="primary" size="sm">
+                About $ROB
+              </ButtonLink>
+              <ButtonLink href={ROB_MARKET_URL} variant="ghost" size="sm" external>
+                View market
+                <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </ButtonLink>
+            </div>
           </div>
 
-          <p className="micro mb-2 mt-5">Contract address</p>
+          {/* Verify it's real */}
+          <div className="glass-card rounded-[22px] p-5 sm:p-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[15px] font-semibold tracking-[-0.02em]">
+                ${ROB_TOKEN.symbol}
+              </span>
+              <span className="num text-[12.5px] text-ink-3">{ROB_TOKEN.name}</span>
+              <RobOfficialPill />
+            </div>
 
-          {/* Shown whole, and wrapped rather than truncated — a shortened
-              address is not something a reader can actually check. */}
-          <div className="flex flex-col gap-3 rounded-[16px] bg-[rgb(var(--ink-rgb)_/_0.045)] p-3.5 sm:flex-row sm:items-center">
-            <code
-              id={addressId}
-              className="num min-w-0 flex-1 break-all text-[13px] leading-relaxed text-ink select-all"
-            >
-              {ROB_TOKEN.address}
-            </code>
-            <button
-              type="button"
-              onClick={async () => {
-                // The clipboard is not guaranteed: the API is missing on an
-                // insecure origin and rejects when permission is denied. An
-                // unhandled rejection would leave the button silently saying
-                // "Copy" forever, and this is the one value on the page where
-                // a person quietly assuming they copied it, then pasting
-                // something else into a wallet, costs them money. On failure
-                // the address is selected instead, so the manual copy they now
-                // have to do is one keystroke rather than a careful retype.
-                try {
-                  await navigator.clipboard.writeText(ROB_TOKEN.address);
-                  setCopied(true);
-                  setTimeout(() => setCopied(false), 1_400);
-                } catch {
-                  const node = document.getElementById(addressId);
-                  if (!node) return;
-                  const range = document.createRange();
-                  range.selectNodeContents(node);
-                  const selection = window.getSelection();
-                  selection?.removeAllRanges();
-                  selection?.addRange(range);
-                  setFallback(true);
-                  setTimeout(() => setFallback(false), 4_000);
-                }
-              }}
-              className="glass-quiet inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[12.5px] font-medium text-ink-2 transition-colors hover:text-ink"
-            >
-              {copied ? (
-                <Check className="h-3.5 w-3.5" aria-hidden="true" />
-              ) : (
-                <Copy className="h-3.5 w-3.5" aria-hidden="true" />
-              )}
-              {copied ? "Copied" : "Copy"}
-            </button>
-          </div>
-
-          {/* Announced politely rather than as an error: nothing is broken,
-              the address is simply now selected and waiting to be copied. */}
-          {fallback ? (
-            <p role="status" className="mt-2 text-[11.5px] text-ink-3">
-              Your browser blocked the clipboard, so we selected the address
-              instead — copy it with your keyboard.
+            <p className="mt-3 max-w-[52ch] text-[12.5px] leading-relaxed text-ink-2">
+              Anyone can launch a token using our ticker, and people do. The
+              address below is the only one that&rsquo;s ours — check it before
+              you buy anything.
             </p>
-          ) : null}
 
-          <dl className="mt-5 grid gap-3 sm:grid-cols-3">
-            {[
-              { term: "Network", value: NETWORK_LABEL },
-              { term: "Decimals", value: String(ROB_TOKEN.decimals) },
-              {
-                term: "Total supply",
-                value: ROB_TOKEN.totalSupply.toLocaleString("en-US"),
-              },
-            ].map((row) => (
-              <div
-                key={row.term}
-                className="rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.035)] px-3.5 py-3"
-              >
-                <dt className="micro">{row.term}</dt>
-                <dd className="num mt-1 text-[13px] text-ink">{row.value}</dd>
-              </div>
-            ))}
-          </dl>
+            <RobContractLine className="mt-4" />
 
-          {tokenLink ? (
-            <a
-              href={tokenLink}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-5 inline-flex items-center gap-1.5 text-[12.5px] text-ink-2 underline decoration-dotted underline-offset-4 hover:text-ink"
-            >
-              Check it on the explorer
-              <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
-            </a>
-          ) : null}
+            <dl className="mt-5 grid grid-cols-3 gap-2">
+              {[
+                { term: "Network", value: NETWORK_LABEL },
+                { term: "Decimals", value: String(ROB_TOKEN.decimals) },
+                {
+                  term: "Supply",
+                  value: ROB_TOKEN.totalSupply.toLocaleString("en-US"),
+                },
+              ].map((row) => (
+                <div
+                  key={row.term}
+                  className="rounded-[14px] bg-[rgb(var(--ink-rgb)_/_0.035)] px-3 py-2.5"
+                >
+                  <dt className="micro">{row.term}</dt>
+                  <dd className="num mt-1 text-[12.5px] text-ink">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
 
-          <p className="mt-4 max-w-[76ch] text-[11.5px] leading-relaxed text-ink-3">
-            Those figures come from the contract itself — symbol, decimals and
-            supply are all things you can read back on the explorer rather than
-            take from us. $ROB doesn&rsquo;t do anything in the machine yet:
-            spins are paid in ETH, and we&rsquo;ll say so here if that ever
-            changes. We will never DM you asking you to buy it.
-          </p>
+            <p className="mt-3 text-[11px] leading-relaxed text-ink-3">
+              Symbol, decimals and supply are all read back from the contract on
+              the explorer. We&rsquo;ll never DM you asking you to buy it.
+            </p>
+          </div>
         </div>
       </PageContainer>
     </section>
