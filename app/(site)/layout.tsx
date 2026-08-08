@@ -11,8 +11,9 @@ export default function SiteLayout({
     <>
       <AmbientBackground />
       <SiteHeader />
-      {/* Clears the floating navbar, which is fixed. */}
-      <main id="main" className="flex-1 pt-24 sm:pt-28">
+      {/* Clears the floating navbar, which is fixed. Matches the product
+          layout so the header sits identically on every page. */}
+      <main id="main" className="flex-1 pt-[76px] sm:pt-[84px]">
         {children}
       </main>
       <Footer />

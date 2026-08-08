@@ -34,25 +34,25 @@ export function SiteHeader() {
   const mobileItems = useVisibleNav(MOBILE_ITEMS);
 
   return (
-    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 sm:pt-5">
+    <header className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 sm:px-4 sm:pt-4">
       <div
         className={cn(
-          "glass-nav glass-highlight pointer-events-auto flex w-full max-w-[1120px] items-center gap-3 rounded-full",
-          "transition-[height,padding,box-shadow,background-color] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-          scrolled ? "h-14 px-3 pr-3" : "h-16 px-4 pr-4",
+          "glass-nav glass-highlight pointer-events-auto flex w-full max-w-[1360px] items-center gap-2.5 rounded-full px-3",
+          "transition-[height,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          scrolled ? "h-[52px]" : "h-[58px]",
         )}
       >
         <Link
           href="/"
           aria-label="ROBACHA home"
-          className="shrink-0 rounded-full pl-1 transition-opacity hover:opacity-80"
+          className="shrink-0 rounded-full pl-0.5 transition-opacity hover:opacity-80"
         >
-          <RobachaLogo size={scrolled ? 25 : 28} />
+          <RobachaLogo size={25} />
         </Link>
 
         <nav
           aria-label="Primary"
-          className="ml-2 hidden items-center gap-0.5 md:flex"
+          className="ml-1 hidden items-center gap-0.5 md:flex"
         >
           {nav.map((item) => {
             const isHome = item.href === "/";
@@ -68,7 +68,7 @@ export function SiteHeader() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-medium transition-colors",
+                  "relative inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[13.5px] font-medium transition-colors",
                   active
                     ? "text-ink"
                     : "text-ink-2 hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink",
