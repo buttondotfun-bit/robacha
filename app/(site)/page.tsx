@@ -31,10 +31,11 @@ export default function LandingPage() {
     <>
       <Hero />
 
-      {/* Live Meebit raffle as a slim cross-product rail, not a second hero.
-          Renders nothing when no raffle is open, so the funnel stays clean. */}
+      {/* Live Meebit raffle, front and centre for arriving visitors as a full
+          banner. Renders nothing when no raffle is open, so the funnel stays
+          clean. */}
       <PageContainer width="wide" className="pb-2">
-        <RafflePromo variant="bar" />
+        <RafflePromo variant="banner" />
       </PageContainer>
 
       <HowItWorks />
