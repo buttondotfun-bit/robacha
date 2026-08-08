@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { Home } from "lucide-react";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
 import { XIcon } from "@/components/brand/XIcon";
-import { ButtonLink } from "@/components/ui/Button";
 import { GlassChip } from "@/components/ui/Glass";
+import { WalletButton } from "./WalletButton";
 import { SITE_NAV, SOCIAL_LINKS } from "@/lib/constants";
 import { useScrolled } from "@/lib/use-scrolled";
 import { useVisibleNav } from "@/lib/use-visible-nav";
@@ -104,21 +104,10 @@ export function SiteHeader() {
             {NETWORK_LABEL}
           </GlassChip>
 
-          <span className="hidden sm:block">
-            <ButtonLink
-              href="/app"
-              variant="primary"
-              size={scrolled ? "md" : "lg"}
-            >
-              Launch App
-            </ButtonLink>
-          </span>
+          <WalletButton />
 
           <span className="block md:hidden">
-            <MobileNavigation
-              items={mobileItems}
-              cta={{ label: "Launch App", href: "/app" }}
-            />
+            <MobileNavigation items={mobileItems} />
           </span>
         </div>
       </div>
