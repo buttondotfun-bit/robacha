@@ -208,9 +208,9 @@ export const PAGE_SEO = {
     ogTitle: "Onchain Activity",
   },
   howItWorks: {
-    title: "How Robacha Works — Onchain Reward Pools",
+    title: "How Robacha Works — Pools, Spins, Odds & Onchain Rewards",
     description:
-      "Learn how Robacha reward pools, token spins, round settlement, published odds and claims work on Robinhood Chain.",
+      "Learn how Robacha machines, reward pools, rounds, published odds, randomness, claims and verification work on Robinhood Chain.",
     path: "/how-it-works",
     ogTitle: "How Robacha Works",
     ogTag: "The machine, explained",
