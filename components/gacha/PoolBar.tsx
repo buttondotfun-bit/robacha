@@ -1,7 +1,5 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
-import Link from "next/link";
 import { RarityChip } from "@/components/shared/RarityChip";
 import { formatRoundClock, useLiveRound } from "@/lib/use-live-round";
 import { cn } from "@/lib/utils";
@@ -55,24 +53,15 @@ export function PoolBar({ pool, className }: { pool: ActivePool; className?: str
         </ul>
       </div>
 
-      {/* Round status rail + pool link. */}
-      <div className="flex shrink-0 items-center gap-3">
-        <div className="text-right">
-          <p className="micro">Round{round.roundId !== null ? ` #${round.roundId}` : ""}</p>
-          <p className="mt-0.5 inline-flex items-center gap-1.5 text-[12.5px] font-medium">
-            <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} aria-hidden="true" />
-            <span className={status.live ? "text-ink" : "text-ink-2"}>{status.label}</span>
-            {status.clock ? <span className="num text-ink-3">· {status.clock}</span> : null}
-          </p>
-        </div>
-        <span className="hidden h-8 w-px bg-[rgb(var(--line-rgb)_/_0.08)] lg:block" />
-        <Link
-          href="/app"
-          className="glass-chip inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-[12.5px] font-medium text-ink"
-        >
-          View Pool
-          <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-        </Link>
+      {/* Round status rail. On mobile it stacks as a full-width row under a
+          hairline; on desktop it tucks inline at the right edge. */}
+      <div className="w-full border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-3 lg:w-auto lg:shrink-0 lg:border-t-0 lg:pt-0 lg:text-right">
+        <p className="micro">Round{round.roundId !== null ? ` #${round.roundId}` : ""}</p>
+        <p className="mt-0.5 flex items-center gap-1.5 text-[12.5px] font-medium lg:justify-end">
+          <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", status.dot)} aria-hidden="true" />
+          <span className={cn("truncate", status.live ? "text-ink" : "text-ink-2")}>{status.label}</span>
+          {status.clock ? <span className="num shrink-0 text-ink-3">· {status.clock}</span> : null}
+        </p>
       </div>
     </div>
   );
