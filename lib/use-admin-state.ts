@@ -62,7 +62,7 @@ const LOOKBACK = 15;
 /** Shape of one `allowFailure` result; the input casts erase this otherwise. */
 type ReadResult = { status: "success" | "failure"; result?: unknown };
 
-export function useAdminState() {
+export function useAdminState(poolId: bigint = ACTIVE_POOL_ID) {
   // Clock from an external store rather than Date.now() during render, which
   // React treats as impure and which would make countdowns jitter on unrelated
   // re-renders.
@@ -87,7 +87,7 @@ export function useAdminState() {
             address: gacha,
             abi: ROBACHA_GACHA_ABI,
             functionName: "spinReadiness",
-            args: [ACTIVE_POOL_ID],
+            args: [poolId],
           },
         ]
       : [],

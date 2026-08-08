@@ -1,10 +1,10 @@
 "use client";
 
 import { AlertTriangle, RefreshCw, ShieldCheck, ShieldX } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { EmptyState, PageContainer, Pill } from "@/components/shared/primitives";
 import { Button } from "@/components/ui/Button";
-import { chainConfig, contracts } from "@/lib/config";
+import { ACTIVE_POOL_ID, chainConfig, contracts, isStockMachineLive, STOCK_POOL_ID } from "@/lib/config";
 import { shortAddress } from "@/lib/formatters";
 import { useAdminHealth } from "@/lib/use-admin-health";
 import { useAdminMonitor } from "@/lib/use-admin-monitor";
@@ -55,7 +55,11 @@ export function AdminClient() {
   // The admin gate decides whether the heavy reads run at all.
   const admin = wallet.isConnected && role.isAdmin && !wallet.wrongNetwork;
 
-  const s = useAdminState();
+  // Which pool the pool-scoped views (spin readiness) report on. Genesis by
+  // default; the Stock pool when it's live. Vault, rounds, fees and randomness
+  // are gacha/vault-wide and already cover every pool.
+  const [poolId, setPoolId] = useState<bigint>(ACTIVE_POOL_ID);
+  const s = useAdminState(poolId);
   const monitor = useAdminMonitor(admin && autoRefresh ? 20_000 : false);
   const health = useAdminHealth(admin);
 
@@ -66,7 +70,9 @@ export function AdminClient() {
   useEffect(() => {
     const url = new URL(window.location.href);
     const t = url.searchParams.get("tab");
-    if (t && VALID_TABS.has(t as AdminTab)) setTab(t as AdminTab);
+    if (!(t && VALID_TABS.has(t as AdminTab))) return;
+    const id = window.setTimeout(() => setTab(t as AdminTab), 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   const go = useCallback((next: AdminTab) => {
@@ -213,6 +219,29 @@ export function AdminClient() {
       <div className="mt-3">
         <AttentionRequired monitor={monitor} go={go} />
       </div>
+
+      {/* ---- pool selector (only once a second pool exists) ---- */}
+      {isStockMachineLive && STOCK_POOL_ID !== null ? (
+        <div className="mt-5 inline-flex items-center gap-1 rounded-full border border-[rgb(var(--line-rgb)_/_0.12)] bg-surface/60 p-1 text-[12px]">
+          <span className="px-2 text-ink-3">Pool readiness:</span>
+          {[
+            { id: ACTIVE_POOL_ID, label: "Genesis" },
+            { id: STOCK_POOL_ID, label: "Stock" },
+          ].map((p) => (
+            <button
+              key={p.label}
+              type="button"
+              onClick={() => setPoolId(p.id)}
+              className={cn(
+                "rounded-full px-3 py-1 font-medium transition-colors",
+                poolId === p.id ? "bg-ink text-surface" : "text-ink-2 hover:text-ink",
+              )}
+            >
+              {p.label} <span className="num opacity-60">#{p.id.toString()}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {/* ---- tab nav ---- */}
       <nav

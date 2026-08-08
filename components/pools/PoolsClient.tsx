@@ -8,14 +8,14 @@ import { PageContainer, SectionHeader } from "@/components/shared/primitives";
 import { ButtonLink } from "@/components/ui/Button";
 import { machineBySlug } from "@/data/machines";
 import { projectByAddress, projectHref } from "@/data/projects";
-import { contracts, explorerUrl } from "@/lib/config";
+import { contracts, explorerUrl, isStockMachineLive } from "@/lib/config";
+import { StockPoolCard } from "./StockPoolCard";
 import { formatOdds } from "@/lib/formatters";
 import { useLiveRound } from "@/lib/use-live-round";
 import { usePool } from "@/lib/use-pool";
 import { useTokenMarket } from "@/lib/use-token-market";
 import { useWallet } from "@/lib/use-wallet";
 import { useWalletHistory } from "@/lib/use-wallet-history";
-import { cn } from "@/lib/utils";
 
 /**
  * The pools directory — the canonical list of Robacha reward pools.
@@ -59,9 +59,9 @@ export function PoolsClient() {
             spin.
           </p>
           <p className="num mt-4 flex flex-wrap gap-x-3 gap-y-1 text-[12.5px] text-ink-3">
-            <span>1 live pool</span>
-            {assetCount > 0 ? <span>· {assetCount} reward assets</span> : null}
-            <span>· Genesis Machine live</span>
+            <span>{isStockMachineLive ? "2 live pools" : "1 live pool"}</span>
+            {assetCount > 0 ? <span>· {assetCount} Genesis assets</span> : null}
+            <span>· {isStockMachineLive ? "Genesis & Stock machines live" : "Genesis Machine live"}</span>
           </p>
 
           {/* Concept diagram */}
@@ -168,6 +168,9 @@ export function PoolsClient() {
           )}
         </PageContainer>
       </section>
+
+      {/* Live now — Stock Pool (renders only when the stock machine is live) */}
+      <StockPoolCard />
 
       {/* Inside genesis — asset rail */}
       {entries.length > 0 ? (
