@@ -1,8 +1,11 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
+  ArrowUpRight,
+  BadgeCheck,
   Boxes,
   Check,
   Clock,
@@ -21,10 +24,21 @@ import { PageContainer } from "@/components/shared/primitives";
 import { Reveal } from "@/components/shared/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import { XIcon } from "@/components/brand/XIcon";
-import { CapsuleGlyph } from "@/components/nft/CapsuleGlyph";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import { contracts, explorerUrl } from "@/lib/config";
+import { NFT_SPIN_CANDIDATES } from "@/data/nft-spins";
 import { useHubStatus } from "@/lib/use-raffle-hub";
+
+/**
+ * Real, verified Robinhood Chain collections shown as example prizes in the
+ * preview — the same collections the NFT-spins reel is drawn from, each linking
+ * to its own OpenSea page. They illustrate what a creator's raffle could hold;
+ * the card is labelled a preview and shows no specific token id, so it never
+ * implies one of these is actually being raffled.
+ */
+const PREVIEW_COLLECTIONS = NFT_SPIN_CANDIDATES.filter((c) =>
+  ["StonkBrokers", "Chain Mancers", "CASHCAT"].includes(c.name),
+);
 
 /**
  * The NFT-raffle launchpad — a product landing page, not a holding page.
@@ -314,28 +328,80 @@ function SectionHead({ eyebrow, title }: { eyebrow: string; title: string }) {
 }
 
 function PreviewCard({ creatorPct }: { creatorPct: number }) {
+  const items = PREVIEW_COLLECTIONS;
+  const [i, setI] = useState(0);
+
+  // Gently rotate through the real example collections; hold still for anyone
+  // who prefers reduced motion.
+  useEffect(() => {
+    if (items.length < 2) return;
+    if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => setI((x) => (x + 1) % items.length), 3600);
+    return () => window.clearInterval(id);
+  }, [items.length]);
+
+  const active = items[i] ?? null;
+
   return (
     <div className="glass-card relative overflow-hidden rounded-[24px] p-5">
       <div className="flex items-center justify-between">
         <p className="micro text-ink-3">Your raffle · preview</p>
         <span className="glass-chip rounded-full px-2 py-0.5 text-[10px] font-medium text-ink-3">UI preview</span>
       </div>
+
       <div className="mt-3 flex items-center gap-4">
-        <span className="grid h-20 w-20 shrink-0 place-items-center rounded-[16px] bg-[rgb(var(--ink-rgb)_/_0.03)]" data-rarity="grail">
-          <CapsuleGlyph id="launchpad-preview" className="h-14 w-14" />
-        </span>
-        <div>
-          <p className="text-[16px] font-semibold tracking-[-0.02em]">Robacha Capsule #—</p>
-          <p className="text-[12px] text-ink-3">Your NFT · Robinhood Chain</p>
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-[16px] border border-[rgb(var(--edge-rgb)_/_0.9)] bg-[rgb(var(--ink-rgb)_/_0.03)]">
+          {items.map((c, idx) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={c.address}
+              src={c.image}
+              alt={`${c.name} — example collection`}
+              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${idx === i ? "opacity-100" : "opacity-0"}`}
+            />
+          ))}
+        </div>
+        <div className="min-w-0">
+          <p className="flex items-center gap-1.5 text-[16px] font-semibold tracking-[-0.02em]">
+            <span className="truncate">{active ? active.name : "Your NFT"}</span>
+            {active ? <BadgeCheck className="h-4 w-4 shrink-0 text-accent-ink" aria-hidden="true" /> : null}
+          </p>
+          <p className="text-[11.5px] text-ink-3">Example prize · real Robinhood Chain collection</p>
+          {active ? (
+            <a
+              href={active.opensea}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-ink-2 hover:text-ink"
+            >
+              View on OpenSea <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+            </a>
+          ) : null}
         </div>
       </div>
-      <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4 text-center">
+
+      {/* which example is showing */}
+      {items.length > 1 ? (
+        <div className="mt-3 flex items-center gap-1.5">
+          {items.map((c, idx) => (
+            <button
+              key={c.address}
+              type="button"
+              aria-label={`Show ${c.name}`}
+              onClick={() => setI(idx)}
+              className={`h-1.5 rounded-full transition-all ${idx === i ? "w-5 bg-[#a6d900]" : "w-1.5 bg-[rgb(var(--ink-rgb)_/_0.14)]"}`}
+            />
+          ))}
+        </div>
+      ) : null}
+
+      <dl className="mt-3 grid grid-cols-3 gap-3 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4 text-center">
         <PreviewStat label="Ticket" value="$10" />
         <PreviewStat label="Tickets" value="200" />
         <PreviewStat label="Duration" value="24h" />
         <PreviewStat label="You keep" value={`${creatorPct}%`} />
         <PreviewStat label="Winner" value="1" />
-        <PreviewStat label="Refunds" value="Auto" />
+        <PreviewStat label="Refunds" value="Full" />
       </dl>
     </div>
   );
