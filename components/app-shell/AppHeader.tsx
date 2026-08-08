@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home } from "lucide-react";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
 import { XIcon } from "@/components/brand/XIcon";
 import { APP_NAV, SOCIAL_LINKS } from "@/lib/constants";
@@ -13,11 +14,11 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { NetworkBadge } from "./NetworkBadge";
 import { WalletButton } from "./WalletButton";
 
+// APP_NAV already leads with Home, so it isn't appended again here.
 const MOBILE_ITEMS = [
   ...APP_NAV,
   { label: "FAQ", href: "/faq" },
   { label: "Help", href: "/support" },
-  { label: "Home", href: "/" },
 ];
 
 /** Floating product navigation — same material as the site header, denser. */
@@ -54,6 +55,7 @@ export function AppHeader() {
           className="ml-1 hidden items-center gap-0.5 md:flex"
         >
           {nav.map((item) => {
+            const isHome = item.href === "/";
             const active = pathname === item.href;
             return (
               <Link
@@ -61,12 +63,13 @@ export function AppHeader() {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "whitespace-nowrap rounded-full px-3 py-1.5 text-[13.5px] font-medium transition-colors",
+                  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-[13.5px] font-medium transition-colors",
                   active
                     ? "bg-[rgb(var(--edge-rgb)_/_0.82)] text-ink shadow-[0_1px_0_rgb(var(--edge-rgb)_/_0.9)_inset,0_2px_6px_-2px_rgb(var(--ink-rgb)_/_0.12)]"
                     : "text-ink-2 hover:bg-[rgb(var(--edge-rgb)_/_0.55)] hover:text-ink",
                 )}
               >
+                {isHome ? <Home className="h-3.5 w-3.5" aria-hidden="true" /> : null}
                 {item.label}
               </Link>
             );

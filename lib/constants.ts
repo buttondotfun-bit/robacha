@@ -28,7 +28,6 @@ export const SITE_NAV: readonly NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Spin", href: "/app" },
   { label: "NFTs", href: "/nft" },
-  { label: "NFT Spins", href: "/nft-spins" },
   { label: "Raffle", href: "/raffle" },
   { label: "Launchpad", href: "/launchpad" },
   { label: "Rewards", href: "/rewards", walletOnly: true },
@@ -36,8 +35,9 @@ export const SITE_NAV: readonly NavLink[] = [
 ];
 
 export const APP_NAV: readonly NavLink[] = [
+  { label: "Home", href: "/" },
   { label: "Spin", href: "/app" },
-  { label: "NFT Spins", href: "/nft-spins" },
+  { label: "NFTs", href: "/nft" },
   { label: "Raffle", href: "/raffle" },
   { label: "Launchpad", href: "/launchpad" },
   { label: "Rewards", href: "/rewards", walletOnly: true },

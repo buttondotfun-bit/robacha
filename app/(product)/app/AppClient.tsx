@@ -11,6 +11,7 @@ import { TokenLineup } from "@/components/landing/TokenLineup";
 import { UpcomingMachines } from "@/components/rewards/UpcomingMachines";
 import { SpinControls } from "@/components/gacha/SpinControls";
 import { SpinResult } from "@/components/gacha/SpinResult";
+import { SpinTabs } from "@/components/gacha/SpinTabs";
 import { RafflePromo } from "@/components/raffle/RafflePromo";
 import { UnavailableState } from "@/components/shared/UnavailableState";
 import { Button } from "@/components/ui/Button";
@@ -28,6 +29,9 @@ export function AppClient() {
 
   return (
     <>
+      {/* Switch between the token machine and the NFT machine. */}
+      <SpinTabs className="mb-4" />
+
       {/* Markets the live Meebit raffle above the machine; self-hides the
           moment the raffle sells out, draws, or isn't running. */}
       <RafflePromo variant="banner" className="mb-4" />

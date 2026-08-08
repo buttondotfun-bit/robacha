@@ -5,6 +5,7 @@ import { Reveal } from "@/components/shared/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import { RafflePromo } from "@/components/raffle/RafflePromo";
+import { SpinTabs } from "@/components/gacha/SpinTabs";
 import { NftSpinStage } from "./NftSpinStage";
 
 /**
@@ -29,6 +30,9 @@ export function NftSpinsTeaser() {
 
   return (
     <PageContainer width="wide" className="pb-16 pt-6">
+      {/* Same switcher as the token spinner, so the two machines interconnect. */}
+      <SpinTabs className="mb-4" />
+
       {/* A real, live thing to do while NFT spins are still coming. */}
       <RafflePromo variant="banner" className="mb-4" />
 
