@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Home } from "lucide-react";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
 import { XIcon } from "@/components/brand/XIcon";
 import { ButtonLink } from "@/components/ui/Button";
@@ -15,8 +16,8 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { NETWORK_LABEL } from "@/lib/web3";
 import { MobileNavigation } from "./MobileNavigation";
 
+// SITE_NAV now leads with Home, so the mobile list no longer prepends its own.
 const MOBILE_ITEMS = [
-  { label: "Home", href: "/" },
   ...SITE_NAV,
   { label: "My Bag", href: "/bag", walletOnly: true },
 ];
@@ -54,21 +55,28 @@ export function SiteHeader() {
           className="ml-2 hidden items-center gap-0.5 md:flex"
         >
           {nav.map((item) => {
-            const active =
-              item.href.startsWith("/") &&
-              !item.href.includes("#") &&
-              pathname.startsWith(item.href);
+            const isHome = item.href === "/";
+            // Home matches only the exact root — `startsWith("/")` is true on
+            // every page, which would light Home up everywhere.
+            const active = isHome
+              ? pathname === "/"
+              : item.href.startsWith("/") &&
+                !item.href.includes("#") &&
+                pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-medium transition-colors",
+                  "relative inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-[13.5px] font-medium transition-colors",
                   active
                     ? "text-ink"
                     : "text-ink-2 hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink",
                 )}
               >
+                {isHome ? (
+                  <Home className="h-3.5 w-3.5" aria-hidden="true" />
+                ) : null}
                 {item.label}
               </Link>
             );

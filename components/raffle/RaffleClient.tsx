@@ -1,10 +1,17 @@
-import { ArrowUpRight, Check, Lock, RefreshCcw, Ticket } from "lucide-react";
+import Image from "next/image";
+import { ArrowUpRight, Check, Globe, Lock, MessageCircle, RefreshCcw, Ticket } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
 import { PageContainer } from "@/components/shared/primitives";
 import { Reveal } from "@/components/shared/Reveal";
 import { ButtonLink } from "@/components/ui/Button";
 import { SOCIAL_LINKS } from "@/lib/constants";
-import { RAFFLE_OUTCOMES, RAFFLE_PRIZE, RAFFLE_RULES } from "@/data/raffle";
+import {
+  RAFFLE_OUTCOMES,
+  RAFFLE_PRIZE,
+  RAFFLE_PRIZE_LINKS,
+  RAFFLE_PRIZE_STATS,
+  RAFFLE_RULES,
+} from "@/data/raffle";
 
 /**
  * The Meebit raffle page.
@@ -61,53 +68,79 @@ export function RaffleClient() {
             </div>
           </div>
 
-          {/* Prize card. Represents the prize honestly — the collection, on the
-              chain it lives on, with a link to see real Meebits — without
-              putting a specific token here that is not the one that will be
-              raffled. */}
+          {/* Prize card. A representative Meebit and the collection's live-ish
+              stats, each stat stamped with the date it was read and linked to
+              OpenSea for the current number — a dated snapshot said to be one,
+              not a stale figure passed off as current. */}
           <div
             data-rarity="grail"
-            className="glass-card relative flex flex-col gap-4 overflow-hidden rounded-[24px] p-6"
+            className="glass-card relative overflow-hidden rounded-[24px] p-5"
           >
-            <div
-              aria-hidden="true"
-              className="rarity-breathe pointer-events-none absolute left-1/2 top-1/3 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[8px]"
-              style={{
-                background:
-                  "radial-gradient(circle, rgb(var(--rarity-glow) / 0.3) 0%, transparent 68%)",
-              }}
-            />
-            <p className="micro relative">The prize</p>
-            <p className="relative text-[28px] font-semibold leading-none tracking-[-0.03em]">
-              {RAFFLE_PRIZE.name}
-            </p>
-            <dl className="relative grid grid-cols-2 gap-3 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-4 text-[13px]">
+            <div className="relative aspect-square w-full overflow-hidden rounded-[18px] border border-[rgb(var(--edge-rgb)_/_0.8)]">
+              <Image
+                src={RAFFLE_PRIZE.image}
+                alt="A Meebit — a 3D voxel character from the Meebits collection"
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 460px"
+                className="object-cover"
+              />
+              <span className="absolute bottom-2 left-2 rounded-full bg-[rgb(var(--ink-rgb)_/_0.6)] px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
+                Illustrative — winning Meebit shown at draw
+              </span>
+            </div>
+
+            <div className="mt-4 flex items-baseline justify-between gap-2">
               <div>
-                <dt className="micro">Collection</dt>
-                <dd className="mt-0.5 font-medium text-ink">{RAFFLE_PRIZE.collection}</dd>
+                <p className="micro">The prize</p>
+                <p className="text-[22px] font-semibold leading-tight tracking-[-0.02em]">
+                  {RAFFLE_PRIZE.name}
+                </p>
+              </div>
+              <span className="glass-chip inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium text-ink-2">
+                {RAFFLE_PRIZE.collection} · {RAFFLE_PRIZE.chain}
+              </span>
+            </div>
+
+            <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2.5 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-3 text-[13px]">
+              <div>
+                <dt className="micro">Floor</dt>
+                <dd className="num mt-0.5 font-medium text-ink">{RAFFLE_PRIZE_STATS.floor}</dd>
               </div>
               <div>
-                <dt className="micro">Chain</dt>
-                <dd className="mt-0.5 font-medium text-ink">{RAFFLE_PRIZE.chain}</dd>
+                <dt className="micro">Total volume</dt>
+                <dd className="num mt-0.5 font-medium text-ink">{RAFFLE_PRIZE_STATS.totalVolume}</dd>
+              </div>
+              <div>
+                <dt className="micro">Owners</dt>
+                <dd className="num mt-0.5 font-medium text-ink">{RAFFLE_PRIZE_STATS.owners}</dd>
               </div>
               <div>
                 <dt className="micro">Supply</dt>
-                <dd className="num mt-0.5 font-medium text-ink">{RAFFLE_PRIZE.supply}</dd>
-              </div>
-              <div>
-                <dt className="micro">Floor (ref.)</dt>
-                <dd className="num mt-0.5 font-medium text-ink">{RAFFLE_PRIZE.floorReference}</dd>
+                <dd className="num mt-0.5 font-medium text-ink">{RAFFLE_PRIZE_STATS.supply}</dd>
               </div>
             </dl>
-            <a
-              href={RAFFLE_PRIZE.openseaUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="relative inline-flex items-center gap-1 text-[12px] font-medium text-accent-ink underline decoration-dotted underline-offset-2"
-            >
-              See Meebits on OpenSea
-              <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-            </a>
+
+            <p className="mt-2.5 text-[10.5px] text-ink-3">
+              Stats as of {RAFFLE_PRIZE_STATS.asOf}, via OpenSea — tap through for live figures.
+            </p>
+
+            {/* Official Meebits links, so a buyer can vet the collection at its
+                own sources rather than ours. */}
+            <div className="mt-3 flex flex-wrap gap-2 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-3">
+              <PrizeLink href={RAFFLE_PRIZE_LINKS.opensea} icon={<ArrowUpRight className="h-3 w-3" />}>
+                OpenSea
+              </PrizeLink>
+              <PrizeLink href={RAFFLE_PRIZE_LINKS.website} icon={<Globe className="h-3 w-3" />}>
+                meebits.app
+              </PrizeLink>
+              <PrizeLink href={RAFFLE_PRIZE_LINKS.x} icon={<XIcon className="h-3 w-3" />}>
+                @MeebitsNFTs
+              </PrizeLink>
+              <PrizeLink href={RAFFLE_PRIZE_LINKS.discord} icon={<MessageCircle className="h-3 w-3" />}>
+                Discord
+              </PrizeLink>
+            </div>
           </div>
         </div>
       </Reveal>
@@ -173,5 +206,27 @@ export function RaffleClient() {
         </p>
       </Reveal>
     </PageContainer>
+  );
+}
+
+function PrizeLink({
+  href,
+  icon,
+  children,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="glass-chip inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11.5px] font-medium text-ink-2 transition-colors hover:text-ink"
+    >
+      {icon}
+      {children}
+    </a>
   );
 }

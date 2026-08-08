@@ -26,12 +26,39 @@ export const RAFFLE_PRIZE = {
   name: "1 Meebit",
   collection: "Meebits",
   chain: "Ethereum",
-  supply: "20,000",
-  /** Reference only, and labelled as such — a floor moves, and this file is not a price feed. */
-  floorReference: "~0.36 ETH",
-  openseaUrl: "https://opensea.io/collection/meebits",
+  /**
+   * A representative Meebit, cropped from the collection's own OpenSea art.
+   * Labelled illustrative on the page: the exact Meebit is shown at draw, so
+   * this stands for the collection rather than claiming to be the prize token.
+   */
+  image: "/meebit.png",
   /** The canonical Meebits contract on Ethereum, for anyone verifying the collection. */
   contract: "0x7Bd29408f11D2bFC23c34f18275bBf23bB716Bc7",
+} as const;
+
+/**
+ * Collection stats, snapshotted from OpenSea with the date they were read.
+ *
+ * A floor and a volume move by the minute, and this file is not a price feed —
+ * so each is stamped "as of" and the page links to OpenSea for the live number
+ * rather than pretending this one is current. The same honesty the rest of the
+ * site keeps by reading from chain; here the chain is Ethereum and the source
+ * is OpenSea, so it is a dated snapshot, said to be one.
+ */
+export const RAFFLE_PRIZE_STATS = {
+  asOf: "8 Aug 2026",
+  floor: "0.36 ETH",
+  totalVolume: "189.3K ETH",
+  owners: "6,343",
+  supply: "20,000",
+} as const;
+
+/** Official Meebits links, verified against the collection's own OpenSea page. */
+export const RAFFLE_PRIZE_LINKS = {
+  opensea: "https://opensea.io/collection/meebits",
+  website: "https://meebits.app/",
+  x: "https://twitter.com/MeebitsNFTs",
+  discord: "https://discord.com/invite/meebits",
 } as const;
 
 export const RAFFLE_RULES: readonly RaffleRule[] = [
