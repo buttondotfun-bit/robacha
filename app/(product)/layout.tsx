@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppHeader } from "@/components/app-shell/AppHeader";
 import { EntryGate } from "@/components/legal/EntryGate";
 import { FollowPrompt } from "@/components/marketing/FollowPrompt";
+import { RafflePromo } from "@/components/raffle/RafflePromo";
 import { ClaimReminder } from "@/components/rewards/ClaimReminder";
 import { Walkthrough } from "@/components/onboarding/Walkthrough";
 import { AmbientBackground } from "@/components/shared/AmbientBackground";
@@ -20,6 +21,9 @@ export default function ProductLayout({
       <AppHeader />
       {/* Clears the floating navbar, which is fixed. */}
       <main id="main" className="flex-1 pt-[76px] sm:pt-[84px]">
+        {/* Raffle promo across the product, minus the spin page, which carries
+            the full banner itself. Renders nothing when no raffle is live. */}
+        <RafflePromo variant="bar" hideOnPaths={["/app"]} className="mb-2 px-4 sm:px-6" />
         {children}
       </main>
       <footer className="mt-14 px-4 pb-6 sm:px-6">

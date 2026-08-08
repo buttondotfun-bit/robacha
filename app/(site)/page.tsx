@@ -7,6 +7,8 @@ import { LivePoolPreview } from "@/components/landing/LivePoolPreview";
 import { NextRelease } from "@/components/landing/NextRelease";
 import { NftPreview } from "@/components/landing/NftPreview";
 import { NftSpinsCallout } from "@/components/nft/NftSpinsCallout";
+import { RafflePromo } from "@/components/raffle/RafflePromo";
+import { PageContainer } from "@/components/shared/primitives";
 import { RewardTiers } from "@/components/landing/RewardTiers";
 import { RobToken } from "@/components/landing/RobToken";
 import { Testimonials } from "@/components/landing/Testimonials";
@@ -17,6 +19,11 @@ export default function LandingPage() {
   return (
     <>
       <Hero />
+      {/* Live Meebit raffle, front and centre for arriving visitors. Renders
+          nothing whenever no raffle is open, so the funnel stays clean. */}
+      <PageContainer width="wide" className="pb-2">
+        <RafflePromo variant="banner" />
+      </PageContainer>
       <HowItWorks />
       <RewardTiers />
       <LivePoolPreview />
