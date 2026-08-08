@@ -43,10 +43,10 @@ const PRODUCTS = [
   {
     icon: TrendingUp,
     name: "Stock Machine",
-    status: "Coming soon",
-    live: false,
-    body: "Tokenized-stock discovery on Robinhood Chain.",
-    cta: "See preview",
+    status: "Live",
+    live: true,
+    body: "Spin for tokenized-stock rewards on Robinhood Chain.",
+    cta: "Spin",
     href: "/machines/tokenized-stocks",
   },
   {

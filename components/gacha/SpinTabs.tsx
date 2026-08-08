@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 const TABS = [
   { href: "/app", label: "Token Spins", icon: Coins, live: true },
   { href: "/nft-spins", label: "NFT Spins", icon: ImageIcon, live: false },
-  { href: "/machines/tokenized-stocks", label: "Stocks", icon: TrendingUp, live: false },
+  { href: "/machines/tokenized-stocks", label: "Stocks", icon: TrendingUp, live: true },
 ] as const;
 
 export function SpinTabs({ className }: { className?: string }) {

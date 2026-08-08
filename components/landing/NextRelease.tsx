@@ -106,10 +106,10 @@ export function NextRelease() {
         >
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="inline-flex h-6 items-center rounded-full bg-surface/70 px-2.5 text-[11px] font-medium text-accent-ink">
-              Next machine
+              New machine
             </span>
-            <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-accent-ink/70">
-              Coming soon
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.08em] text-[#3f7d17]">
+              <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-[#8ec500]" aria-hidden="true" /> Live now
             </span>
           </div>
 
@@ -117,13 +117,13 @@ export function NextRelease() {
             Tokenized Stocks
           </h3>
           <p className="mt-2.5 max-w-[62ch] text-[13.5px] leading-relaxed text-ink-2">
-            A new machine built for tokenized-stock reward assets on Robinhood
-            Chain — the same transparent spin, a different kind of reward. Not
-            live yet, and not investment advice: supported assets, pool and odds
-            get published before launch.
+            A live machine built for tokenized-stock rewards on Robinhood Chain —
+            the same transparent spin, a different kind of reward. Pull NVIDIA,
+            Tesla, Apple, Netflix or Meta, with odds read from the contract. Not
+            investment advice.
           </p>
           <span className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-accent-ink">
-            See the preview
+            Spin the Stock Machine
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
           </span>
         </Link>

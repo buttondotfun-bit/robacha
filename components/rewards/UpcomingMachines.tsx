@@ -28,11 +28,6 @@ const UPCOMING: { name: string; theme: string; href?: string }[] = [
     theme: "Same spin, but the capsule holds an NFT from a top Robinhood Chain collection.",
     href: "/nft-spins",
   },
-  {
-    name: "Stock Machine",
-    theme: "Tokenized-stock discovery on Robinhood Chain. Assets, pool and odds get published before launch.",
-    href: "/machines/tokenized-stocks",
-  },
 ];
 
 export function UpcomingMachines({
@@ -52,7 +47,7 @@ export function UpcomingMachines({
         <SectionHeader
           eyebrow="In the workshop"
           title="More machines are coming."
-          description="Two more in the works. Locked until they're loaded — the moment one's ready it drops in above, with real prizes and real odds."
+          description="One more in the works. Locked until it's loaded — the moment it's ready it drops in above, with real prizes and real odds."
           className="mb-6"
           action={<Pill tone="neutral">Locked</Pill>}
         />

@@ -317,10 +317,10 @@ export const PAGE_SEO = {
   stockMachine: {
     title: "Robacha Stock Machine — Tokenized Stock Rewards",
     description:
-      "A preview of the Robacha Stock Machine: tokenized-stock discovery on Robinhood Chain. Not live yet — supported assets, pool composition, pricing and probabilities will be published before launch. Not investment advice.",
+      "The Robacha Stock Machine on Robinhood Chain — spin a transparent pool of tokenized stocks (NVIDIA, Tesla, Apple, Netflix, Meta) with published odds read from the contract. Not investment advice.",
     path: "/machines/tokenized-stocks",
     ogTitle: "Stock Machine",
-    ogTag: "Coming soon",
+    ogTag: "Live machine",
   },
 } as const;
 

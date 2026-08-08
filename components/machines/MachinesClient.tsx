@@ -115,10 +115,9 @@ export function MachinesClient() {
       {/* ---- Up next ---- */}
       <section className="mt-14">
         <p className="micro text-ink-3">Up next</p>
-        <h2 className="mt-1.5 text-[22px] font-semibold tracking-[-0.02em]">Two more machines are loading.</h2>
+        <h2 className="mt-1.5 text-[22px] font-semibold tracking-[-0.02em]">One more machine is loading.</h2>
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           <UpcomingMachine slug="nft" />
-          <UpcomingMachine slug="tokenized-stocks" />
         </div>
       </section>
 

@@ -47,13 +47,14 @@ export const MACHINES: Machine[] = [
   {
     slug: "tokenized-stocks",
     name: "Stock Machine",
-    tagline: "Tokenized-stock discovery, coming soon.",
+    tagline: "Spin for tokenized-stock rewards.",
     description:
-      "A future Robacha machine built around tokenized-stock reward assets on Robinhood Chain. Not live yet — supported assets, pool composition, pricing and probabilities will be published before the first spin. Robacha does not provide investment advice.",
+      "A live Robacha machine built around tokenized-stock reward assets on Robinhood Chain — spin the published pool and pull NVIDIA, Tesla, Apple, Netflix or Meta, with odds read from the contract. Robacha does not provide investment advice.",
     type: "stock",
-    status: "coming-soon",
+    status: "live",
     rewardType: "Tokenized stocks",
     href: "/machines/tokenized-stocks",
+    poolSlug: "tokenized-stocks",
   },
 ];
 

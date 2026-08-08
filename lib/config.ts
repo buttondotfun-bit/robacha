@@ -154,9 +154,15 @@ export const isGachaConfigured =
  * conjure inventory: if the pool isn't funded, the gacha's own readiness check
  * keeps the spin button honest.
  */
+// Pinned to 2 in code (env still overrides) because the tokenized-stock pool is
+// live: registry pool 2, version 2, active and inventory-solvent, verified on
+// chain with the five confirmed stocks at 70/25/5. Same reasoning as the pinned
+// raffle address — a known-good, verified value wins over an unset env var. To
+// move or retire the machine, set NEXT_PUBLIC_ROBACHA_STOCK_POOL_ID or clear
+// this fallback.
 const envStockPoolId = Number.parseInt(process.env.NEXT_PUBLIC_ROBACHA_STOCK_POOL_ID ?? "", 10);
 export const STOCK_POOL_ID: bigint | null =
-  Number.isFinite(envStockPoolId) && envStockPoolId > 0 ? BigInt(envStockPoolId) : null;
+  Number.isFinite(envStockPoolId) && envStockPoolId > 0 ? BigInt(envStockPoolId) : 2n;
 
 /** Whether the Stock Machine is live (a pool id is configured and the gacha is up). */
 export const isStockMachineLive = STOCK_POOL_ID !== null && isGachaConfigured;
