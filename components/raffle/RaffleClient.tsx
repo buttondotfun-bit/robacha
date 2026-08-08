@@ -12,6 +12,7 @@ import {
   RAFFLE_PRIZE_STATS,
   RAFFLE_RULES,
 } from "@/data/raffle";
+import { RaffleTicketPanel } from "./RaffleTicketPanel";
 
 /**
  * The Meebit raffle page.
@@ -53,18 +54,24 @@ export function RaffleClient() {
               sell out, and every ticket is refunded in full.
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              {/* No pay button: there is nothing to pay into yet, and a live
-                  till without a contract is the exact thing this page refuses
-                  to be. */}
-              <span className="inline-flex items-center gap-2 rounded-full bg-[rgb(var(--ink-rgb)_/_0.08)] px-5 py-3 text-[14px] font-semibold text-ink-3">
-                <Lock className="h-4 w-4" aria-hidden="true" />
-                Tickets open soon
-              </span>
-              <ButtonLink href={x.href} external variant="secondary" size="lg">
-                <XIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                Follow for the drop
-              </ButtonLink>
+            {/* The ticket surface. It reads the deployed contract and, until
+                one exists, falls back to the announcement below — no live till
+                without a contract behind it. */}
+            <div className="mt-6">
+              <RaffleTicketPanel
+                fallback={
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-[rgb(var(--ink-rgb)_/_0.08)] px-5 py-3 text-[14px] font-semibold text-ink-3">
+                      <Lock className="h-4 w-4" aria-hidden="true" />
+                      Tickets open soon
+                    </span>
+                    <ButtonLink href={x.href} external variant="secondary" size="lg">
+                      <XIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                      Follow for the drop
+                    </ButtonLink>
+                  </div>
+                }
+              />
             </div>
           </div>
 

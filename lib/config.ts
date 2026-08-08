@@ -106,6 +106,10 @@ export const contracts = {
     process.env.NEXT_PUBLIC_ROBACHA_RANDOMNESS_SENDER_ADDRESS,
     "NEXT_PUBLIC_ROBACHA_RANDOMNESS_SENDER_ADDRESS",
   ),
+  raffle: readAddress(
+    process.env.NEXT_PUBLIC_ROBACHA_RAFFLE_ADDRESS,
+    "NEXT_PUBLIC_ROBACHA_RAFFLE_ADDRESS",
+  ),
 } as const;
 
 /**
