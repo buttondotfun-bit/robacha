@@ -46,7 +46,7 @@ export function LivePoolPreview() {
   const hidden = (pool?.entries.length ?? 0) - preview.length;
 
   return (
-    <section className="relative py-16 sm:py-20">
+    <section className="relative pb-11 pt-3 sm:pb-14 sm:pt-4">
       <LightField tone="green" size={800} className="right-[2%] top-[10%] opacity-70" />
 
       <PageContainer width="wide" className="relative">

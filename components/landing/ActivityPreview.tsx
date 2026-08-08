@@ -21,7 +21,7 @@ export function ActivityPreview() {
   const now = useNow();
 
   return (
-    <section className="relative py-16 sm:py-20">
+    <section className="relative py-11 sm:py-14">
       <PageContainer width="wide" className="relative">
         <SectionHeader
           eyebrow="Onchain activity"

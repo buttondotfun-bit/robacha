@@ -139,7 +139,7 @@ export function TokenLineup({
   }
 
   return (
-    <section className="relative py-16 sm:py-20" aria-label="Token lineup">
+    <section className="relative py-11 sm:py-14" aria-label="Token lineup">
       <PageContainer width="wide">
         <SectionHeader
           eyebrow="The lineup"

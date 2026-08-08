@@ -18,7 +18,7 @@ export function WhyRobacha() {
   const tiers = pool?.tiers ?? [];
 
   return (
-    <section className="relative py-16 sm:py-20">
+    <section className="relative py-11 sm:py-14">
       <LightField
         tone="pink"
         size={700}

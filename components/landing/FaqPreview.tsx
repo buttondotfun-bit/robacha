@@ -14,7 +14,7 @@ import { NETWORK_LABEL } from "@/lib/web3";
  */
 export function FaqPreview() {
   return (
-    <section className="relative py-16 sm:py-20">
+    <section className="relative py-11 sm:py-14">
       <LightField
         tone="cool"
         size={680}

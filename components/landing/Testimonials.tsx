@@ -24,7 +24,7 @@ export function Testimonials() {
   if (TESTIMONIALS.length === 0) return null;
 
   return (
-    <section className="relative py-16 sm:py-20" aria-label="What people are saying">
+    <section className="relative py-11 sm:py-14" aria-label="What people are saying">
       <PageContainer width="wide">
         <SectionHeader
           eyebrow="Word of mouth"

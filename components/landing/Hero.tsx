@@ -15,7 +15,7 @@ export function Hero() {
   return (
     // overflow-x-clip lets the console and its panels break the grid without
     // ever producing a horizontal scrollbar.
-    <section className="relative overflow-x-clip pb-28 pt-6 sm:pb-32 sm:pt-10">
+    <section className="relative overflow-x-clip pb-16 pt-6 sm:pb-20 sm:pt-10">
       <PageContainer width="wide">
         {/* The console column is allowed to overflow its track so the product
             visual breaks the grid instead of sitting inside a neat box. */}

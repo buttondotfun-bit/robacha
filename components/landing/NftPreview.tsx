@@ -28,7 +28,7 @@ export function NftPreview() {
   const grail = NFT_TIERS.find((tier) => tier.key === "grail");
 
   return (
-    <section className="relative py-16 sm:py-20" aria-label="Capsule NFT drop">
+    <section className="relative py-11 sm:py-14" aria-label="Capsule NFT drop">
       <PageContainer width="wide">
         <Reveal className="glass-panel glass-reflection glass-highlight relative overflow-hidden rounded-[32px] p-3 sm:p-4">
           <span className="noise-overlay" aria-hidden="true" />

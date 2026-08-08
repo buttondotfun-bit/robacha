@@ -40,7 +40,7 @@ export function RobToken() {
   const tokenLink = explorerUrl("token", ROB_TOKEN.address);
 
   return (
-    <section className="relative py-16 sm:py-20" aria-label="ROB token contract">
+    <section className="relative py-11 sm:py-14" aria-label="ROB token contract">
       <PageContainer width="wide">
         <SectionHeader
           eyebrow="Our token"

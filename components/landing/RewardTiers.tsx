@@ -28,7 +28,7 @@ export function RewardTiers() {
     : [];
 
   return (
-    <section className="relative py-16 sm:py-20">
+    <section className="relative pb-3 pt-11 sm:pb-4 sm:pt-14">
       <LightField tone="cool" size={760} className="left-[6%] top-0 opacity-60" />
       <LightField
         tone="gold"
@@ -41,7 +41,7 @@ export function RewardTiers() {
           eyebrow="Reward tiers"
           title="Some pulls are rarer than others."
           description="Every pool sorts its prizes into tiers. The harder something is to pull, the rarer we call it — and you can see the exact chance of each one before you spend anything."
-          className="mb-10"
+          className="mb-6"
         />
 
         {bands.length ? (

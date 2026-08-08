@@ -29,7 +29,7 @@ export function FinalCta() {
   return (
     <section className="relative pb-10 pt-16 sm:pt-20">
       <PageContainer width="wide">
-        <div className="glass-panel glass-reflection glass-highlight relative overflow-hidden rounded-[36px] px-6 py-20 text-center sm:px-10 sm:py-24">
+        <div className="glass-panel glass-reflection glass-highlight relative overflow-hidden rounded-[36px] px-6 py-14 text-center sm:px-10 sm:py-16">
           <span className="noise-overlay" aria-hidden="true" />
 
           {/* Light chamber */}

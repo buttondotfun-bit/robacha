@@ -40,7 +40,7 @@ const STEPS = [
  */
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="relative scroll-mt-28 py-16 sm:py-20">
+    <section id="how-it-works" className="relative scroll-mt-28 py-11 sm:py-14">
       <LightField
         tone="green"
         size={720}
