@@ -5,9 +5,11 @@ import type { Metadata } from "next";
  *
  * Every page's title, description, canonical, robots directive, Open Graph and
  * Twitter card is built from here so they can never drift apart. The canonical
- * host is fixed to the production apex (no www, no preview domain) — search
- * engines should only ever be told about https://robacha.fun, whatever
- * deployment actually served the request.
+ * host is fixed to the production www host (no preview domain) — search engines
+ * should only ever be told about https://www.robacha.fun, whatever deployment
+ * actually served the request. www is the platform's primary host: the apex
+ * 308-redirects to it, so pointing canonicals at the apex would advertise a URL
+ * that immediately redirects. Canonicalise to the host that actually serves.
  *
  * Honesty rules that hold across the whole layer: no fabricated metrics in
  * metadata, no price/market numbers in titles or descriptions (they move), and
@@ -15,7 +17,7 @@ import type { Metadata } from "next";
  */
 
 /** The canonical production origin. Every canonical/OG URL resolves to this. */
-const CANONICAL_ORIGIN = "https://robacha.fun";
+const CANONICAL_ORIGIN = "https://www.robacha.fun";
 
 /**
  * Where relative metadata (the OG image) resolves for THIS deployment. Env

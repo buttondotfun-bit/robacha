@@ -42,7 +42,7 @@ import { cn } from "@/lib/utils";
  */
 
 const MACHINE_KEY = "machine:tokenized-stocks";
-const SHARE_URL = "https://robacha.fun/machines/tokenized-stocks";
+const SHARE_URL = "https://www.robacha.fun/machines/tokenized-stocks";
 const SHARE_TEXT = "Robacha is building a Tokenized Stock Machine.";
 
 const DISCLAIMER =
