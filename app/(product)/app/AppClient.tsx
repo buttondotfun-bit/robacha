@@ -32,10 +32,10 @@ export function AppClient() {
       {/* Switch between the token machine and the NFT machine. */}
       <SpinTabs className="mb-4" />
 
-      {/* Cross-product raffle promo, kept to a slim bar so it reads as a
-          notification rather than competing with the machine. Self-hides when
+      {/* Cross-product raffle promo, shown as the full banner so the live
+          Meebit raffle is impossible to miss on the spin page. Self-hides when
           the raffle sells out, draws, or isn't running. */}
-      <RafflePromo variant="bar" className="mb-4" />
+      <RafflePromo variant="banner" className="mb-4" />
 
       {pool ? (
         <PoolBar pool={pool} className="mb-4" />
