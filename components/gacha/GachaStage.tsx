@@ -1,8 +1,9 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { RarityChip } from "@/components/shared/RarityChip";
+import { explorerUrl } from "@/lib/config";
 import { formatAmount, formatOdds, formatRange } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import { useSpin } from "@/lib/spin-store";
@@ -47,6 +48,7 @@ export function GachaStage({
   const entries = pool.entries;
   const len = entries.length;
   const focused = len ? entries[((activeIndex % len) + len) % len] : null;
+  const contractLink = focused ? explorerUrl("token", focused.token) : null;
 
   // Only while the transaction itself is in flight.
   //
@@ -142,8 +144,16 @@ export function GachaStage({
 
             <div
               data-rarity={focused.rarity}
-              className="glass-card min-w-0 flex-1 rounded-[16px] px-3.5 py-2.5"
+              className="glass-card relative min-w-0 flex-1 overflow-hidden rounded-[16px] py-2.5 pl-4 pr-3.5"
             >
+              {/* Tier accent — the selected token's rarity, made visible on the
+                  strip itself, using the same rarity tokens the chips and cards
+                  read from. */}
+              <span
+                aria-hidden="true"
+                className="absolute inset-y-0 left-0 w-1"
+                style={{ background: "var(--rarity-dot)" }}
+              />
               <div className="flex items-center justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
                   <p className="truncate text-[13px] font-semibold tracking-[-0.02em]">
@@ -167,6 +177,17 @@ export function GachaStage({
                   </div>
                 ))}
               </dl>
+              {contractLink ? (
+                <a
+                  href={contractLink}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex items-center gap-1 text-[10.5px] font-medium text-ink-3 transition-colors hover:text-ink-2"
+                >
+                  Contract
+                  <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                </a>
+              ) : null}
             </div>
 
             <button
