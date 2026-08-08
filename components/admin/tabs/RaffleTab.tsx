@@ -4,22 +4,27 @@ import { useState } from "react";
 import { formatEther, parseEther } from "viem";
 import { useAccount, useReadContract } from "wagmi";
 import { ROBACHA_RAFFLE_ABI, ROBACHA_RAFFLE_ADMIN_ABI, RaffleState } from "@/lib/abi/robacha-raffle";
-import { FEATURED_RAFFLE } from "@/data/raffle";
-import { chainConfig, contracts, explorerUrl } from "@/lib/config";
+import { configuredRaffles } from "@/data/raffle";
+import { chainConfig, explorerUrl } from "@/lib/config";
 import { shortAddress } from "@/lib/formatters";
 import { useRaffle } from "@/lib/use-raffle";
+import { useSecondsTick } from "@/lib/use-tick";
+import { cn } from "@/lib/utils";
 import { AdminAction } from "../AdminAction";
 import type { AdminTabProps } from "../types";
 import { AdminSection, Metric, ModuleError } from "../ui";
 
 /**
- * The featured raffle, from the operator's side.
+ * The standalone raffles, from the operator's side.
  *
- * Answers the one question the read pages don't: once it sells out, how do the
- * proceeds come out. The contract's flow is fund the draw → request it → and,
- * only after a winner has actually landed, `claimProceeds(to)` sends the ETH
- * wherever you choose. Every control here is gated on the real on-chain state,
- * and each is a privileged call the public pages can't reach.
+ * Answers the one question the read pages don't: once a raffle sells out, how do
+ * the proceeds come out — and, when it doesn't, how the winding-down finishes.
+ * The contract's flow is fund the draw → request it → and, only after a winner
+ * has actually landed, `claimProceeds(to)` sends the ETH wherever you choose;
+ * a raffle that ran out of time instead opens refunds and lets you reclaim the
+ * stranded draw fee. A selector picks which raffle (Chimpers, Meebit, …) these
+ * controls act on. Every control is gated on the real on-chain state, and each
+ * is a privileged call the public pages can't reach.
  */
 
 const STATE_LABEL: Record<number, string> = {
@@ -30,9 +35,14 @@ const STATE_LABEL: Record<number, string> = {
 };
 
 export function RaffleTab({ refreshAll }: AdminTabProps) {
-  const raffle = contracts.raffle;
-  const r = useRaffle();
+  const raffles = configuredRaffles();
+  const [selectedSlug, setSelectedSlug] = useState(raffles[0]?.slug ?? "");
+  const selected = raffles.find((x) => x.slug === selectedSlug) ?? raffles[0];
+  const raffle = selected?.address ?? null;
+
+  const r = useRaffle(raffle);
   const { address: admin } = useAccount();
+  const now = useSecondsTick();
   const [fundEth, setFundEth] = useState("0.005");
 
   // Refresh both this tab's reads and the shared admin poll after any action.
@@ -49,8 +59,8 @@ export function RaffleTab({ refreshAll }: AdminTabProps) {
     query: { enabled: Boolean(raffle), refetchInterval: 15_000 },
   });
 
-  if (!raffle) {
-    return <ModuleError message="No raffle configured — contracts.raffle is unset." />;
+  if (!selected || !raffle) {
+    return <ModuleError message="No raffle configured — no standalone raffle contract is pinned." />;
   }
 
   const state = r.state;
@@ -58,6 +68,10 @@ export function RaffleTab({ refreshAll }: AdminTabProps) {
   const grossWei = r.ticketsSold != null && r.priceWei != null ? BigInt(r.ticketsSold) * r.priceWei : null;
   const proceedsClaimed = proceedsClaimedQ.data === true;
   const link = explorerUrl("address", raffle);
+  // Window elapsed but still Open on chain and it didn't sell out: refunds need
+  // opening (the buyer UI can too, but the operator shouldn't have to wait).
+  const windowElapsedUnsold =
+    state === RaffleState.Open && !soldOut && r.closesAt != null && r.closesAt * 1000 <= now;
 
   let fundValue: bigint | null = null;
   try {
@@ -68,7 +82,27 @@ export function RaffleTab({ refreshAll }: AdminTabProps) {
 
   return (
     <div className="space-y-4">
-      <AdminSection title={`${FEATURED_RAFFLE.prize.collection} raffle`} description={`${FEATURED_RAFFLE.prize.name} · single raffle`}>
+      {raffles.length > 1 ? (
+        <div className="inline-flex items-center gap-1 rounded-full border border-[rgb(var(--line-rgb)_/_0.12)] bg-surface/60 p-1 text-[12px]">
+          <span className="px-2 text-ink-3">Raffle:</span>
+          {raffles.map((x) => (
+            <button
+              key={x.slug}
+              type="button"
+              onClick={() => setSelectedSlug(x.slug)}
+              className={cn(
+                "rounded-full px-3 py-1 font-medium transition-colors",
+                x.slug === selected.slug ? "bg-ink text-surface" : "text-ink-2 hover:text-ink",
+              )}
+            >
+              {x.prize.collection}
+              {x.featured ? <span className="opacity-60"> · featured</span> : null}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      <AdminSection title={`${selected.prize.collection} raffle`} description={`${selected.prize.name} · standalone raffle`}>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Metric label="State" value={state != null ? STATE_LABEL[state] ?? `#${state}` : "—"} />
           <Metric label="Tickets" value={r.ticketsSold != null && r.cap != null ? `${r.ticketsSold} / ${r.cap}` : "—"} />
@@ -155,8 +189,18 @@ export function RaffleTab({ refreshAll }: AdminTabProps) {
       </AdminSection>
 
       {/* Failure path */}
-      {state === RaffleState.AwaitingDraw || state === RaffleState.Refundable ? (
-        <AdminSection title="If the draw stalls" description="Open refunds so buyers can withdraw; reclaim any stranded draw fee.">
+      {windowElapsedUnsold || state === RaffleState.AwaitingDraw || state === RaffleState.Refundable ? (
+        <AdminSection
+          title={windowElapsedUnsold ? "Closed unsold" : "If the draw stalls"}
+          description="Open refunds so buyers can withdraw; reclaim any stranded draw fee."
+        >
+          {windowElapsedUnsold ? (
+            <p className="mb-3 text-[12.5px] leading-relaxed text-ink-2">
+              The window elapsed at {r.ticketsSold}/{r.cap} — no draw happens. Open
+              refunds so buyers can withdraw (anyone can, but you needn&rsquo;t make
+              them), then reclaim the stranded draw fee.
+            </p>
+          ) : null}
           <div className="flex flex-wrap gap-2">
             <AdminAction
               label="Open refunds"
