@@ -70,7 +70,7 @@ export function WalletHistory() {
   return (
     <section>
       <header className="mb-3">
-        <h2 className="text-section-title text-[19px]">Your history</h2>
+        <h2 className="text-[16px] font-semibold tracking-[-0.02em]">Your history</h2>
         <p className="mt-1 text-[12.5px] text-ink-2">
           Everything this wallet has spent and won, read straight from the
           chain.
