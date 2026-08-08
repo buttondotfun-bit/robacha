@@ -267,12 +267,12 @@ export const PAGE_SEO = {
     ogTag: "Inside the machine",
   },
   machines: {
-    title: "Robacha Machines — Onchain Discovery on Robinhood Chain",
+    title: "Robacha Machines — Token, NFT & Tokenized Stock Discovery",
     description:
-      "Explore Robacha machines — the reward machines that move projects through transparent pools on Robinhood Chain.",
+      "Explore Robacha machines on Robinhood Chain. Spin the live Genesis Machine and preview the upcoming NFT and tokenized-stock reward machines.",
     path: "/machines",
     ogTitle: "Machines",
-    ogTag: "One machine, more ways to discover",
+    ogTag: "Different machines. Different discoveries.",
   },
   pools: {
     title: "Robacha Reward Pools on Robinhood Chain",
