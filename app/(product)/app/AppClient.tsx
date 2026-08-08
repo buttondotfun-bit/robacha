@@ -32,9 +32,10 @@ export function AppClient() {
       {/* Switch between the token machine and the NFT machine. */}
       <SpinTabs className="mb-4" />
 
-      {/* Markets the live Meebit raffle above the machine; self-hides the
-          moment the raffle sells out, draws, or isn't running. */}
-      <RafflePromo variant="banner" className="mb-4" />
+      {/* Cross-product raffle promo, kept to a slim bar so it reads as a
+          notification rather than competing with the machine. Self-hides when
+          the raffle sells out, draws, or isn't running. */}
+      <RafflePromo variant="bar" className="mb-4" />
 
       {pool ? (
         <PoolBar pool={pool} className="mb-4" />
@@ -94,19 +95,26 @@ export function AppClient() {
         </div>
       </div>
 
-      {/* Full width beneath the machine, three across on desktop. */}
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <SpinAssistant pool={pool} readiness={readiness} />
-        {/* Counterpart to the one in the left column above; hidden once there
-            is room beside the machine for it. */}
+      {/* Live activity + protocol burn, right under the machine — real
+          on-chain spins, claims and settlements paired with the $ROB the
+          protocol has burned. Aligned to the machine/console columns so the
+          two rows read as one surface. */}
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_352px]">
+        <div className="glass-panel overflow-hidden rounded-[24px]">
+          <ActivityFeed maxHeight={360} />
+        </div>
+        <RobBurnedCard />
+      </div>
+
+      {/* Secondary: what's entering the machine, what's next, and help — all
+          below the fold so nothing competes with the spin itself. */}
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+        {/* Counterpart to the desktop strip under the machine; only one renders. */}
         <div className="lg:hidden">
           <TokenLineup variant="strip" />
         </div>
         <UpcomingMachines variant="strip" />
-        <RobBurnedCard />
-        <div className="glass-panel overflow-hidden rounded-[24px]">
-          <ActivityFeed maxHeight={380} />
-        </div>
+        <SpinAssistant pool={pool} readiness={readiness} />
       </div>
     </>
   );
