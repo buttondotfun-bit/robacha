@@ -94,7 +94,7 @@ export function FinalCta() {
               <ButtonLink href="/app" variant="primary" size="lg">
                 Start Spinning
               </ButtonLink>
-              <ButtonLink href="/rewards" variant="secondary" size="lg">
+              <ButtonLink href="/app" variant="secondary" size="lg">
                 Read the Odds First
               </ButtonLink>
             </div>

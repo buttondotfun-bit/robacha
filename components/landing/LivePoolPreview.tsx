@@ -135,7 +135,7 @@ export function LivePoolPreview() {
                 </div>
 
                 <ButtonLink
-                  href="/rewards"
+                  href="/app"
                   variant="secondary"
                   size="md"
                   className="mt-7"
@@ -190,7 +190,7 @@ export function LivePoolPreview() {
                 {hidden > 0 ? (
                   <p className="num mt-3 text-[11px] text-ink-3">
                     +{hidden} more {hidden === 1 ? "prize" : "prizes"} in the
-                    machine — <Link href="/rewards" className="underline decoration-dotted underline-offset-2 hover:text-ink-2">see the full pool</Link>
+                    machine — <Link href="/app" className="underline decoration-dotted underline-offset-2 hover:text-ink-2">see the full pool</Link>
                   </p>
                 ) : null}
               </div>

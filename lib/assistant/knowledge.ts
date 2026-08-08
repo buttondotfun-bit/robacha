@@ -262,7 +262,7 @@ export const ASSISTANT_ENTRIES: AssistantEntry[] = [
           "Those are the exact numbers the draw runs on — there isn't a second set behind them. Every spin is independent, so a losing streak doesn't improve your next one, and a win doesn't hurt it.",
           "Every spin returns a prize. Rarity affects how big it is, not whether you get one.",
         ],
-        action: { label: "See every prize", href: "/rewards" },
+        action: { label: "See every prize", href: "/app" },
       };
     },
   },

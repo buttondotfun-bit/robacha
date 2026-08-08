@@ -16,7 +16,7 @@ import {
  *
  * Deliberately not a second copy of the mint page. It carries only the four
  * things that make someone click — how many exist, what one costs, that three
- * are Grails, and where the date will be announced — and sends them to /nft
+ * are Grails, and where the date will be announced — and sends them to /mint
  * for the rest.
  * Repeating the full pitch here would mean two places to keep honest, and the
  * numbers on this page are the ones most likely to be quoted back at us.
@@ -98,7 +98,7 @@ export function NftPreview() {
                 <MintFollowCta />
               </div>
 
-              <ButtonLink href="/nft" variant="primary" size="lg" className="mt-5">
+              <ButtonLink href="/mint" variant="primary" size="lg" className="mt-5">
                 See the drop
                 <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
               </ButtonLink>

@@ -12,11 +12,10 @@ const COLUMNS = [
     title: "Product",
     links: [
       { label: "Spin", href: "/app" },
-      { label: "Reward Pool", href: "/rewards", walletOnly: true },
       { label: "My Bag", href: "/bag", walletOnly: true },
       { label: "Activity", href: "/activity", walletOnly: true },
       { label: "Leaderboard", href: "/leaderboard" },
-      { label: "NFTs", href: "/nft" },
+      { label: "Mint", href: "/mint" },
       { label: "NFT Spins", href: "/nft-spins" },
       { label: "Raffle", href: "/raffle" },
       { label: "Launchpad", href: "/launchpad" },

@@ -78,7 +78,7 @@ export function PoolBar({
           </span>
         ) : null}
         <Link
-          href="/rewards"
+          href="/app"
           className="glass-chip inline-flex h-8 items-center gap-1 rounded-full px-2.5 text-[12.5px] font-medium text-ink"
         >
           View Pool

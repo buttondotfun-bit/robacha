@@ -37,7 +37,7 @@ export function Hero() {
               <ButtonLink href="/app" variant="primary" size="lg">
                 Launch App
               </ButtonLink>
-              <ButtonLink href="/rewards" variant="secondary" size="lg">
+              <ButtonLink href="/app" variant="secondary" size="lg">
                 Explore Rewards
               </ButtonLink>
             </div>

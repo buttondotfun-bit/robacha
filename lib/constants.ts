@@ -27,20 +27,18 @@ export interface NavLink {
 export const SITE_NAV: readonly NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Spin", href: "/app" },
-  { label: "NFTs", href: "/nft" },
+  { label: "Mint", href: "/mint" },
   { label: "Raffle", href: "/raffle" },
   { label: "Launchpad", href: "/launchpad" },
-  { label: "Rewards", href: "/rewards", walletOnly: true },
   { label: "Activity", href: "/activity", walletOnly: true },
 ];
 
 export const APP_NAV: readonly NavLink[] = [
   { label: "Home", href: "/" },
   { label: "Spin", href: "/app" },
-  { label: "NFTs", href: "/nft" },
+  { label: "Mint", href: "/mint" },
   { label: "Raffle", href: "/raffle" },
   { label: "Launchpad", href: "/launchpad" },
-  { label: "Rewards", href: "/rewards", walletOnly: true },
   { label: "My Bag", href: "/bag", walletOnly: true },
   { label: "Activity", href: "/activity", walletOnly: true },
 ];

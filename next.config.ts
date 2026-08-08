@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Old paths kept alive so existing links/bookmarks don't 404:
+  //  - the NFT/capsule page was renamed to /mint
+  //  - the standalone reward-pool page was retired; the live pool is on /app
+  async redirects() {
+    return [
+      { source: "/nft", destination: "/mint", permanent: true },
+      { source: "/rewards", destination: "/app", permanent: true },
+    ];
+  },
   // AppKit's guide says to exclude pino-pretty, lokijs and encoding via a
   // webpack config. Not done here: this project builds with Turbopack, and
   // adding a `webpack` block makes Next fall back to webpack for the whole
