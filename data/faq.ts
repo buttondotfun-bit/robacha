@@ -142,6 +142,60 @@ export const FAQ_GROUPS: FaqGroup[] = [
     ],
   },
   {
+    id: "rob",
+    title: "$ROB",
+    description: "The official utility token, and what it does.",
+    items: [
+      {
+        question: "What is $ROB?",
+        answer:
+          "$ROB is Robacha's official utility token on Robinhood Chain. The one that counts is the contract published on the $ROB page — a ticker can be copied, a contract address can't, so match the address before trusting any listing.",
+      },
+      {
+        question: "Can I spin using $ROB?",
+        answer:
+          "Yes. Paying with $ROB swaps it for exactly the ETH a spin costs at that moment, so the machine always receives the same thing regardless of how you paid.",
+      },
+      {
+        question: "Why does Robacha buy back and burn $ROB?",
+        answer:
+          "A share of protocol fees is used to buy $ROB back and send it to a dead address no one holds the key to. \"Burned\" just means it sits at that address forever — you can verify the address and its balance on the transparency page.",
+      },
+      {
+        question: "Where can I verify the $ROB contract?",
+        answer:
+          "On the $ROB page, which links straight to the contract on the explorer. This is not financial advice, and nothing here is a claim about price.",
+      },
+    ],
+  },
+  {
+    id: "more-robacha",
+    title: "More Robacha",
+    description: "Raffles, capsules and the machines still to come.",
+    items: [
+      {
+        question: "What is the Raffle Launchpad?",
+        answer:
+          "A permissionless hub where anyone can turn an NFT they own into a trustless raffle. The NFT is held in the contract's escrow for the whole raffle: on a sellout it goes to the drawn winner; if it doesn't sell out, every ticket refunds and the NFT returns to the creator.",
+      },
+      {
+        question: "How do I know a raffled collection is real?",
+        answer:
+          "Each raffle shows whether its collection is verified by contract address, and flags collections whose name copies a verified one but whose address is different. Identity is the address, never the name — check it before buying tickets.",
+      },
+      {
+        question: "What are Robacha Capsules?",
+        answer:
+          "A limited mint of 500 capsules built for the machine — mint one and hold it, trade it, or spend an eligible one back into the machine. It isn't live yet; the mint console stays locked until a contract makes it real.",
+      },
+      {
+        question: "What are NFT Spins and the Stock Machine?",
+        answer:
+          "Upcoming machines. NFT Spins pulls collectibles from published NFT pools; the Stock Machine is being built for tokenized-stock rewards on Robinhood Chain. Both are coming soon and say so plainly — no assets, odds or dates are published until a contract exists.",
+      },
+    ],
+  },
+  {
     id: "risk-and-transparency",
     title: "Risk and Straight Answers",
     description: "What works today, what doesn't, and what can go wrong.",

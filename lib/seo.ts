@@ -216,9 +216,9 @@ export const PAGE_SEO = {
     ogTag: "The machine, explained",
   },
   faq: {
-    title: "Robacha FAQ — Spins, Rewards, Raffles and $ROB",
+    title: "Robacha FAQ — Spins, Rewards, Claims & Onchain Verification",
     description:
-      "Get answers about Robacha spins, reward pools, claims, refunds, NFT raffles, Capsules, $ROB and Robinhood Chain.",
+      "Answers to common questions about Robacha spins, reward pools, wallets, claims, refunds, $ROB, raffles and verification on Robinhood Chain.",
     path: "/faq",
     ogTitle: "Robacha FAQ",
   },
