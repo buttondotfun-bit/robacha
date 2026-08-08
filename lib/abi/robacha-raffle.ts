@@ -55,6 +55,27 @@ export const ROBACHA_RAFFLE_ABI = [
   },
   { type: "function", name: "withdrawRefund", stateMutability: "nonpayable", inputs: [], outputs: [] },
   { type: "function", name: "markRefundable", stateMutability: "nonpayable", inputs: [], outputs: [] },
+
+  // ---- events (for the activity feed) ----
+  {
+    type: "event",
+    name: "TicketsBought",
+    inputs: [
+      { name: "buyer", type: "address", indexed: true },
+      { name: "quantity", type: "uint16", indexed: false },
+      { name: "walletTotal", type: "uint16", indexed: false },
+      { name: "ticketsSold", type: "uint256", indexed: false },
+    ],
+  },
+  {
+    type: "event",
+    name: "WinnerDrawn",
+    inputs: [
+      { name: "winner", type: "address", indexed: true },
+      { name: "winningTicket", type: "uint256", indexed: false },
+      { name: "word", type: "uint256", indexed: false },
+    ],
+  },
 ] as const;
 
 /** Mirrors RobachaRaffle.State. */

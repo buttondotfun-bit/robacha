@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ArrowUpRight, Check, Globe, Lock, MessageCircle, RefreshCcw, Ticket } from "lucide-react";
+import { ArrowUpRight, Check, Globe, Lock, MessageCircle, RefreshCcw } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
 import { PageContainer } from "@/components/shared/primitives";
 import { Reveal } from "@/components/shared/Reveal";
@@ -13,6 +13,8 @@ import {
   RAFFLE_RULES,
 } from "@/data/raffle";
 import { RaffleTicketPanel } from "./RaffleTicketPanel";
+import { RaffleStatusChip, RaffleDisclosure } from "./RaffleStatusChip";
+import { RaffleActivity } from "./RaffleActivity";
 
 /**
  * The Meebit raffle page.
@@ -39,10 +41,7 @@ export function RaffleClient() {
 
         <div className="relative grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
           <div>
-            <span className="glass-chip inline-flex h-8 w-fit items-center gap-1.5 rounded-full px-3 text-[12px] font-medium text-ink-2">
-              <Ticket className="h-3 w-3" aria-hidden="true" />
-              Raffle · opening soon
-            </span>
+            <RaffleStatusChip />
 
             <h1 className="text-display mt-4">
               Win a Meebit.
@@ -86,14 +85,14 @@ export function RaffleClient() {
             <div className="relative aspect-square w-full overflow-hidden rounded-[18px] border border-[rgb(var(--edge-rgb)_/_0.8)]">
               <Image
                 src={RAFFLE_PRIZE.image}
-                alt="A Meebit — a 3D voxel character from the Meebits collection"
+                alt="The official Meebits collection mark"
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 460px"
                 className="object-cover"
               />
               <span className="absolute bottom-2 left-2 rounded-full bg-[rgb(var(--ink-rgb)_/_0.6)] px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
-                Illustrative — winning Meebit shown at draw
+                Official Meebits — winning token shown at draw
               </span>
             </div>
 
@@ -203,15 +202,13 @@ export function RaffleClient() {
           </div>
         </div>
 
-        {/* The honest part, stated rather than hidden: the prize is cross-chain,
-            so its delivery is by hand, and the buying mechanism is not live. */}
-        <p className="relative mt-5 text-[11.5px] leading-relaxed text-ink-3">
-          The Meebit is an Ethereum NFT and ROBACHA runs on Robinhood Chain, so
-          the prize is sent to the winner by hand across chains. Tickets are not
-          on sale yet — how they are bought, drawn and refunded is published
-          before the raffle opens, the same way every pool&rsquo;s odds are.
-        </p>
+        {/* The cross-chain / trust note, swapped for the live state. */}
+        <RaffleDisclosure className="relative mt-5 text-[11.5px] leading-relaxed text-ink-3" />
       </Reveal>
+
+      {/* Recent on-chain ticket buys. Renders only once a raffle is live and
+          someone has entered. */}
+      <RaffleActivity className="mt-4" />
     </PageContainer>
   );
 }

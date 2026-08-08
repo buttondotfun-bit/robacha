@@ -106,6 +106,16 @@ export const contracts = {
     process.env.NEXT_PUBLIC_ROBACHA_RANDOMNESS_SENDER_ADDRESS,
     "NEXT_PUBLIC_ROBACHA_RANDOMNESS_SENDER_ADDRESS",
   ),
+  // The live Meebit raffle. Carries a default so ticket sales open on a build
+  // without depending on a NEXT_PUBLIC env var being set and the site rebuilt in
+  // the right order — the build-time gotcha that leaves a var "set" but not
+  // compiled in. An env var still wins if provided, so a future raffle can point
+  // elsewhere without a code change.
+  //
+  // The address is filled in once a raffle is deployed at the correct ticket
+  // price. It is empty here on purpose after the first deploy came out at ~$5
+  // (the default assumed $3,600/ETH; ETH was ~$1,900), so the page stays on its
+  // "opens soon" state rather than selling a mispriced ticket.
   raffle: readAddress(
     process.env.NEXT_PUBLIC_ROBACHA_RAFFLE_ADDRESS,
     "NEXT_PUBLIC_ROBACHA_RAFFLE_ADDRESS",

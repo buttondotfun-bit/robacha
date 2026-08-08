@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Loader2, Lock, Minus, Plus, RefreshCcw, Ticket, Trophy, Wallet } from "lucide-react";
+import { Check, Clock, Loader2, Lock, Minus, Plus, RefreshCcw, Ticket, Trophy, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/shared/primitives";
 import { shortAddress } from "@/lib/formatters";
 import { useMoney } from "@/lib/use-money";
 import { useRaffle, RaffleState } from "@/lib/use-raffle";
+import { useSecondsTick } from "@/lib/use-tick";
 import { useWallet } from "@/lib/use-wallet";
 
 /**
@@ -20,10 +21,22 @@ import { useWallet } from "@/lib/use-wallet";
  * full if it doesn't sell out" has to actually surface that button when the
  * time comes, not just say the words.
  */
+/** "23h 45m 12s", counting the whole day down to the second near the end. */
+function formatCountdown(ms: number): string {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
 export function RaffleTicketPanel({ fallback }: { fallback: React.ReactNode }) {
   const raffle = useRaffle();
   const wallet = useWallet();
   const money = useMoney();
+  const now = useSecondsTick();
   const [qty, setQty] = useState(1);
 
   // No contract yet: the page's own "opens soon" announcement stands.
@@ -52,6 +65,10 @@ export function RaffleTicketPanel({ fallback }: { fallback: React.ReactNode }) {
   const costWei = priceWei ? priceWei * BigInt(chosen) : 0n;
   const busy = phase === "buying" || phase === "refunding";
 
+  // Time left in the 24-hour window, from the contract's own closesAt.
+  const msLeft = raffle.closesAt !== null ? raffle.closesAt * 1000 - now : null;
+  const showClock = state === RaffleState.Open && msLeft !== null && msLeft > 0;
+
   return (
     <div className="glass-card rounded-[20px] p-5">
       {/* Live count — the one honest source of urgency: a real number toward a
@@ -71,6 +88,15 @@ export function RaffleTicketPanel({ fallback }: { fallback: React.ReactNode }) {
           style={{ width: `${percent}%` }}
         />
       </div>
+
+      {/* The 24-hour clock, straight from the contract's closesAt. */}
+      {showClock ? (
+        <div className="mt-2.5 flex items-center justify-center gap-1.5 rounded-full bg-[rgb(var(--ink-rgb)_/_0.04)] py-1.5 text-[12px] text-ink-2">
+          <Clock className="h-3.5 w-3.5 text-ink-3" aria-hidden="true" />
+          <span className="num tabular-nums font-medium text-ink">{formatCountdown(msLeft!)}</span>
+          <span className="text-ink-3">left to enter</span>
+        </div>
+      ) : null}
 
       {/* ---- Complete: a winner exists ---- */}
       {state === RaffleState.Complete && winner ? (

@@ -27,11 +27,11 @@ export const RAFFLE_PRIZE = {
   collection: "Meebits",
   chain: "Ethereum",
   /**
-   * A representative Meebit, cropped from the collection's own OpenSea art.
-   * Labelled illustrative on the page: the exact Meebit is shown at draw, so
-   * this stands for the collection rather than claiming to be the prize token.
+   * The official Meebits brand mark, supplied by the operator. It stands for
+   * the collection rather than claiming to be the specific prize token — the
+   * exact Meebit is shown at the draw, which the page's caption says.
    */
-  image: "/meebit.png",
+  image: "/meebit-logo.png",
   /** The canonical Meebits contract on Ethereum, for anyone verifying the collection. */
   contract: "0x7Bd29408f11D2bFC23c34f18275bBf23bB716Bc7",
 } as const;
