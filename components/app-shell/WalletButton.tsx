@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, Copy, ExternalLink, LogOut, Wallet } from "lucide-react";
+import { Activity, Copy, ExternalLink, LogOut, Receipt, Trophy, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { shortAddress } from "@/lib/formatters";
@@ -146,6 +146,26 @@ export function WalletButton({ className }: { className?: string }) {
           >
             <Activity className="h-3.5 w-3.5" aria-hidden="true" />
             Activity
+          </Link>
+
+          <Link
+            role="menuitem"
+            href="/passport"
+            onClick={() => setOpen(false)}
+            className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink"
+          >
+            <Trophy className="h-3.5 w-3.5" aria-hidden="true" />
+            Passport
+          </Link>
+
+          <Link
+            role="menuitem"
+            href="/receipts"
+            onClick={() => setOpen(false)}
+            className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink"
+          >
+            <Receipt className="h-3.5 w-3.5" aria-hidden="true" />
+            Receipts
           </Link>
 
           <div className="my-1 h-px bg-[rgb(var(--line-rgb)_/_0.08)]" />

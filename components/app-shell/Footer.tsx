@@ -32,6 +32,7 @@ const COLUMNS = [
       { label: "FAQ", href: "/faq" },
       { label: "Help", href: "/support" },
       { label: "Verify a round", href: "/verify" },
+      { label: "Transparency", href: "/transparency" },
       { label: "Docs", href: "/docs" },
     ],
   },

@@ -290,6 +290,30 @@ export const PAGE_SEO = {
     ogTitle: "Genesis Pool",
     ogTag: "Live reward pool",
   },
+  passport: {
+    title: "Your Passport | Robacha",
+    description:
+      "Your Robacha passport — badges derived from what your wallet has done on Robinhood Chain.",
+    path: "/passport",
+    ogTitle: "Passport",
+    ogTag: "Your machine record",
+  },
+  receipts: {
+    title: "Your Receipts | Robacha",
+    description:
+      "A plain-language ledger of everything your wallet has spent and pulled on Robacha, read live from Robinhood Chain.",
+    path: "/receipts",
+    ogTitle: "Receipts",
+    ogTag: "Read live from chain",
+  },
+  transparency: {
+    title: "Transparency — Robacha on Robinhood Chain",
+    description:
+      "Robacha's live system status, on-chain totals, contract addresses and $ROB burn — every figure read straight from Robinhood Chain, not a database.",
+    path: "/transparency",
+    ogTitle: "Transparency",
+    ogTag: "Read live from chain",
+  },
   stockMachine: {
     title: "Robacha Stock Machine — Tokenized Stock Rewards",
     description:
