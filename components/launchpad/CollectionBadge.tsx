@@ -54,6 +54,13 @@ export function CollectionBadge({
       tone: "text-[#c0447a] bg-[rgba(192,68,122,0.14)] border-[rgba(192,68,122,0.4)]",
       detail: `This collection's name matches ${check.impersonates?.name ?? "a verified collection"} but its contract address is different. It is not the real collection.`,
     },
+    denylisted: {
+      icon: AlertTriangle,
+      label: "Flagged by Robacha",
+      short: "Flagged",
+      tone: "text-[#c0447a] bg-[rgba(192,68,122,0.14)] border-[rgba(192,68,122,0.4)]",
+      detail: "Robacha has flagged this collection as fraudulent. It stays on the chain, but we strongly advise against buying tickets.",
+    },
   }[check.trust];
 
   const Icon = config.icon;

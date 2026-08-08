@@ -21,6 +21,7 @@ import { HubRaffleState } from "@/lib/abi/robacha-raffle-hub";
 import { useRaffleMarket } from "@/lib/use-raffle-market";
 import { useSecondsTick } from "@/lib/use-tick";
 import type { HubRaffle } from "@/lib/use-raffle-hub";
+import { isDenylisted } from "@/data/collections";
 
 /**
  * The raffle marketplace.
@@ -39,7 +40,11 @@ export function RaffleGallery() {
   const now = useSecondsTick();
   const [tab, setTab] = useState<TabKey>("live");
 
-  const buckets = useMemo(() => bucketize(community, now), [community, now]);
+  // Denylisted collections are hidden from the grid — the chain still holds the
+  // raffle, but Robacha's own UI won't surface a flagged one (a direct link to
+  // its page still shows, hard-warned).
+  const visible = useMemo(() => community.filter((r) => !isDenylisted(r.nft)), [community]);
+  const buckets = useMemo(() => bucketize(visible, now), [visible, now]);
   const shown = buckets[tab];
 
   // Only surface stats the contracts can back; a zero is honest, but hide the

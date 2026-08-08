@@ -61,7 +61,25 @@ export function isVerifiedCollection(address: string | null | undefined): boolea
   return Boolean(verifiedCollection(address));
 }
 
-export type CollectionTrust = "verified" | "unverified" | "impersonator";
+/**
+ * Operator denylist — collection addresses flagged as fraudulent.
+ *
+ * The hub is permissionless: a flagged raffle can't be removed from the chain,
+ * but Robacha controls what its own interface surfaces. A denylisted collection
+ * is hidden from the launchpad grid and hard-warned on its detail page (a direct
+ * link still resolves, so the warning shows rather than a blank). Lowercased
+ * addresses only. Empty until the operator adds one — nothing is flagged
+ * speculatively.
+ */
+const DENYLIST = new Set<string>([
+  // "0x…": "reason (impersonates X / stolen / etc.)"
+]);
+
+export function isDenylisted(address: string | null | undefined): boolean {
+  return Boolean(address) && DENYLIST.has(address!.toLowerCase());
+}
+
+export type CollectionTrust = "verified" | "unverified" | "impersonator" | "denylisted";
 
 export interface CollectionCheck {
   trust: CollectionTrust;
@@ -84,6 +102,9 @@ export function checkCollection(
   address: string | null | undefined,
   onchainName?: string | null,
 ): CollectionCheck {
+  // A denylist entry overrides everything — it's the operator's explicit flag.
+  if (isDenylisted(address)) return { trust: "denylisted" };
+
   const verified = verifiedCollection(address);
   if (verified) return { trust: "verified", collection: verified };
 
