@@ -20,6 +20,8 @@
  *      contract, exactly as every pool's are.
  */
 
+import { ROB_TOKEN_ADDRESS } from "./rob-token";
+
 /** Planned open of the mint window, internal only — see rule 1 above. */
 export const NFT_MINT_OPENS_AT = "2026-08-14T16:00:00Z";
 
@@ -70,9 +72,9 @@ export interface NftPaymentToken {
 
 export const NFT_PAYMENT_TOKENS: NftPaymentToken[] = [
   { symbol: "ETH", address: null },
-  { symbol: "PONS", address: "0x39dBED3a2bd333467115dE45665cC57F813C4571" },
-  { symbol: "CASHCAT", address: "0x020bfC650A365f8BB26819deAAbF3E21291018b4" },
-  { symbol: "TENDIES", address: "0x45242320DBB855EeA8Fd36804C6487E10E97FCF9" },
+  // $ROB is the only listed-token payment path the mint accepts. Address pulled
+  // from the canonical descriptor so it lives in exactly one place.
+  { symbol: "ROB", address: ROB_TOKEN_ADDRESS },
 ];
 
 export interface NftTier {
