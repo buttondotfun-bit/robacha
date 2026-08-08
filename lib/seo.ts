@@ -245,9 +245,9 @@ export const PAGE_SEO = {
     ogTag: "Records from the machine",
   },
   support: {
-    title: "Help & Support | Robacha",
+    title: "Robacha Help — Check Spins, Claims, Rounds & Refunds",
     description:
-      "Get help with Robacha spins, rewards, claims, refunds and $ROB on Robinhood Chain.",
+      "Troubleshoot Robacha spins, rounds, rewards, claims and refunds using live onchain state on Robinhood Chain.",
     path: "/support",
     ogTitle: "Help",
   },

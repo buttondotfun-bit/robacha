@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
       // Friendly short path for the coming-soon Stock Machine preview, mirroring
       // /app (token) and /nft-spins (NFT).
       { source: "/stock-spins", destination: "/machines/tokenized-stocks", permanent: false },
+      // /help is the natural name for the diagnostic center; it lives at /support.
+      // Next carries the query string across, so /help?round=421 → /support?round=421.
+      { source: "/help", destination: "/support", permanent: false },
       // NOTE: canonical-host handling (www ↔ apex) is deliberately NOT done here.
       // The hosting platform already redirects apex↔www at the domain layer, and
       // an app-level www→apex rule on top of it produced an infinite redirect
