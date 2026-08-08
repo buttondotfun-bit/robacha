@@ -1,26 +1,22 @@
 import type { MetadataRoute } from "next";
+import { SITE } from "@/lib/seo";
 
 /**
- * PWA manifest. Served at `/manifest.webmanifest` and linked automatically.
- *
- * `theme_color` matches the light canvas the app actually renders on, so the
- * browser chrome does not disagree with the page.
+ * Web app manifest. Kept lightweight — this is a browser tab identity and
+ * add-to-homescreen convenience, not a full installable PWA.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "ROBACHA — Rob the Gacha on Robinhood Chain",
-    short_name: "ROBACHA",
-    description: "The memecoin gacha built for Robinhood Chain.",
+    name: SITE.defaultTitle,
+    short_name: SITE.name,
+    description: SITE.defaultDescription,
     start_url: "/",
     display: "standalone",
     background_color: "#f7f8f3",
     theme_color: "#f7f8f3",
     icons: [
-      {
-        src: "/icon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
-      },
+      { src: "/icon.svg", type: "image/svg+xml", sizes: "any" },
+      { src: "/logo.png", type: "image/png", sizes: "512x512" },
     ],
   };
 }

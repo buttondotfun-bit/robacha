@@ -20,7 +20,24 @@ export const runtime = "nodejs";
  * Static content, so it is cached hard. Bump the wording here and the CDN
  * picks it up within a day; scrapers re-fetch on their own schedule anyway.
  */
-export async function GET() {
+/** Cap incoming text so a crafted query can't overflow the card. */
+function clamp(value: string | null, max: number): string | null {
+  if (!value) return null;
+  const trimmed = value.replace(/\s+/g, " ").trim().slice(0, max);
+  return trimmed || null;
+}
+
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  // Per-page cards pass a headline + a small pill; both are sanitized and
+  // length-capped. Absent, the card falls back to the site default.
+  const headline = clamp(url.searchParams.get("title"), 42) ?? "Rob the Gacha.";
+  const pill = clamp(url.searchParams.get("tag"), 28) ?? "Live on Robinhood Chain";
+  const custom = url.searchParams.has("title");
+  const subtitle = custom
+    ? "Robacha · Robinhood Chain"
+    : "Spin for real memecoins. Every draw provable on chain.";
+
   return new ImageResponse(
     (
       <div
@@ -58,7 +75,7 @@ export async function GET() {
               fontWeight: 600,
             }}
           >
-            Live on Robinhood Chain
+            {pill}
           </div>
         </div>
 
@@ -91,7 +108,7 @@ export async function GET() {
                 lineHeight: 1.05,
               }}
             >
-              Rob the Gacha.
+              {headline}
             </div>
             <div
               style={{
@@ -101,7 +118,7 @@ export async function GET() {
                 color: "#5b6157",
               }}
             >
-              Spin for real memecoins. Every draw provable on chain.
+              {subtitle}
             </div>
           </div>
         </div>

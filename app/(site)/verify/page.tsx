@@ -1,12 +1,8 @@
-import type { Metadata } from "next";
+import { pageMeta, PAGE_SEO } from "@/lib/seo";
 import { VerifyClient } from "@/components/verify/VerifyClient";
 import { PageContainer } from "@/components/shared/primitives";
 
-export const metadata: Metadata = {
-  title: "Check a round",
-  description:
-    "Recompute the number that decided any Robacha round, from published inputs, yourself.",
-};
+export const metadata = pageMeta(PAGE_SEO.verify);
 
 export default function VerifyPage() {
   return (

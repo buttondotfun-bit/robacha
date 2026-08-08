@@ -1,12 +1,27 @@
-import type { Metadata } from "next";
 import { RaffleClient } from "@/components/raffle/RaffleClient";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, pageMeta } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Meebit Raffle",
+export const metadata = pageMeta({
+  title: "Win a Meebit — NFT Raffle | Robacha",
   description:
-    "Win a Meebit on ROBACHA. 200 tickets, $10 each, 24 hours — sell out and one wallet wins, or every ticket is refunded in full.",
-};
+    "Enter the Robacha Meebit raffle on Robinhood Chain — published ticket terms, onchain settlement and full refunds if it doesn't sell out.",
+  path: "/raffle/meebit",
+  ogTitle: "Win a Meebit",
+  ogTag: "NFT raffle",
+});
 
 export default function MeebitRafflePage() {
-  return <RaffleClient />;
+  return (
+    <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Raffles", path: "/raffle" },
+          { name: "Win a Meebit", path: "/raffle/meebit" },
+        ])}
+      />
+      <RaffleClient />
+    </>
+  );
 }

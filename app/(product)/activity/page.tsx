@@ -1,13 +1,9 @@
-import type { Metadata } from "next";
+import { pageMeta, PAGE_SEO } from "@/lib/seo";
 import { ActivityPageClient } from "@/components/activity/ActivityPageClient";
 import { PageContainer } from "@/components/shared/primitives";
 import { NETWORK_LABEL } from "@/lib/web3";
 
-export const metadata: Metadata = {
-  title: "Activity",
-  description:
-    "Every spin, pull, claim and pool update across Robacha reward pools on Robinhood Chain.",
-};
+export const metadata = pageMeta(PAGE_SEO.activity);
 
 export default function ActivityPage() {
   return (

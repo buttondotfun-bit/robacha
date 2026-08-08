@@ -1,11 +1,7 @@
-import type { Metadata } from "next";
+import { pageMeta, PAGE_SEO } from "@/lib/seo";
 import { NftSpinsTeaser } from "@/components/nft/NftSpinsTeaser";
 
-export const metadata: Metadata = {
-  title: "NFT Spins",
-  description:
-    "A new ROBACHA machine is coming to Robinhood Chain: spin and the capsule holds an NFT. Not live yet — follow @robachadotfun for the opening.",
-};
+export const metadata = pageMeta(PAGE_SEO.nftSpins);
 
 export default function NftSpinsPage() {
   return <NftSpinsTeaser />;

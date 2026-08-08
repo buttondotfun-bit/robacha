@@ -1,5 +1,5 @@
-import type { Metadata } from "next";
 import { Info, TriangleAlert } from "lucide-react";
+import { pageMeta, PAGE_SEO } from "@/lib/seo";
 import { ContractDirectory } from "@/components/docs/ContractDirectory";
 import { DocsNav } from "@/components/docs/DocsNav";
 import { PageContainer } from "@/components/shared/primitives";
@@ -18,11 +18,7 @@ import { RISK_NOTICE } from "@/lib/constants";
  */
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: "Docs",
-  description:
-    "How Robacha spins resolve, how randomness is sourced, how odds and fees are published, and what the contracts can and cannot do.",
-};
+export const metadata = pageMeta(PAGE_SEO.docs);
 
 export default function DocsPage() {
   return (

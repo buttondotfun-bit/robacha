@@ -27,10 +27,11 @@ export function Hero() {
               Rob the <span className="text-gradient-accent">Gacha.</span>
             </h1>
 
-            <p className="mt-6 max-w-[46ch] text-[17px] leading-relaxed text-ink-2 sm:text-[18px]">
-              It&rsquo;s a capsule machine for memecoins. Take a spin, and you
-              pull a random token from whatever&rsquo;s loaded in the machine
-              right now.
+            <p className="mt-6 max-w-[48ch] text-[17px] leading-relaxed text-ink-2 sm:text-[18px]">
+              Robacha is an onchain reward and discovery machine on Robinhood
+              Chain. Take a spin and pull a random token from a transparent
+              reward pool — and discover coins you&rsquo;d never have gone
+              looking for.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-3">

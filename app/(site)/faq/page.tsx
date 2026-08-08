@@ -1,20 +1,20 @@
-import type { Metadata } from "next";
 import { BookOpen, MessageCircle } from "lucide-react";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { PageContainer } from "@/components/shared/primitives";
 import { Accordion } from "@/components/ui/Accordion";
 import { ButtonLink } from "@/components/ui/Button";
 import { FAQ_GROUPS } from "@/data/faq";
 import { RISK_NOTICE, SOCIAL_LINKS } from "@/lib/constants";
+import { faqPageJsonLd, pageMeta, PAGE_SEO } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "FAQ",
-  description:
-    "How Robacha spins, odds, claims and reward pools work on Robinhood Chain.",
-};
+export const metadata = pageMeta(PAGE_SEO.faq);
 
 export default function FaqPage() {
   return (
     <PageContainer width="narrow" className="pb-8 pt-10">
+      {/* FAQPage schema built from the same items rendered below — the answers
+          are the visible text, never hidden schema-only content. */}
+      <JsonLd data={faqPageJsonLd(FAQ_GROUPS.flatMap((g) => g.items))} />
       <header className="mb-9">
         <p className="micro">Support</p>
         <h1 className="text-page-title mt-2.5">

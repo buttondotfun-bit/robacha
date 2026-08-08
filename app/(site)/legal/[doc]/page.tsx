@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/shared/primitives";
 import { LEGAL_DOCS, LEGAL_SLUGS } from "@/data/legal";
+import { pageMeta } from "@/lib/seo";
 
 export function generateStaticParams() {
   return LEGAL_SLUGS.map((doc) => ({ doc }));
@@ -16,8 +17,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { doc } = await params;
   const entry = LEGAL_DOCS[doc];
-  if (!entry) return { title: "Not found" };
-  return { title: entry.title, description: entry.summary };
+  if (!entry) return { title: "Not found", robots: { index: false, follow: false } };
+  return pageMeta({
+    title: `${entry.title} | Robacha`,
+    description: entry.summary,
+    path: `/legal/${doc}`,
+  });
 }
 
 export default async function LegalPage({

@@ -1,12 +1,8 @@
-import type { Metadata } from "next";
+import { pageMeta, PAGE_SEO } from "@/lib/seo";
 import { BagClient } from "@/components/bag/BagClient";
 import { PageContainer } from "@/components/shared/primitives";
 
-export const metadata: Metadata = {
-  title: "My Bag",
-  description:
-    "Every reward your wallet has pulled from Robacha reward pools, with claim status and estimated value.",
-};
+export const metadata = pageMeta(PAGE_SEO.bag, { robots: "noindex,follow" });
 
 export default function BagPage() {
   return (

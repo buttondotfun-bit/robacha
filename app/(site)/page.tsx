@@ -13,6 +13,10 @@ import { RobToken } from "@/components/landing/RobToken";
 import { Testimonials } from "@/components/landing/Testimonials";
 import { TokenLineup } from "@/components/landing/TokenLineup";
 import { WhyRobacha } from "@/components/landing/WhyRobacha";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { organizationJsonLd, pageMeta, PAGE_SEO, websiteJsonLd } from "@/lib/seo";
+
+export const metadata = pageMeta(PAGE_SEO.home);
 
 /**
  * The homepage, ordered as one story rather than a list of features:
@@ -29,6 +33,7 @@ import { WhyRobacha } from "@/components/landing/WhyRobacha";
 export default function LandingPage() {
   return (
     <>
+      <JsonLd data={[websiteJsonLd(), organizationJsonLd()]} />
       <Hero />
 
       {/* Live Meebit raffle, front and centre for arriving visitors as a full

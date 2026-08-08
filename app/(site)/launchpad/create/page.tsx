@@ -1,11 +1,8 @@
-import type { Metadata } from "next";
+import { pageMeta, PAGE_SEO } from "@/lib/seo";
 import { PageContainer } from "@/components/shared/primitives";
 import { CreateRaffleForm } from "@/components/launchpad/CreateRaffleForm";
 
-export const metadata: Metadata = {
-  title: "Create a raffle",
-  description: "List one of your Robinhood Chain NFTs and open a trustless raffle for it.",
-};
+export const metadata = pageMeta(PAGE_SEO.createRaffle, { robots: "noindex,follow" });
 
 export default function CreateRafflePage() {
   return (

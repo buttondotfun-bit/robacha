@@ -2,6 +2,7 @@ import { THEME_INIT_SCRIPT } from "@/lib/use-theme";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/app-shell/Providers";
+import { INDEXABLE, ogCardUrl, SITE } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,68 +17,46 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
-const TITLE = "ROBACHA — Rob the Gacha on Robinhood Chain";
-const DESCRIPTION =
-  "Spin live reward pools and receive trending memecoin rewards across Robinhood Chain with ROBACHA.";
-const OG_TITLE = "ROBACHA — Rob the Gacha";
-
 /**
- * Origin that relative metadata URLs resolve against.
- *
- * This was a non-routable placeholder from before the domain existed, which
- * was right at the time and is now a bug: shared pulls resolve their card
- * image against it, so every unfurl would point at a host that does not exist
- * and no preview would ever render.
- *
- * Env first so preview deployments describe themselves rather than production.
- * VERCEL_PROJECT_PRODUCTION_URL comes without a scheme, hence the prefix.
+ * Site-wide defaults. Per-page titles/descriptions/canonicals are built from
+ * the central matrix in lib/seo.ts; this only sets the fallback and the shared
+ * OG/Twitter identity. `metadataBase` resolves relative asset URLs against the
+ * deployment origin (env-driven so a preview describes itself), while canonical
+ * and social URLs are pinned to the apex inside lib/seo.ts.
  */
-const SITE_ORIGIN =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "https://www.robacha.fun");
-
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_ORIGIN),
+  metadataBase: new URL(SITE.deployOrigin),
   title: {
-    default: TITLE,
-    template: "%s — ROBACHA",
+    default: SITE.defaultTitle,
+    template: "%s | Robacha",
   },
-  description: DESCRIPTION,
-  applicationName: "ROBACHA",
+  description: SITE.defaultDescription,
+  applicationName: SITE.name,
   appleWebApp: {
     capable: true,
-    title: "ROBACHA",
+    title: SITE.name,
     statusBarStyle: "default",
   },
-  keywords: [
-    "ROBACHA",
-    "Robacha",
-    "Rob the Gacha",
-    "Robinhood Chain",
-    "memecoin",
-    "gacha",
-    "token rewards",
-    "reward pool",
-  ],
   openGraph: {
     type: "website",
-    siteName: "ROBACHA",
-    title: OG_TITLE,
-    description: "The memecoin gacha built for Robinhood Chain.",
-    url: "/",
+    siteName: SITE.name,
+    title: SITE.defaultTitle,
+    description: SITE.defaultDescription,
+    url: SITE.canonicalOrigin,
+    locale: SITE.locale,
     // Rendered by /api/og-card — a PNG, because X refuses SVG card images.
-    images: [{ url: "/api/og-card", width: 1200, height: 630, alt: "ROBACHA" }],
+    images: [{ url: ogCardUrl(), width: 1200, height: 630, alt: SITE.name }],
   },
   twitter: {
     card: "summary_large_image",
-    title: OG_TITLE,
-    description: "Spin, pull and discover trending tokens across Robinhood Chain.",
-    images: ["/api/og-card"],
-    // Add the project handle once a real account exists. None is invented here.
+    site: SITE.xHandle,
+    title: SITE.defaultTitle,
+    description: SITE.defaultDescription,
+    images: [ogCardUrl()],
   },
-  robots: { index: true, follow: true },
+  robots: INDEXABLE
+    ? { index: true, follow: true }
+    : { index: false, follow: false, nocache: true },
 };
 
 export const viewport: Viewport = {

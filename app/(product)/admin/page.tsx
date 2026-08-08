@@ -11,9 +11,9 @@ import { AdminClient } from "@/components/admin/AdminClient";
  */
 export const metadata: Metadata = {
   // The root layout appends the brand; naming it here too doubled it.
-  title: "Admin",
+  title: "Admin | Robacha",
   description: "Operator console. Access is verified against contract roles.",
-  robots: { index: false, follow: false },
+  robots: { index: false, follow: false, noarchive: true, nocache: true },
 };
 
 export default function AdminPage() {

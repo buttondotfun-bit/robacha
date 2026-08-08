@@ -1,12 +1,8 @@
-import type { Metadata } from "next";
+import { pageMeta, PAGE_SEO } from "@/lib/seo";
 import { SupportClient } from "@/components/support/SupportClient";
 import { PageContainer } from "@/components/shared/primitives";
 
-export const metadata: Metadata = {
-  title: "Help",
-  description:
-    "Check the state of a spin, push a stuck round along yourself, or get in touch.",
-};
+export const metadata = pageMeta(PAGE_SEO.support);
 
 export default function SupportPage() {
   return (

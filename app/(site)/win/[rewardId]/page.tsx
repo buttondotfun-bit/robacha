@@ -32,9 +32,12 @@ export async function generateMetadata({
   const image = `/api/win-card/${encodeURIComponent(rewardId)}`;
 
   return {
-    title: "A pull on ROBACHA",
+    title: "A pull on Robacha",
     description:
       "A real pull from the Robacha capsule machine, settled on Robinhood Chain.",
+    // Share pages are per-reward and wallet-specific — not index targets, but
+    // links through them should still be followed.
+    robots: { index: false, follow: true },
     openGraph: {
       title: "A pull on ROBACHA",
       description:
@@ -43,7 +46,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: "A pull on ROBACHA",
+      site: "@robachadotfun",
+      title: "A pull on Robacha",
       description:
         "A real pull from the Robacha capsule machine, settled on Robinhood Chain.",
       images: [image],

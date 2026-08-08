@@ -8,6 +8,31 @@ const nextConfig: NextConfig = {
     return [
       { source: "/nft", destination: "/mint", permanent: true },
       { source: "/rewards", destination: "/app", permanent: true },
+      // One canonical host: www permanently folds into the apex, which is what
+      // every canonical/OG URL points at (see lib/seo.ts). Host-scoped so it
+      // only fires for the www hostname and never touches the apex or previews.
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.robacha.fun" }],
+        destination: "https://robacha.fun/:path*",
+        permanent: true,
+      },
+    ];
+  },
+  // Baseline production hardening. Deliberately no strict Content-Security-Policy
+  // here — the wallet SDKs (AppKit/WalletConnect) need inline/eval and many
+  // origins, and a tight CSP would break connection flows; the image optimizer
+  // already sandboxes remote SVGs (see `images` below).
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        ],
+      },
     ];
   },
   // AppKit's guide says to exclude pino-pretty, lokijs and encoding via a

@@ -1,12 +1,8 @@
-import type { Metadata } from "next";
+import { pageMeta, PAGE_SEO } from "@/lib/seo";
 import { LeaderboardClient } from "@/components/leaderboard/LeaderboardClient";
 import { PageContainer } from "@/components/shared/primitives";
 
-export const metadata: Metadata = {
-  title: "Leaderboard",
-  description:
-    "The biggest pulls and the busiest wallets, read from the Robacha contract.",
-};
+export const metadata = pageMeta(PAGE_SEO.leaderboard);
 
 export default function LeaderboardPage() {
   return (

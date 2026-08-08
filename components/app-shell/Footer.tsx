@@ -25,12 +25,12 @@ const COLUMNS = [
     ],
   },
   {
-    title: "Resources",
+    title: "Learn",
     links: [
-      { label: "How It Works", href: "/#how-it-works" },
+      { label: "How It Works", href: "/how-it-works" },
       { label: "FAQ", href: "/faq" },
       { label: "Help", href: "/support" },
-      { label: "Check a round", href: "/verify" },
+      { label: "Verify a round", href: "/verify" },
       { label: "Docs", href: "/docs" },
     ],
   },
@@ -105,7 +105,7 @@ export function Footer() {
             <nav key={column.title} aria-label={column.title}>
               <p className="micro mb-4">{column.title}</p>
               <FooterNav title={column.title} links={column.links} />
-              {column.title === "Resources" ? (
+              {column.title === "Learn" ? (
                 <>
                   <p className="micro mb-3 mt-7">Social</p>
                   <ul className="flex flex-wrap gap-1.5">
