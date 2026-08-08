@@ -7,6 +7,8 @@ import type { HubRaffle } from "@/lib/use-raffle-hub";
 import { useMoney } from "@/lib/use-money";
 import { useSecondsTick } from "@/lib/use-tick";
 import { shortAddress } from "@/lib/formatters";
+import { verifiedCollection } from "@/data/collections";
+import { CollectionBadge } from "./CollectionBadge";
 import { NftThumb } from "./NftThumb";
 import { countdown, stateLabel } from "./raffle-state";
 
@@ -40,12 +42,13 @@ export function RaffleCard({ raffle }: { raffle: HubRaffle }) {
           {live ? <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-[#a6e22e]" aria-hidden="true" /> : null}
           {stateLabel(raffle.state)}
         </span>
+        <CollectionBadge nft={raffle.nft} compact className="absolute right-2.5 top-2.5" />
       </div>
 
       <div className="flex flex-1 flex-col p-3.5">
         <div className="flex items-baseline justify-between gap-2">
           <p className="truncate text-[14px] font-semibold tracking-[-0.02em]">
-            {shortAddress(raffle.nft)} #{raffle.tokenId.toString()}
+            {verifiedCollection(raffle.nft)?.name ?? shortAddress(raffle.nft)} #{raffle.tokenId.toString()}
           </p>
           <span className="num shrink-0 text-[12px] text-ink-2">{money.native(raffle.ticketPriceWei)}</span>
         </div>

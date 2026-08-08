@@ -27,6 +27,7 @@ import { useNftMetadata } from "@/lib/use-nft-metadata";
 import { useMoney } from "@/lib/use-money";
 import { useWallet } from "@/lib/use-wallet";
 import { cn } from "@/lib/utils";
+import { CollectionBadge } from "./CollectionBadge";
 import { LaunchpadUnavailable } from "./LaunchpadUnavailable";
 
 const DURATIONS = [
@@ -434,6 +435,10 @@ function SelectedPrize({ selected, onChange, onContinue }: { selected: SelectedN
             <CheckCircle2 className="h-4 w-4" aria-hidden="true" /> Ownership verified
           </p>
           <p className="mt-0.5 text-[11.5px] text-ink-3">Robinhood Chain</p>
+
+          {/* Ownership (you hold it) is separate from collection trust (is it a
+              known collection). Show the creator how buyers will see it. */}
+          <CollectionBadge nft={selected.contract} onchainName={selected.collectionName} className="mt-3" />
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Button variant="secondary" size="md" onClick={onChange}>Change NFT</Button>

@@ -8,6 +8,8 @@ import { explorerUrl } from "@/lib/config";
 import { shortAddress } from "@/lib/formatters";
 import { useNftMetadata } from "@/lib/use-nft-metadata";
 import { useHubRaffle } from "@/lib/use-raffle-hub";
+import { verifiedCollection } from "@/data/collections";
+import { CollectionBadge } from "./CollectionBadge";
 import { NftThumb } from "./NftThumb";
 import { HubTicketPanel } from "./HubTicketPanel";
 import { HubManagePanel } from "./HubManagePanel";
@@ -69,8 +71,15 @@ export function HubRaffleDetail({ id }: { id: number }) {
               </h1>
               {raffle ? (
                 <p className="mt-1 text-[12.5px] text-ink-3">
-                  {meta.collectionName ? `${meta.collectionName} · ` : ""}Token #{raffle.tokenId.toString()}
+                  {(verifiedCollection(raffle.nft)?.name ?? meta.collectionName)
+                    ? `${verifiedCollection(raffle.nft)?.name ?? meta.collectionName} · `
+                    : ""}
+                  Token #{raffle.tokenId.toString()}
                 </p>
+              ) : null}
+
+              {raffle ? (
+                <CollectionBadge nft={raffle.nft} onchainName={meta.collectionName} className="mt-3" />
               ) : null}
 
               {raffle ? (
