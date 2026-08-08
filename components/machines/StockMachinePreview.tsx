@@ -23,6 +23,7 @@ import { usePool } from "@/lib/use-pool";
 import { useMounted } from "@/lib/use-mounted";
 import { useStockTokens } from "@/lib/use-stock-tokens";
 import type { StockToken } from "@/app/api/stock-tokens/route";
+import { CONFIRMED_STOCK_ASSETS, type ConfirmedStockAsset } from "@/data/stock-machine-assets";
 import { cn } from "@/lib/utils";
 
 /**
@@ -507,17 +508,30 @@ function TokenLogo({ token, className }: { token: StockToken; className?: string
 /* ----------------------------------------------- asset reveals + follow --- */
 
 function FollowReveals() {
+  // Real, operator-confirmed assets fill the first slots (revealed); the rest
+  // stay sealed. Always show at least four cards so the reveal cadence reads.
+  const confirmed = CONFIRMED_STOCK_ASSETS;
+  const sealedCount = Math.max(4 - confirmed.length, 2);
+  const anyConfirmed = confirmed.length > 0;
+
   return (
     <section className="mt-12">
       <SectionHead
         eyebrow="The Robacha pool"
         title="Revealed one asset at a time."
-        blurb="Plenty of tokenized stocks exist on-chain — but which ones Robacha loads into this machine stays sealed. When a slot is genuinely confirmed and funded, its card flips to a real logo, name and status, so each announcement lands as a reveal, never a rumour."
+        blurb={
+          anyConfirmed
+            ? "The first asset is confirmed. The rest stay sealed until they're confirmed and funded too — and pool composition, pricing and odds are still published only before the machine opens. Confirmed means slated for the machine, not a live reward yet."
+            : "Plenty of tokenized stocks exist on-chain — but which ones Robacha loads into this machine stays sealed. When a slot is genuinely confirmed and funded, its card flips to a real logo, name and status, so each announcement lands as a reveal, never a rumour."
+        }
       />
 
       <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {["01", "02", "03", "04"].map((n, i) => (
-          <RevealCard key={n} n={n} obscured={i >= 2} />
+        {confirmed.map((asset, i) => (
+          <RevealCard key={asset.address} n={String(i + 1).padStart(2, "0")} asset={asset} />
+        ))}
+        {Array.from({ length: sealedCount }).map((_, i) => (
+          <RevealCard key={`sealed-${i}`} n={String(confirmed.length + i + 1).padStart(2, "0")} obscured={i >= 1} />
         ))}
       </div>
 
@@ -526,7 +540,45 @@ function FollowReveals() {
   );
 }
 
-function RevealCard({ n, obscured }: { n: string; obscured?: boolean }) {
+function RevealCard({ n, obscured, asset }: { n: string; obscured?: boolean; asset?: ConfirmedStockAsset }) {
+  // A confirmed asset's card is revealed: real logo, name and ticker, with a
+  // link to verify it. No odds, no amount — the machine is still locked.
+  if (asset) {
+    const token: StockToken = {
+      symbol: asset.symbol,
+      name: asset.name,
+      logoUrl: `/api/stock-logo/${encodeURIComponent(asset.symbol)}`,
+      address: asset.address,
+    };
+    return (
+      <div className="sm-reveal sm-reveal-confirmed">
+        <div className="flex items-center justify-between">
+          <span className="text-[10.5px] font-semibold uppercase tracking-[0.08em] text-[color:var(--sm-ink-3)]">
+            Asset #{n}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--sm-lime-soft)] px-2 py-0.5 text-[9.5px] font-semibold uppercase tracking-[0.06em] text-[color:var(--sm-lime-ink)]">
+            <Check className="h-2.5 w-2.5" /> Confirmed
+          </span>
+        </div>
+
+        <div className="mx-auto mt-3 mb-2 grid h-[74px] w-[74px] place-items-center rounded-[20px] border border-[color:var(--sm-line)] bg-white">
+          <TokenLogo token={token} className="h-11 w-11" />
+        </div>
+
+        <p className="text-center text-[13px] font-semibold text-[color:var(--sm-ink)]">${asset.symbol}</p>
+        <p className="text-center text-[10.5px] text-[color:var(--sm-ink-3)]">{asset.name}</p>
+        <a
+          href={asset.marketUrl}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="mt-1.5 block text-center text-[10px] font-medium text-[color:var(--sm-blue-ink)] underline decoration-dotted underline-offset-2"
+        >
+          Verify on market
+        </a>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("sm-reveal", obscured && "sm-reveal-obscured")}>
       <div className="flex items-center justify-between">
@@ -1077,6 +1129,10 @@ const THEME = `
   box-shadow: 0 10px 26px -20px rgba(43,58,85,0.5);
 }
 .stockmachine .sm-reveal-obscured { filter: blur(0.6px); opacity: 0.86; }
+.stockmachine .sm-reveal-confirmed {
+  border-color: rgba(150, 200, 0, 0.5);
+  box-shadow: 0 10px 26px -18px rgba(150, 200, 0, 0.5);
+}
 .stockmachine .sm-reveal-glyph {
   margin: 14px auto 12px; height: 74px; width: 74px; border-radius: 20px;
   display: grid; place-items: center;
