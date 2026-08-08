@@ -11,15 +11,11 @@ const nextConfig: NextConfig = {
       // Friendly short path for the coming-soon Stock Machine preview, mirroring
       // /app (token) and /nft-spins (NFT).
       { source: "/stock-spins", destination: "/machines/tokenized-stocks", permanent: false },
-      // One canonical host: www permanently folds into the apex, which is what
-      // every canonical/OG URL points at (see lib/seo.ts). Host-scoped so it
-      // only fires for the www hostname and never touches the apex or previews.
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.robacha.fun" }],
-        destination: "https://robacha.fun/:path*",
-        permanent: true,
-      },
+      // NOTE: canonical-host handling (www ↔ apex) is deliberately NOT done here.
+      // The hosting platform already redirects apex↔www at the domain layer, and
+      // an app-level www→apex rule on top of it produced an infinite redirect
+      // loop (ERR_TOO_MANY_REDIRECTS) that took the site down. Keep host
+      // canonicalization in one place — the platform/DNS config — not the app.
     ];
   },
   // Baseline production hardening. Deliberately no strict Content-Security-Policy
