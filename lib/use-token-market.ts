@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { TokenMarket } from "@/app/api/tokens/route";
 import { localTokenLogo } from "@/data/token-logos";
+import { stockLogoFor } from "@/data/stock-machine-assets";
 
 /**
  * Logos, prices and liquidity for a set of reward tokens, keyed by contract
@@ -47,7 +48,9 @@ export function useTokenMarket(addresses: readonly string[]) {
       // artwork appearing in some and not others, which is worse than it
       // appearing nowhere. The index still wins where it has an image; this
       // only covers the gaps, which bridged tokens routinely fall into.
-      logoUrl: token.logoUrl ?? localTokenLogo(token.address),
+      // Confirmed tokenized stocks get their real company logo first (the DEX
+      // index has none for them); then the index; then the local gap-fillers.
+      logoUrl: stockLogoFor(token.address) ?? token.logoUrl ?? localTokenLogo(token.address),
     });
   }
 

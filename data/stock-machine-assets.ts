@@ -56,3 +56,17 @@ export const CONFIRMED_STOCK_ASSETS: ConfirmedStockAsset[] = [
     marketUrl: "https://dexscreener.com/robinhood/0xc0D6457C16Cc70d6790Dd43521C899C87ce02f35",
   },
 ];
+
+const BY_ADDRESS = new Map(CONFIRMED_STOCK_ASSETS.map((a) => [a.address.toLowerCase(), a]));
+
+/**
+ * The real company logo for a confirmed tokenized stock, via the cached
+ * /api/stock-logo proxy — or null for anything not a confirmed stock. Used to
+ * give the Stock Machine's reward cards genuine company marks (the DEX index has
+ * no image for these tokens, and this takes priority over any generic one).
+ */
+export function stockLogoFor(address: string | null | undefined): string | null {
+  if (!address) return null;
+  const asset = BY_ADDRESS.get(address.toLowerCase());
+  return asset ? `/api/stock-logo/${encodeURIComponent(asset.symbol)}` : null;
+}

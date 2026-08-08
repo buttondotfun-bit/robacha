@@ -18,7 +18,7 @@ import { STOCK_POOL_ID, ACTIVE_POOL_ID } from "@/lib/config";
 export function StockMachineLive() {
   return (
     <PoolProvider poolId={STOCK_POOL_ID ?? ACTIVE_POOL_ID}>
-      <AppClient />
+      <AppClient lean />
     </PoolProvider>
   );
 }

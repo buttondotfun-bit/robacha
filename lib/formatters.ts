@@ -1,8 +1,10 @@
-/** Compact token amounts: 18500 -> "18,500", 1240000 -> "1.24M" */
+/** Compact token amounts: 18500 -> "18,500", 1240000 -> "1.24M", 0.0203 -> "0.0203" */
 export function formatAmount(value: number): string {
   if (!Number.isFinite(value)) return "—";
   if (Math.abs(value) >= 1_000_000)
     return `${trimZeros((value / 1_000_000).toFixed(2))}M`;
+  // Fractional amounts (tokenized stocks pay sub-1 units) must not round to 0.
+  if (value !== 0 && Math.abs(value) < 1) return trimZeros(value.toPrecision(3));
   return Math.round(value).toLocaleString("en-US");
 }
 
@@ -12,6 +14,8 @@ export function formatCompact(value: number): string {
   const abs = Math.abs(value);
   if (abs >= 1_000_000) return `${trimZeros((value / 1_000_000).toFixed(2))}M`;
   if (abs >= 1_000) return `${trimZeros((value / 1_000).toFixed(1))}K`;
+  // Same reason as formatAmount: keep sub-1 fractions instead of rounding to 0.
+  if (value !== 0 && abs < 1) return trimZeros(value.toPrecision(3));
   return String(Math.round(value));
 }
 
