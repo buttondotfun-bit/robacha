@@ -5,6 +5,8 @@ import { useState } from "react";
 import { WagmiProvider } from "wagmi";
 import { SpinProvider } from "@/lib/spin-store";
 import { wagmiConfig } from "@/lib/web3";
+import { CommandPalette } from "@/components/search/CommandPalette";
+import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 // Imported for its side effect: this is what creates the wallet modal, once.
 import "@/lib/appkit";
 
@@ -22,7 +24,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <SpinProvider>{children}</SpinProvider>
+        <SpinProvider>
+          {children}
+          <CommandPalette />
+          <WelcomeModal />
+        </SpinProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

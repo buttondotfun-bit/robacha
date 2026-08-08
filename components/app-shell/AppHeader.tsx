@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home } from "lucide-react";
+import { Home, Search } from "lucide-react";
 import { RobachaLogo } from "@/components/brand/RobachaLogo";
 import { XIcon } from "@/components/brand/XIcon";
 import { APP_NAV, SOCIAL_LINKS } from "@/lib/constants";
@@ -84,6 +84,15 @@ export function AppHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="Search"
+            title="Search (⌘K)"
+            onClick={() => window.dispatchEvent(new CustomEvent("robacha:search"))}
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink-2 transition-colors hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink"
+          >
+            <Search className="h-4 w-4" aria-hidden="true" />
+          </button>
           {/* Siblings in the flex row. Nesting the toggle inside the badge's
               wrapper made them stack, because that wrapper is block. */}
           <span className="hidden md:block">
