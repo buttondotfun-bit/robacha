@@ -315,8 +315,11 @@ export function useCreateRaffle() {
     async (input: CreateRaffleInput): Promise<number | null> => {
       setError(null);
       setNewId(null);
-      if (!hub) { setError("The launchpad is not live yet."); return null; }
-      if (!address || !publicClient) { setError("Connect your wallet first."); return null; }
+      // Every early-out flips step to "error" too, so the surfacing UI (which
+      // gates on step === "error") actually shows the reason instead of the
+      // click looking like it did nothing.
+      if (!hub) { setStep("error"); setError("The launchpad is not live yet."); return null; }
+      if (!address || !publicClient) { setStep("error"); setError("Connect your wallet first."); return null; }
 
       try {
         // Verify ownership before anything, so a wrong token id fails clearly.
@@ -324,7 +327,8 @@ export function useCreateRaffle() {
           address: input.nft, abi: ERC721_MIN_ABI, functionName: "ownerOf", args: [input.tokenId],
         })) as Address;
         if (owner.toLowerCase() !== address.toLowerCase()) {
-          setError("You don't own that token, or the collection/id is wrong.");
+          setStep("error");
+          setError("You don't own this token with the connected wallet — connect the wallet that holds it, or check the collection and id.");
           return null;
         }
 

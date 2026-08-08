@@ -3,10 +3,12 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isAddress, parseEther, type Address } from "viem";
+import { useReadContract } from "wagmi";
 import { ArrowRight, CheckCircle2, Loader2, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/shared/primitives";
-import { useCreateRaffle } from "@/lib/use-raffle-hub";
+import { chainConfig } from "@/lib/config";
+import { ERC721_MIN_ABI, useCreateRaffle } from "@/lib/use-raffle-hub";
 import { useHubStatus } from "@/lib/use-raffle-hub";
 import { useNftMetadata } from "@/lib/use-nft-metadata";
 import { useMoney } from "@/lib/use-money";
@@ -48,6 +50,22 @@ export function CreateRaffleForm() {
   const previewToken = tokenIdValid ? BigInt(tokenId.trim()) : null;
   const meta = useNftMetadata(previewNft, previewToken);
 
+  // Live ownership: read the token's owner and compare to the connected wallet,
+  // so "you don't own this" shows on the form instead of only after a click.
+  const ownerQ = useReadContract({
+    address: previewNft ?? undefined,
+    abi: ERC721_MIN_ABI,
+    functionName: "ownerOf",
+    args: previewToken !== null ? [previewToken] : undefined,
+    chainId: chainConfig.id,
+    query: { enabled: Boolean(previewNft) && previewToken !== null },
+  });
+  const owner = ownerQ.data as Address | undefined;
+  // Only a *positive* mismatch blocks; an unknown/pending read doesn't, and the
+  // create() call rechecks ownership on chain regardless.
+  const notOwned = Boolean(owner && wallet.address && owner.toLowerCase() !== wallet.address.toLowerCase());
+  const ownedByMe = Boolean(owner && wallet.address && owner.toLowerCase() === wallet.address.toLowerCase());
+
   const capN = Number(cap);
   const perWalletN = Number(perWallet);
   let priceWei: bigint | null = null;
@@ -57,12 +75,13 @@ export function CreateRaffleForm() {
     const e: string[] = [];
     if (nft && !nftValid) e.push("The collection address isn't a valid address.");
     if (tokenId && !tokenIdValid) e.push("Token id must be a whole number.");
+    if (notOwned) e.push("The connected wallet doesn't own this token — connect the wallet that holds it.");
     if (price && (!priceWei || priceWei <= 0n)) e.push("Ticket price must be greater than zero.");
     if (cap && (!Number.isInteger(capN) || capN < 2 || capN > 10000)) e.push("Total tickets must be between 2 and 10,000.");
     if (perWallet && (!Number.isInteger(perWalletN) || perWalletN < 1)) e.push("Max per wallet must be at least 1.");
     if (Number.isInteger(capN) && Number.isInteger(perWalletN) && perWalletN > capN) e.push("Max per wallet can't exceed total tickets.");
     return e;
-  }, [nft, nftValid, tokenId, tokenIdValid, price, priceWei, cap, capN, perWallet, perWalletN]);
+  }, [nft, nftValid, tokenId, tokenIdValid, notOwned, price, priceWei, cap, capN, perWallet, perWalletN]);
 
   const ready =
     nftValid && tokenIdValid && priceWei !== null && priceWei > 0n &&
@@ -223,6 +242,18 @@ export function CreateRaffleForm() {
         )}
         {meta.name || meta.collectionName ? (
           <p className="mt-3 truncate text-[14px] font-semibold">{meta.name || meta.collectionName}</p>
+        ) : null}
+
+        {previewNft && previewToken !== null && wallet.address ? (
+          ownedByMe ? (
+            <p className="mt-1.5 inline-flex items-center gap-1.5 text-[11.5px] font-medium text-accent-ink">
+              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> You own this token
+            </p>
+          ) : notOwned ? (
+            <p className="mt-1.5 text-[11.5px] leading-relaxed text-[#c0564f]">
+              This token isn&rsquo;t held by the connected wallet.
+            </p>
+          ) : null
         ) : null}
 
         <dl className="mt-3 space-y-2 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-3 text-[12.5px]">
