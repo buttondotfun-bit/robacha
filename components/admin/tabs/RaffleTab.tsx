@@ -4,7 +4,7 @@ import { useState } from "react";
 import { formatEther, parseEther } from "viem";
 import { useAccount, useReadContract } from "wagmi";
 import { ROBACHA_RAFFLE_ABI, ROBACHA_RAFFLE_ADMIN_ABI, RaffleState } from "@/lib/abi/robacha-raffle";
-import { RAFFLE_PRIZE } from "@/data/raffle";
+import { FEATURED_RAFFLE } from "@/data/raffle";
 import { chainConfig, contracts, explorerUrl } from "@/lib/config";
 import { shortAddress } from "@/lib/formatters";
 import { useRaffle } from "@/lib/use-raffle";
@@ -68,7 +68,7 @@ export function RaffleTab({ refreshAll }: AdminTabProps) {
 
   return (
     <div className="space-y-4">
-      <AdminSection title={`${RAFFLE_PRIZE.collection} raffle`} description={`${RAFFLE_PRIZE.name} · single raffle`}>
+      <AdminSection title={`${FEATURED_RAFFLE.prize.collection} raffle`} description={`${FEATURED_RAFFLE.prize.name} · single raffle`}>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Metric label="State" value={state != null ? STATE_LABEL[state] ?? `#${state}` : "—"} />
           <Metric label="Tickets" value={r.ticketsSold != null && r.cap != null ? `${r.ticketsSold} / ${r.cap}` : "—"} />

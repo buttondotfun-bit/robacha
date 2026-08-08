@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { parseAbiItem, type Address } from "viem";
 import { usePublicClient } from "wagmi";
 import { chainConfig, contracts } from "./config";
+import { useRaffleConfig } from "./raffle-context";
 
 /**
  * Recent ticket buys, read from the contract's own logs.
@@ -30,8 +31,12 @@ const EVENT = parseAbiItem(
 const LOOKBACK = 500_000n;
 const POLL_MS = 12_000;
 
-export function useRaffleActivity(limit = 8): { buys: RaffleBuy[]; isLoading: boolean } {
-  const raffle = contracts.raffle ?? undefined;
+export function useRaffleActivity(
+  limit = 8,
+  addressOverride?: Address | null,
+): { buys: RaffleBuy[]; isLoading: boolean } {
+  const cfg = useRaffleConfig();
+  const raffle = (addressOverride ?? cfg.address ?? contracts.raffle) ?? undefined;
   const publicClient = usePublicClient({ chainId: chainConfig.id });
   const [buys, setBuys] = useState<RaffleBuy[]>([]);
   const [isLoading, setLoading] = useState(true);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import type { Address } from "viem";
 import {
   useAccount,
   usePublicClient,
@@ -9,6 +10,7 @@ import {
 } from "wagmi";
 import { ROBACHA_RAFFLE_ABI, RaffleState } from "./abi/robacha-raffle";
 import { chainConfig, contracts } from "./config";
+import { useRaffleConfig } from "./raffle-context";
 
 /**
  * Live state of the deployed raffle, plus the two things a visitor can do:
@@ -21,7 +23,7 @@ import { chainConfig, contracts } from "./config";
  * which is the honest state before a raffle is deployed.
  */
 
-export type RaffleTxPhase = "idle" | "buying" | "refunding" | "error";
+export type RaffleTxPhase = "idle" | "buying" | "refunding" | "opening" | "error";
 
 export interface RaffleView {
   configured: boolean;
@@ -42,14 +44,21 @@ export interface RaffleView {
   error: string | null;
   buy: (quantity: number) => Promise<void>;
   refund: () => Promise<void>;
+  /** Permissionless: open refunds once the window has elapsed unsold. */
+  openRefunds: () => Promise<void>;
   reset: () => void;
   refetch: () => void;
 }
 
 const REFRESH = 8_000;
 
-export function useRaffle(): RaffleView {
-  const raffle = contracts.raffle ?? undefined;
+/**
+ * @param addressOverride read a specific raffle contract; defaults to the
+ *   `RaffleProvider` context (and then the featured raffle in config).
+ */
+export function useRaffle(addressOverride?: Address | null): RaffleView {
+  const cfg = useRaffleConfig();
+  const raffle = (addressOverride ?? cfg.address ?? contracts.raffle) ?? undefined;
   const configured = Boolean(raffle);
   const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: chainConfig.id });
@@ -153,6 +162,27 @@ export function useRaffle(): RaffleView {
     }
   }, [raffle, writeContractAsync, publicClient, refetch]);
 
+  const openRefunds = useCallback(async () => {
+    setError(null);
+    if (!raffle) return;
+    try {
+      setPhase("opening");
+      const hash = await writeContractAsync({
+        address: raffle,
+        abi: ROBACHA_RAFFLE_ABI,
+        functionName: "markRefundable",
+        args: [],
+        chainId: chainConfig.id,
+      });
+      await publicClient?.waitForTransactionReceipt({ hash });
+      setPhase("idle");
+      refetch();
+    } catch (caught) {
+      setPhase("error");
+      setError(cleanError(caught));
+    }
+  }, [raffle, writeContractAsync, publicClient, refetch]);
+
   const reset = useCallback(() => {
     setPhase("idle");
     setError(null);
@@ -182,6 +212,7 @@ export function useRaffle(): RaffleView {
       error,
       buy,
       refund,
+      openRefunds,
       reset,
       refetch,
     }),
@@ -203,6 +234,7 @@ export function useRaffle(): RaffleView {
       error,
       buy,
       refund,
+      openRefunds,
       reset,
       refetch,
     ],

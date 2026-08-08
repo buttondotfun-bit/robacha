@@ -2,6 +2,7 @@
 
 import { Ticket } from "lucide-react";
 import { useRaffle, RaffleState } from "@/lib/use-raffle";
+import { useRaffleConfig } from "@/lib/raffle-context";
 import { useSecondsTick } from "@/lib/use-tick";
 import { cn } from "@/lib/utils";
 
@@ -116,10 +117,12 @@ export function RaffleStatusLine({ className }: { className?: string }) {
  */
 export function RaffleDisclosure({ className }: { className?: string }) {
   const raffle = useRaffle();
+  const { prizePhrase } = useRaffleConfig();
+  const prizeCap = prizePhrase.charAt(0).toUpperCase() + prizePhrase.slice(1);
 
   return (
     <p className={className}>
-      Chimper #2272 is an Ethereum NFT and ROBACHA runs on Robinhood Chain, so
+      {prizeCap} is an Ethereum NFT and ROBACHA runs on Robinhood Chain, so
       the prize is sent to the winner by hand across chains.{" "}
       {raffle.configured
         ? "Everything else — the money, the caps, the draw and the refund — is held and enforced by the contract, not by us."

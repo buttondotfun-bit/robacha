@@ -122,6 +122,18 @@ export const contracts = {
       "0x6676D4Bda98716e386B271eF06b5Ee1dE460772a",
     "NEXT_PUBLIC_ROBACHA_CHIMPERS_RAFFLE_ADDRESS",
   ),
+  // The earlier Meebit raffle, still live on chain and kept on the site while it
+  // winds down. A standalone RobachaRaffle at 0x8BEe…95AaC: verified 200/25 caps,
+  // ticketPriceWei 5225848089821876 (≈ $10), 24h window. It sells and, if it
+  // doesn't sell out, refunds every ticket in full (markRefundable is
+  // permissionless once the window elapses). Pinned so its own buyers keep a
+  // live UI to track it and pull refunds; clear this line once it's fully
+  // settled and every refund is withdrawn.
+  raffleMeebit: readAddress(
+    process.env.NEXT_PUBLIC_ROBACHA_MEEBIT_RAFFLE_ADDRESS ??
+      "0x8BEe0584c4932fAEdcB0084844F328606cC95AaC",
+    "NEXT_PUBLIC_ROBACHA_MEEBIT_RAFFLE_ADDRESS",
+  ),
   // The permissionless NFT-raffle launchpad. Read from the env var: unset until
   // the hub is deployed, at which point the launchpad opens. Until then every
   // launchpad surface degrades to an honest "not live yet" state.

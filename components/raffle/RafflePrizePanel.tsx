@@ -1,29 +1,33 @@
+"use client";
+
 import Image from "next/image";
 import { ArrowUpRight, Layers, ShieldCheck } from "lucide-react";
-import { contracts, explorerUrl } from "@/lib/config";
+import { explorerUrl } from "@/lib/config";
 import { shortAddress } from "@/lib/formatters";
-import { RAFFLE_PRIZE, RAFFLE_PRIZE_LINKS, RAFFLE_PRIZE_STATS } from "@/data/raffle";
+import { useRaffleConfig } from "@/lib/raffle-context";
 
 /**
- * The prize presentation. Chimper #2272 is the hero here — its actual token
- * artwork, framed in a soft white surface — with the collection's fixed facts
- * and — stated honestly — how the prize and the money are actually custodied.
+ * The prize presentation, for whichever raffle the surrounding context names.
+ * The prize is the hero, framed in a soft white surface, with the collection's
+ * facts and — stated honestly — how the prize and the money are actually
+ * custodied.
  *
- * The important honesty: this raffle's contract holds the *ticket money* on
- * Robinhood Chain, but the Chimper lives on Ethereum and is delivered to the
- * winner by the team after the draw. This panel says exactly that rather than
- * implying the NFT sits in on-chain escrow, which it does not.
+ * The important honesty: the raffle contract holds the *ticket money* on
+ * Robinhood Chain, but the NFT lives on Ethereum and is delivered to the winner
+ * by the team after the draw. This panel says exactly that rather than implying
+ * the NFT sits in on-chain escrow, which it does not.
  */
 export function RafflePrizePanel() {
-  const raffleContractLink = contracts.raffle ? explorerUrl("address", contracts.raffle) : null;
+  const { prize, stats: prizeStats, links, address, deliveryNote, shortName } = useRaffleConfig();
+  const raffleContractLink = address ? explorerUrl("address", address) : null;
 
   // Only the facts that are genuinely set — a null (e.g. live floor/volume) is
   // dropped rather than rendered as an empty or invented cell.
   const stats: { label: string; value: string }[] = [
-    { label: "Supply", value: RAFFLE_PRIZE_STATS.supply },
-    { label: "Floor", value: RAFFLE_PRIZE_STATS.floor },
-    { label: "Owners", value: RAFFLE_PRIZE_STATS.owners },
-    { label: "Volume", value: RAFFLE_PRIZE_STATS.totalVolume },
+    { label: "Supply", value: prizeStats.supply },
+    { label: "Floor", value: prizeStats.floor },
+    { label: "Owners", value: prizeStats.owners },
+    { label: "Volume", value: prizeStats.totalVolume },
   ].filter((s): s is { label: string; value: string } => Boolean(s.value));
 
   return (
@@ -38,29 +42,28 @@ export function RafflePrizePanel() {
         />
         <div className="relative aspect-square w-full overflow-hidden rounded-[18px] border border-[rgb(var(--edge-rgb)_/_0.9)] bg-white/60">
           <Image
-            src={RAFFLE_PRIZE.image}
-            alt={`${RAFFLE_PRIZE.name}, the raffle prize`}
+            src={prize.image}
+            alt={prize.tokenId ? `${prize.name}, the raffle prize` : `The official ${prize.collection} collection mark`}
             fill
             priority
             sizes="(max-width: 1024px) 100vw, 430px"
             className="object-cover"
           />
           <span className="absolute bottom-2 left-2 rounded-full bg-[rgb(var(--ink-rgb)_/_0.6)] px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
-            The exact prize · {RAFFLE_PRIZE.name}
+            {prize.tokenId ? `The exact prize · ${prize.name}` : "Winning token shown at draw"}
           </span>
         </div>
       </div>
 
       <div className="mt-3.5 flex items-baseline justify-between gap-2">
-        <p className="text-[20px] font-semibold tracking-[-0.02em]">{RAFFLE_PRIZE.name}</p>
+        <p className="text-[20px] font-semibold tracking-[-0.02em]">{prize.name}</p>
         <span className="glass-chip inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium text-ink-2">
-          {RAFFLE_PRIZE.collection} · {RAFFLE_PRIZE.chain}
+          {prize.collection} · {prize.chain}
         </span>
       </div>
 
       {/* Collection facts — only what's genuinely fixed is quoted; live figures
-          (floor, volume, owners) are linked, not snapshotted, so nothing here
-          goes stale or gets invented. */}
+          are linked (or dated), never invented. */}
       {stats.length > 0 ? (
         <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2.5 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-3 text-[13px]">
           {stats.map((s) => (
@@ -68,15 +71,21 @@ export function RafflePrizePanel() {
           ))}
         </dl>
       ) : null}
-      <a
-        href={RAFFLE_PRIZE_LINKS.opensea}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-2 inline-flex items-center gap-1 text-[10.5px] text-ink-3 hover:text-ink-2"
-      >
-        Live floor, volume and owners on OpenSea
-        <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-      </a>
+      {prizeStats.asOf ? (
+        <p className="mt-2 text-[10.5px] text-ink-3">
+          Collection stats as of {prizeStats.asOf}, via OpenSea — tap through for live figures.
+        </p>
+      ) : (
+        <a
+          href={links.opensea}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-2 inline-flex items-center gap-1 text-[10.5px] text-ink-3 hover:text-ink-2"
+        >
+          Live floor, volume and owners on OpenSea
+          <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+        </a>
+      )}
 
       {/* Prize status — the true custody mechanism. */}
       <div className="mt-3.5 space-y-2 border-t border-[rgb(var(--line-rgb)_/_0.08)] pt-3.5">
@@ -90,7 +99,7 @@ export function RafflePrizePanel() {
               on a real draw, or refunded.{" "}
               {raffleContractLink ? (
                 <a href={raffleContractLink} target="_blank" rel="noreferrer" className="num inline-flex items-center gap-0.5 text-ink-2 hover:text-ink">
-                  {contracts.raffle ? shortAddress(contracts.raffle) : ""} <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                  {address ? shortAddress(address) : ""} <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
                 </a>
               ) : null}
             </>
@@ -98,8 +107,8 @@ export function RafflePrizePanel() {
         />
         <Row
           icon={<Layers className="h-3.5 w-3.5" aria-hidden="true" />}
-          title="Chimper delivered cross-chain"
-          body="Chimper #2272 is an Ethereum NFT, so the winner receives it by hand from the team after the draw — the one step the contract can't perform itself."
+          title={`${shortName} delivered cross-chain`}
+          body={deliveryNote}
         />
       </div>
     </div>

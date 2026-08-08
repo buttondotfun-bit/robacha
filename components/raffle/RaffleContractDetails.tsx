@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { ArrowUpRight, ChevronDown, Dice5 } from "lucide-react";
-import { contracts, explorerUrl } from "@/lib/config";
-import { RAFFLE_PRIZE } from "@/data/raffle";
+import { explorerUrl } from "@/lib/config";
+import { useRaffleConfig } from "@/lib/raffle-context";
 import { shortAddress } from "@/lib/formatters";
 import { useRaffle, RaffleState } from "@/lib/use-raffle";
 import { cn } from "@/lib/utils";
@@ -16,10 +16,11 @@ import { cn } from "@/lib/utils";
  */
 export function RaffleContractDetails({ className }: { className?: string }) {
   const raffle = useRaffle();
+  const { prize, address } = useRaffleConfig();
   const [open, setOpen] = useState(false);
 
-  const raffleLink = contracts.raffle ? explorerUrl("address", contracts.raffle) : null;
-  const nftLink = `https://etherscan.io/address/${RAFFLE_PRIZE.contract}`;
+  const raffleLink = address ? explorerUrl("address", address) : null;
+  const nftLink = `https://etherscan.io/address/${prize.contract}`;
 
   const settlement =
     raffle.state === RaffleState.Complete
@@ -77,9 +78,9 @@ export function RaffleContractDetails({ className }: { className?: string }) {
         </button>
         {open ? (
           <dl className="grid grid-cols-1 gap-x-6 gap-y-3 border-t border-[rgb(var(--line-rgb)_/_0.08)] px-4 py-4 text-[12.5px] sm:grid-cols-2">
-            <DetailLink label="Raffle contract" value={contracts.raffle ? shortAddress(contracts.raffle) : "—"} href={raffleLink} />
-            <DetailLink label="Prize NFT contract" value={shortAddress(RAFFLE_PRIZE.contract)} href={nftLink} />
-            <Detail label="Token ID" value={`#${RAFFLE_PRIZE.tokenId}`} />
+            <DetailLink label="Raffle contract" value={address ? shortAddress(address) : "—"} href={raffleLink} />
+            <DetailLink label="Prize NFT contract" value={shortAddress(prize.contract)} href={nftLink} />
+            <Detail label="Token ID" value={prize.tokenId ? `#${prize.tokenId}` : "Revealed at draw"} />
             <Detail label="Ticket currency" value="ETH (Robinhood Chain)" />
             <Detail label="Total tickets" value={raffle.cap !== null ? String(raffle.cap) : "—"} />
             <Detail label="Max per wallet" value={raffle.maxPerWallet !== null ? String(raffle.maxPerWallet) : "—"} />

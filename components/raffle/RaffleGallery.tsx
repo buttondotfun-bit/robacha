@@ -18,6 +18,7 @@ import { RaffleCard } from "@/components/launchpad/RaffleCard";
 import { FeaturedRaffleCard } from "./FeaturedRaffleCard";
 import { RobContextLink } from "@/components/rob/RobContextLink";
 import { HubRaffleState } from "@/lib/abi/robacha-raffle-hub";
+import { RaffleProvider } from "@/lib/raffle-context";
 import { useRaffleMarket } from "@/lib/use-raffle-market";
 import { useSecondsTick } from "@/lib/use-tick";
 import type { HubRaffle } from "@/lib/use-raffle-hub";
@@ -36,7 +37,7 @@ import { isDenylisted } from "@/data/collections";
 type TabKey = "live" | "upcoming" | "ended";
 
 export function RaffleGallery() {
-  const { featured, community, stats } = useRaffleMarket();
+  const { standalone, community, stats } = useRaffleMarket();
   const now = useSecondsTick();
   const [tab, setTab] = useState<TabKey>("live");
 
@@ -95,10 +96,18 @@ export function RaffleGallery() {
         </Reveal>
       ) : null}
 
-      {/* ---------------- Featured ---------------- */}
-      <Reveal delay={60} className="mt-6">
-        <FeaturedRaffleCard raffle={featured} />
-      </Reveal>
+      {/* ---------------- Platform raffles ---------------- */}
+      {standalone.length > 0 ? (
+        <div className="mt-6 space-y-5">
+          {standalone.map(({ config }) => (
+            <Reveal key={config.slug} delay={60}>
+              <RaffleProvider raffle={config}>
+                <FeaturedRaffleCard />
+              </RaffleProvider>
+            </Reveal>
+          ))}
+        </div>
+      ) : null}
 
       {/* ---------------- Gallery ---------------- */}
       <section id="raffles" className="mt-10 scroll-mt-24">

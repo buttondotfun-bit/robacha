@@ -2,18 +2,17 @@ import type { MetadataRoute } from "next";
 import { LEGAL_SLUGS } from "@/data/legal";
 import { MACHINES } from "@/data/machines";
 import { PROJECTS } from "@/data/projects";
-import { contracts } from "@/lib/config";
+import { configuredRaffles } from "@/data/raffle";
 import { canonicalUrl, INDEXABLE } from "@/lib/seo";
 
 /**
  * The sitemap — canonical, indexable pages only.
  *
  * Excludes every noindex surface (admin, My Bag, the wallet-specific win
- * pages, the create-raffle flow) and all data API routes. The featured raffle
- * (currently the Chimpers draw) is a real, standing public page and is included;
- * per-creator hub
- * raffles would be appended here once the launchpad hub is deployed (it isn't
- * yet, so none are invented).
+ * pages, the create-raffle flow) and all data API routes. Each standalone
+ * platform raffle with a pinned contract (Chimpers, Meebit) is a real, standing
+ * public page and is included; per-creator hub raffles would be appended here
+ * once the launchpad hub is deployed (it isn't yet, so none are invented).
  *
  * Preview/staging builds return an empty sitemap so their URLs never enter an
  * index.
@@ -51,13 +50,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: c.priority,
   }));
 
-  // The standing featured raffle — only when its contract is actually pinned.
-  if (contracts.raffle) {
+  // Every standalone platform raffle whose contract is actually pinned.
+  for (const r of configuredRaffles()) {
     entries.push({
-      url: canonicalUrl("/raffle/chimpers"),
+      url: canonicalUrl(`/raffle/${r.slug}`),
       lastModified: now,
       changeFrequency: "hourly",
-      priority: 0.7,
+      priority: r.featured ? 0.7 : 0.6,
     });
   }
 

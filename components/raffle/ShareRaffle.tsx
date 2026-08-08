@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy, Share2 } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
+import { useRaffleConfig } from "@/lib/raffle-context";
 
 /**
  * Share the raffle — copy the direct link or open a pre-filled X post. Nothing
@@ -10,6 +11,7 @@ import { XIcon } from "@/components/brand/XIcon";
  * page's own canonical link, so a shared raffle always resolves to a real page.
  */
 export function ShareRaffle() {
+  const { prize, shortName } = useRaffleConfig();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -36,7 +38,7 @@ export function ShareRaffle() {
   }
 
   const tweet = `https://x.com/intent/tweet?text=${encodeURIComponent(
-    "I'm entering the Chimpers raffle on @robachadotfun 🎰\n\n200 tickets. One Chimper.",
+    `I'm entering the ${prize.collection} raffle on @robachadotfun 🎰\n\n200 tickets. One ${shortName}.`,
   )}&url=${encodeURIComponent(url())}`;
 
   return (

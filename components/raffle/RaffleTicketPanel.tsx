@@ -20,16 +20,23 @@ import { RaffleProgress } from "./RaffleProgress";
 import { shortAddress } from "@/lib/formatters";
 import { useMoney } from "@/lib/use-money";
 import { useRaffle, RaffleState } from "@/lib/use-raffle";
+import { useRaffleConfig } from "@/lib/raffle-context";
 import { useSecondsTick } from "@/lib/use-tick";
 import { useWallet } from "@/lib/use-wallet";
 
 /**
- * The Chimpers raffle's entry module. Every number — sold count, price, caps, the
- * caller's own entries and allowance, the total owed — is read from the raffle
- * contract, and each of the contract's four states gets its own face. It never
- * shows a total, an allowance or an "entered" count the chain wouldn't confirm,
- * and it never lets a wallet pick more tickets than the contract will accept.
+ * A raffle's entry module, for whichever raffle the context names. Every number
+ * — sold count, price, caps, the caller's own entries and allowance, the total
+ * owed — is read from the raffle contract, and each of the contract's states
+ * gets its own face. It never shows a total, an allowance or an "entered" count
+ * the chain wouldn't confirm, and it never lets a wallet pick more tickets than
+ * the contract will accept.
  */
+
+/** "the Meebit" → "The Meebit" for use at the start of a sentence. */
+function capitalize(phrase: string): string {
+  return phrase.charAt(0).toUpperCase() + phrase.slice(1);
+}
 function fmtCountdown(ms: number): string {
   const t = Math.max(0, Math.floor(ms / 1000));
   const h = Math.floor(t / 3600);
@@ -42,6 +49,7 @@ function fmtCountdown(ms: number): string {
 
 export function RaffleTicketPanel({ fallback }: { fallback: React.ReactNode }) {
   const raffle = useRaffle();
+  const { prizePhrase } = useRaffleConfig();
   const wallet = useWallet();
   const money = useMoney();
   const now = useSecondsTick();
@@ -63,6 +71,11 @@ export function RaffleTicketPanel({ fallback }: { fallback: React.ReactNode }) {
 
   const msLeft = raffle.closesAt !== null ? raffle.closesAt * 1000 - now : null;
   const showClock = state === RaffleState.Open && msLeft !== null && msLeft > 0;
+  // The window has run out but the contract still reports Open because nobody
+  // has opened refunds yet. Since it didn't sell out (a sell-out flips it to
+  // AwaitingDraw), buying is closed and the only move is the permissionless
+  // markRefundable — which anyone, including a buyer, can send.
+  const windowElapsed = state === RaffleState.Open && msLeft !== null && msLeft <= 0;
 
   const iAmWinner = winner && wallet.address?.toLowerCase() === winner.toLowerCase();
   const insufficient =
@@ -103,8 +116,8 @@ export function RaffleTicketPanel({ fallback }: { fallback: React.ReactNode }) {
           </div>
           <p className="num mt-1.5 text-[13px] text-ink">{shortAddress(winner)}</p>
           <p className="mt-1 text-[11.5px] leading-relaxed text-ink-3">
-            Drawn on chain from StonkPit entropy. Chimper #2272 is delivered to
-            the winner on Ethereum by the team.
+            Drawn on chain from StonkPit entropy. {capitalize(prizePhrase)} is
+            delivered to the winner on Ethereum by the team.
           </p>
           {iAmWinner ? (
             <p className="mt-2 text-[12px] font-semibold text-accent-ink">Congratulations — you&rsquo;ll be contacted for delivery.</p>
@@ -148,8 +161,34 @@ export function RaffleTicketPanel({ fallback }: { fallback: React.ReactNode }) {
         </div>
       ) : null}
 
+      {/* ---- Closed unsold, refunds not yet opened ---- */}
+      {windowElapsed ? (
+        <div className="mt-4 rounded-[16px] bg-[rgb(var(--ink-rgb)_/_0.04)] p-4">
+          <div className="flex items-center gap-2">
+            <RefreshCcw className="h-4 w-4 text-ink-2" aria-hidden="true" />
+            <p className="text-[13px] font-semibold">Window closed — didn&rsquo;t sell out</p>
+          </div>
+          <p className="mt-1.5 text-[11.5px] leading-relaxed text-ink-3">
+            The 24 hours are up and it didn&rsquo;t reach 200, so no draw happens
+            and every ticket is refundable in full. Open refunds below — anyone
+            can, it needs no permission — then each buyer withdraws theirs.
+          </p>
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            className="mt-3"
+            disabled={busy}
+            onClick={() => void raffle.openRefunds()}
+          >
+            {phase === "opening" ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+            Open refunds
+          </Button>
+        </div>
+      ) : null}
+
       {/* ---- Open (buy) ---- */}
-      {state === RaffleState.Open ? (
+      {state === RaffleState.Open && !windowElapsed ? (
         <div className="mt-4">
           {/* Selector */}
           <div className="flex items-center gap-2">

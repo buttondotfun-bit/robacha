@@ -1,14 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
+import { RAFFLES, type RaffleConfig } from "@/data/raffle";
 import { HubRaffleState } from "./abi/robacha-raffle-hub";
 import { RaffleState, useRaffle, type RaffleView } from "./use-raffle";
 import { useHubRaffles, type HubRaffle } from "./use-raffle-hub";
 
 /**
- * One read of the whole raffle market: the platform's featured raffle (its own
- * `RobachaRaffle` contract — currently the Chimpers #2272 draw) and every
- * community raffle on the hub, plus a few headline figures derived from them.
+ * One read of the whole raffle market: the platform's own standalone raffles
+ * (each its own `RobachaRaffle` — the featured Chimpers draw and the winding-
+ * down Meebit) and every community raffle on the hub, plus a few headline
+ * figures derived from them.
  *
  * Nothing here is invented. Each stat is a straight aggregate of contract
  * state — counts of raffles in a given state, a sum of tickets sold — so the
@@ -18,7 +20,7 @@ import { useHubRaffles, type HubRaffle } from "./use-raffle-hub";
  */
 
 export interface RaffleMarketStats {
-  /** Raffles currently taking tickets (featured + community). */
+  /** Raffles currently taking tickets (platform + community). */
   liveRaffles: number;
   /** Tickets sold across every raffle, ever. */
   ticketsSold: number;
@@ -28,9 +30,14 @@ export interface RaffleMarketStats {
   totalRaffles: number;
 }
 
+export interface StandaloneRaffle {
+  config: RaffleConfig;
+  view: RaffleView;
+}
+
 export interface RaffleMarket {
-  /** The platform's own featured raffle (its standalone `RobachaRaffle`). */
-  featured: RaffleView;
+  /** Configured platform raffles, featured first. */
+  standalone: StandaloneRaffle[];
   community: HubRaffle[];
   communityConfigured: boolean;
   stats: RaffleMarketStats;
@@ -38,32 +45,41 @@ export interface RaffleMarket {
 }
 
 export function useRaffleMarket(): RaffleMarket {
-  const featured = useRaffle();
+  // There are exactly two platform raffles today; read each by address so the
+  // number of hook calls is stable no matter how many are actually pinned.
+  const firstView = useRaffle(RAFFLES[0]?.address ?? null);
+  const secondView = useRaffle(RAFFLES[1]?.address ?? null);
   const { raffles, configured: communityConfigured, isLoading: communityLoading } = useHubRaffles();
 
+  const standalone = useMemo<StandaloneRaffle[]>(() => {
+    return [
+      RAFFLES[0] ? { config: RAFFLES[0], view: firstView } : null,
+      RAFFLES[1] ? { config: RAFFLES[1], view: secondView } : null,
+    ].filter((x): x is StandaloneRaffle => x !== null && x.view.configured);
+  }, [firstView, secondView]);
+
   const stats = useMemo<RaffleMarketStats>(() => {
-    const featuredLive = featured.configured && featured.state === RaffleState.Open ? 1 : 0;
-    const featuredSold = featured.ticketsSold ?? 0;
-    const featuredAwarded = featured.winner ? 1 : 0;
-    const featuredExists = featured.configured ? 1 : 0;
+    const selfLive = standalone.reduce((n, s) => n + (s.view.state === RaffleState.Open ? 1 : 0), 0);
+    const selfSold = standalone.reduce((n, s) => n + (s.view.ticketsSold ?? 0), 0);
+    const selfAwarded = standalone.reduce((n, s) => n + (s.view.winner ? 1 : 0), 0);
 
     const communityLive = raffles.filter((r) => r.state === HubRaffleState.Open).length;
     const communitySold = raffles.reduce((sum, r) => sum + r.ticketsSold, 0);
     const communityAwarded = raffles.filter((r) => r.state === HubRaffleState.Complete).length;
 
     return {
-      liveRaffles: featuredLive + communityLive,
-      ticketsSold: featuredSold + communitySold,
-      nftsAwarded: featuredAwarded + communityAwarded,
-      totalRaffles: featuredExists + raffles.length,
+      liveRaffles: selfLive + communityLive,
+      ticketsSold: selfSold + communitySold,
+      nftsAwarded: selfAwarded + communityAwarded,
+      totalRaffles: standalone.length + raffles.length,
     };
-  }, [featured.configured, featured.state, featured.ticketsSold, featured.winner, raffles]);
+  }, [standalone, raffles]);
 
   return {
-    featured,
+    standalone,
     community: raffles,
     communityConfigured,
     stats,
-    isLoading: featured.isLoading || communityLoading,
+    isLoading: firstView.isLoading || secondView.isLoading || communityLoading,
   };
 }

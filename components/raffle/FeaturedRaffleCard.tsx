@@ -4,24 +4,29 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Clock, ShieldCheck } from "lucide-react";
 import { RaffleProgress } from "./RaffleProgress";
-import { contracts, explorerUrl } from "@/lib/config";
-import { RAFFLE_PRIZE, RAFFLE_PRIZE_LINKS } from "@/data/raffle";
-import { RaffleState, type RaffleView } from "@/lib/use-raffle";
+import { explorerUrl } from "@/lib/config";
+import { useRaffleConfig } from "@/lib/raffle-context";
+import { useRaffle, RaffleState } from "@/lib/use-raffle";
 import { useMoney } from "@/lib/use-money";
 import { useSecondsTick } from "@/lib/use-tick";
 
 /**
- * The market's featured raffle — the platform's own Chimpers draw, rendered as
- * the page centerpiece. Every figure (price, caps, sold count, remaining time,
- * winner, status) is read from the RobachaRaffle contract via `useRaffle`; the
- * collection, chain and links come from the configured prize. Nothing is
- * hardcoded that the contract answers for.
+ * A platform raffle, rendered as a market card. Which raffle it shows comes from
+ * the surrounding `RaffleProvider`, so the same card leads with the featured
+ * Chimpers draw and also carries the winding-down Meebit.
  *
- * Honesty note: this raffle's NFT lives on Ethereum and is delivered by hand,
- * so this card claims only what its contract enforces — the money, the draw and
- * the refunds — and never that the contract custodies the Chimper.
+ * Every figure (price, caps, sold count, remaining time, winner, status) is read
+ * from that raffle's `RobachaRaffle` via `useRaffle`; the collection, chain and
+ * links come from the configured prize. Nothing is hardcoded that the contract
+ * answers for.
+ *
+ * Honesty note: the NFT lives on Ethereum and is delivered by hand, so this card
+ * claims only what its contract enforces — the money, the draw and the refunds —
+ * and never that the contract custodies the NFT.
  */
-export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
+export function FeaturedRaffleCard() {
+  const config = useRaffleConfig();
+  const raffle = useRaffle();
   const money = useMoney();
   const now = useSecondsTick();
 
@@ -38,8 +43,8 @@ export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
     ? (money.hasPrice ? money.usd(raffle.priceWei) : null) ?? money.native(raffle.priceWei)
     : "—";
 
-  const status = statusOf(raffle.state, msLeft, now, raffle);
-  const raffleContractLink = contracts.raffle ? explorerUrl("address", contracts.raffle) : null;
+  const status = statusOf(raffle.state, msLeft, raffle.winner);
+  const raffleContractLink = config.address ? explorerUrl("address", config.address) : null;
 
   return (
     <div
@@ -51,15 +56,15 @@ export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
         {/* Artwork */}
         <div className="group relative aspect-square w-full overflow-hidden lg:aspect-auto lg:min-h-[340px]">
           <Image
-            src={RAFFLE_PRIZE.image}
-            alt="Chimper #2272, the raffle prize"
+            src={config.prize.image}
+            alt={config.prize.tokenId ? `${config.prize.name}, the raffle prize` : `The official ${config.prize.collection} collection mark`}
             fill
             priority
             sizes="(max-width: 1024px) 100vw, 440px"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.015]"
           />
           <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-[10.5px] font-semibold text-ink shadow-sm backdrop-blur-sm">
-            Featured
+            {config.featured ? "Featured" : "Also live"}
           </span>
           {live ? (
             <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-[rgba(20,20,20,0.6)] px-2.5 py-1 text-[10.5px] font-semibold text-white backdrop-blur-sm">
@@ -71,13 +76,13 @@ export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
 
         {/* Details */}
         <div className="flex flex-col p-5 sm:p-7">
-          <p className="micro text-ink-3">Featured raffle</p>
+          <p className="micro text-ink-3">{config.featured ? "Featured raffle" : "Also live"}</p>
           <h2 className="mt-1.5 text-[26px] font-semibold leading-tight tracking-[-0.02em] sm:text-[30px]">
-            Win a Chimper
+            Win a {config.shortName}
           </h2>
           <p className="mt-1.5 text-[13px] text-ink-2">
             {cap > 0 ? `${cap} tickets` : "—"} · {priceLabel} each ·{" "}
-            <span className="text-ink-3">{RAFFLE_PRIZE.collection} on {RAFFLE_PRIZE.chain}</span>
+            <span className="text-ink-3">{config.prize.collection} on {config.prize.chain}</span>
           </p>
 
           {/* Progress */}
@@ -111,7 +116,7 @@ export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
           {/* Reassurance — true of this contract: funds escrow + refunds. */}
           <p className="mt-4 rounded-[12px] bg-[rgb(var(--ink-rgb)_/_0.03)] px-3 py-2.5 text-[11.5px] leading-relaxed text-ink-2">
             {cap > 0 ? (
-              <>If all {cap} tickets sell, one wallet wins Chimper #2272. If it doesn&rsquo;t sell out, every ticket is refunded in full.</>
+              <>If all {cap} tickets sell, one wallet wins {config.prizePhrase}. If it doesn&rsquo;t sell out, every ticket is refunded in full.</>
             ) : (
               <>Sell out and one wallet wins; otherwise every ticket is refunded in full.</>
             )}
@@ -120,14 +125,14 @@ export function FeaturedRaffleCard({ raffle }: { raffle: RaffleView }) {
           {/* CTA + secondary links */}
           <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Link
-              href="/raffle/chimpers"
+              href={`/raffle/${config.slug}`}
               className="btn-cta group inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-[linear-gradient(168deg,rgba(226,255,120,0.96)_0%,rgba(204,255,0,0.98)_46%,rgba(186,232,0,0.98)_100%)] text-[14px] font-semibold text-[var(--on-accent)] shadow-[var(--shadow-neon)] transition-transform hover:-translate-y-0.5"
             >
               {live ? "Enter the raffle" : "View the raffle"}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </Link>
             <div className="flex items-center gap-3 text-[11.5px] text-ink-3">
-              <a href={RAFFLE_PRIZE_LINKS.opensea} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-ink-2">
+              <a href={config.links.opensea} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-ink-2">
                 OpenSea <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
               </a>
               {raffleContractLink ? (
@@ -155,15 +160,17 @@ function Stat({ label, children }: { label: string; children: React.ReactNode })
 function statusOf(
   state: number | null,
   msLeft: number,
-  _now: number,
-  raffle: RaffleView,
+  winner: `0x${string}` | null,
 ): { countdown: string; footnote: string } {
   const countdown = fmt(msLeft);
   if (state === RaffleState.Open && msLeft > 0) {
     return { countdown, footnote: "Live now" };
   }
+  // Window elapsed but still Open on chain: it didn't sell out, so refunds are
+  // about to open (permissionlessly) rather than a draw.
+  if (state === RaffleState.Open && msLeft <= 0) return { countdown: "", footnote: "Closed · refunds opening" };
   if (state === RaffleState.AwaitingDraw) return { countdown: "", footnote: "Sold out — drawing the winner" };
-  if (state === RaffleState.Complete && raffle.winner) return { countdown: "", footnote: "Winner drawn" };
+  if (state === RaffleState.Complete && winner) return { countdown: "", footnote: "Winner drawn" };
   if (state === RaffleState.Refundable) return { countdown: "", footnote: "Refunds open" };
   return { countdown: "", footnote: "Opening soon" };
 }

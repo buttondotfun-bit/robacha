@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Ticket } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
-import { RAFFLE_PRIZE } from "@/data/raffle";
+import { FEATURED_RAFFLE } from "@/data/raffle";
 import { useRaffle, RaffleState } from "@/lib/use-raffle";
 import { useSecondsTick } from "@/lib/use-tick";
 import { cn } from "@/lib/utils";
@@ -45,7 +45,8 @@ export function RafflePromo({
   /** Routes where a richer promo already lives, so this one steps aside. */
   hideOnPaths?: string[];
 }) {
-  const raffle = useRaffle();
+  // Always the featured raffle, wherever this promo is dropped.
+  const raffle = useRaffle(FEATURED_RAFFLE.address);
   const now = useSecondsTick();
   const pathname = usePathname();
 
@@ -72,12 +73,12 @@ export function RafflePromo({
         className="group glass-chip flex max-w-full items-center gap-3 rounded-full py-1.5 pl-2 pr-2.5 text-[12.5px] transition-colors hover:text-ink"
       >
         <span className="relative flex h-6 w-6 shrink-0 overflow-hidden rounded-full ring-1 ring-[rgb(var(--edge-rgb)_/_0.8)]">
-          <Image src={RAFFLE_PRIZE.image} alt="" fill sizes="24px" className="object-cover" />
+          <Image src={FEATURED_RAFFLE.prize.image} alt="" fill sizes="24px" className="object-cover" />
         </span>
         <span className="flex min-w-0 items-center gap-1.5 font-medium text-ink-2">
           <span className="pulse-dot h-1.5 w-1.5 shrink-0 rounded-full bg-[#8ec500]" aria-hidden="true" />
           <span className="truncate">
-            <span className="text-ink">Win a Chimper</span>
+            <span className="text-ink">Win a {FEATURED_RAFFLE.shortName}</span>
             <span className="hidden text-ink-3 sm:inline"> · {sold}/{cap} sold · {left} left</span>
           </span>
         </span>
@@ -104,9 +105,9 @@ export function RafflePromo({
         <Link
           href="/raffle/chimpers"
           className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[16px] ring-1 ring-[rgb(var(--edge-rgb)_/_0.8)]"
-          aria-label="Chimpers raffle"
+          aria-label={`${FEATURED_RAFFLE.prize.collection} raffle`}
         >
-          <Image src={RAFFLE_PRIZE.image} alt="Chimper #2272" fill sizes="64px" className="object-cover" />
+          <Image src={FEATURED_RAFFLE.prize.image} alt={FEATURED_RAFFLE.prize.name} fill sizes="64px" className="object-cover" />
         </Link>
 
         {/* Pitch */}
@@ -116,7 +117,7 @@ export function RafflePromo({
             <span className="micro text-accent-ink">Live raffle · {left} left</span>
           </div>
           <h2 className="mt-1 text-[17px] font-semibold tracking-[-0.02em]">
-            Win a Chimper — $10 a ticket
+            Win a {FEATURED_RAFFLE.shortName} — $10 a ticket
           </h2>
           <p className="mt-0.5 truncate text-[12px] leading-relaxed text-ink-2">
             {remaining !== null && remaining <= 50
