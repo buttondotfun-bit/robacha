@@ -623,6 +623,27 @@
   animation: robacha-pulse 2.4s var(--ease-out-soft) infinite;
 }
 
+/* Soft glow riding the leading edge of a raffle progress bar. */
+@keyframes robacha-progress-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    box-shadow: 0 0 6px 1px rgba(198, 242, 74, 0.55);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 12px 3px rgba(198, 242, 74, 0.75);
+  }
+}
+.raffle-progress-glow {
+  animation: robacha-progress-glow 2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .raffle-progress-glow {
+    animation: none;
+  }
+}
+
 /* Slow orbital ring rotation behind product visuals */
 @keyframes robacha-orbit {
   to {

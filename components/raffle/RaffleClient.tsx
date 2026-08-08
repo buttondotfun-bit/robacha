@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { ArrowUpRight, Check, Globe, Lock, MessageCircle, RefreshCcw } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, ArrowUpRight, Check, Globe, Lock, MessageCircle, RefreshCcw } from "lucide-react";
 import { XIcon } from "@/components/brand/XIcon";
 import { PageContainer } from "@/components/shared/primitives";
 import { Reveal } from "@/components/shared/Reveal";
@@ -35,6 +36,13 @@ export function RaffleClient() {
 
   return (
     <PageContainer width="wide" className="pb-16 pt-6">
+      <Link
+        href="/raffle"
+        className="mb-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-2 transition-colors hover:text-ink"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Raffles
+      </Link>
+
       {/* ---------------- Hero ---------------- */}
       <Reveal className="glass-panel glass-reflection glass-highlight relative overflow-hidden rounded-[32px] p-6 sm:p-8">
         <span className="noise-overlay" aria-hidden="true" />

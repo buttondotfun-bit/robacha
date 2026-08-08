@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { RaffleClient } from "@/components/raffle/RaffleClient";
+import { RaffleGallery } from "@/components/raffle/RaffleGallery";
 
 export const metadata: Metadata = {
-  title: "Meebit Raffle",
+  title: "Raffles",
   description:
-    "Win a Meebit on ROBACHA. 200 tickets, $10 each, 24 hours — sell out and one wallet wins, or every ticket is refunded in full. Opening soon.",
+    "Trustless NFT raffles on ROBACHA. Enter the featured Meebit raffle, browse live community raffles, or launch one for your own NFT — the contract holds the prize and the money and refunds everyone if a raffle doesn't sell out.",
 };
 
 export default function RafflePage() {
-  return <RaffleClient />;
+  return <RaffleGallery />;
 }

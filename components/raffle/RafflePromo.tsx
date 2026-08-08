@@ -32,7 +32,7 @@ function countdown(ms: number): string {
  * a countdown or a "sold" bar that nothing behind it can move.
  *
  * Two shapes: a `banner` for the top of a page, and a slim `bar` for chrome
- * that repeats across a section. Both link to /raffle, where the actual
+ * that repeats across a section. Both link to /raffle/meebit, where the actual
  * ticket-buying and the full rules live.
  */
 export function RafflePromo({
@@ -68,7 +68,7 @@ export function RafflePromo({
     return (
       <div className={cn("flex justify-center", className)}>
       <Link
-        href="/raffle"
+        href="/raffle/meebit"
         className="group glass-chip flex max-w-full items-center gap-3 rounded-full py-1.5 pl-2 pr-2.5 text-[12.5px] transition-colors hover:text-ink"
       >
         <span className="relative flex h-6 w-6 shrink-0 overflow-hidden rounded-full ring-1 ring-[rgb(var(--edge-rgb)_/_0.8)]">
@@ -102,7 +102,7 @@ export function RafflePromo({
       <div className="relative flex flex-wrap items-center gap-4 sm:flex-nowrap">
         {/* Prize thumb */}
         <Link
-          href="/raffle"
+          href="/raffle/meebit"
           className="relative h-16 w-16 shrink-0 overflow-hidden rounded-[16px] ring-1 ring-[rgb(var(--edge-rgb)_/_0.8)]"
           aria-label="Meebit raffle"
         >
@@ -141,7 +141,7 @@ export function RafflePromo({
         </div>
 
         {/* CTA */}
-        <ButtonLink href="/raffle" variant="primary" size="md" className="shrink-0">
+        <ButtonLink href="/raffle/meebit" variant="primary" size="md" className="shrink-0">
           <Ticket className="h-4 w-4" aria-hidden="true" />
           Get tickets
         </ButtonLink>
