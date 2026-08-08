@@ -85,3 +85,24 @@ export const RaffleState = {
   Complete: 2,
   Refundable: 3,
 } as const;
+
+/**
+ * The privileged surface, kept separate from the public ABI so nothing on the
+ * user-facing pages can reach it. Only the admin console imports this: fund and
+ * request the draw once a raffle sells out, then send the ETH proceeds to a
+ * chosen address — the contract only allows that after a winner has landed.
+ */
+export const ROBACHA_RAFFLE_ADMIN_ABI = [
+  { type: "function", name: "proceedsClaimed", stateMutability: "view", inputs: [], outputs: [{ type: "bool" }] },
+  { type: "function", name: "soldOutAt", stateMutability: "view", inputs: [], outputs: [{ type: "uint64" }] },
+  { type: "function", name: "fundDraw", stateMutability: "payable", inputs: [], outputs: [] },
+  { type: "function", name: "requestDraw", stateMutability: "nonpayable", inputs: [], outputs: [] },
+  {
+    type: "function",
+    name: "claimProceeds",
+    stateMutability: "nonpayable",
+    inputs: [{ name: "to", type: "address" }],
+    outputs: [],
+  },
+  { type: "function", name: "reclaimStrandedFee", stateMutability: "nonpayable", inputs: [], outputs: [] },
+] as const;

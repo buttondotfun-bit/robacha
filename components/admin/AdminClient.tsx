@@ -21,6 +21,7 @@ import { RoundsTab } from "./tabs/RoundsTab";
 import { VaultTab } from "./tabs/VaultTab";
 import { RandomnessTab } from "./tabs/RandomnessTab";
 import { FeesTab } from "./tabs/FeesTab";
+import { RaffleTab } from "./tabs/RaffleTab";
 import { SystemTab } from "./tabs/SystemTab";
 import { Freshness } from "./ui";
 import type { AdminTab, AdminTabProps } from "./types";
@@ -31,6 +32,7 @@ const TABS: { key: AdminTab; label: string }[] = [
   { key: "vault", label: "Vault" },
   { key: "randomness", label: "Randomness" },
   { key: "fees", label: "Fees" },
+  { key: "raffle", label: "Raffle" },
   { key: "system", label: "System" },
 ];
 
@@ -249,6 +251,7 @@ export function AdminClient() {
         {tab === "vault" ? <VaultTab {...tabProps} /> : null}
         {tab === "randomness" ? <RandomnessTab {...tabProps} /> : null}
         {tab === "fees" ? <FeesTab {...tabProps} /> : null}
+        {tab === "raffle" ? <RaffleTab {...tabProps} /> : null}
         {tab === "system" ? <SystemTab {...tabProps} health={health} /> : null}
       </div>
 

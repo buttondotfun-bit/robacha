@@ -9,6 +9,7 @@ export type AdminTab =
   | "vault"
   | "randomness"
   | "fees"
+  | "raffle"
   | "system";
 
 /** Shared props every tab receives from the shell — one poll, many views. */

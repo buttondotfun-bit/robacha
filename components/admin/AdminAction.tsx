@@ -22,6 +22,7 @@ export function AdminAction({
   abi,
   functionName,
   args,
+  value,
   variant = "secondary",
   size = "sm",
   confirm,
@@ -33,6 +34,8 @@ export function AdminAction({
   abi: Abi;
   functionName: string;
   args?: readonly unknown[];
+  /** Wei to send with a payable call (e.g. funding a raffle draw). */
+  value?: bigint;
   variant?: "primary" | "secondary";
   size?: "sm" | "md" | "lg";
   /** Shown as a browser confirm for anything with a blast radius. */
@@ -71,6 +74,7 @@ export function AdminAction({
         functionName,
         args: args as never,
         account,
+        ...(value !== undefined ? { value } : {}),
       });
       const hash = await writeContractAsync(request as never);
       setTxHash(hash);
