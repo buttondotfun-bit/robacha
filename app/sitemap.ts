@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 import { LEGAL_SLUGS } from "@/data/legal";
+import { MACHINES } from "@/data/machines";
+import { PROJECTS } from "@/data/projects";
 import { contracts } from "@/lib/config";
 import { canonicalUrl, INDEXABLE } from "@/lib/seo";
 
@@ -22,8 +24,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const core: { path: string; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]; priority: number }[] = [
     { path: "/", changeFrequency: "weekly", priority: 1 },
+    { path: "/discover", changeFrequency: "daily", priority: 0.9 },
     { path: "/app", changeFrequency: "weekly", priority: 0.9 },
     { path: "/rob", changeFrequency: "weekly", priority: 0.9 },
+    { path: "/machines", changeFrequency: "weekly", priority: 0.8 },
+    { path: "/pools", changeFrequency: "weekly", priority: 0.8 },
     { path: "/raffle", changeFrequency: "daily", priority: 0.8 },
     { path: "/mint", changeFrequency: "weekly", priority: 0.8 },
     { path: "/nft-spins", changeFrequency: "weekly", priority: 0.7 },
@@ -51,6 +56,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: "hourly",
       priority: 0.7,
+    });
+  }
+
+  // Machine detail pages + the Genesis pool.
+  for (const m of MACHINES) {
+    entries.push({
+      url: canonicalUrl(`/machines/${m.slug}`),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.5,
+    });
+  }
+  entries.push({
+    url: canonicalUrl("/pools/genesis"),
+    lastModified: now,
+    changeFrequency: "daily",
+    priority: 0.7,
+  });
+
+  // Curated project pages ($ROB is excluded — it redirects to its /rob hub).
+  for (const p of PROJECTS.filter((p) => !p.href)) {
+    entries.push({
+      url: canonicalUrl(`/projects/${p.slug}`),
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.5,
     });
   }
 

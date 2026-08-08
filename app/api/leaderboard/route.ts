@@ -30,8 +30,10 @@ const SPIN_ENTERED = parseAbiItem(
   "event SpinEntered(uint256 indexed roundId, address indexed user, uint256 firstEntryIndex, uint16 quantity, uint256 baseAmount, uint256 surchargeAmount)",
 );
 
-/** Enough to be interesting, short enough to stay readable. */
-const TOP_N = 5;
+/** Depth per token's Biggest Pulls board (the explorer paginates client-side). */
+const PULLS_TOP = 25;
+/** Depth of the wallet rankings. */
+const RANK_TOP = 50;
 
 export interface LeaderboardResponse {
   /** One board per token, each already sorted biggest-first. */
@@ -42,6 +44,12 @@ export interface LeaderboardResponse {
     entries: { user: string; amountRaw: string; roundId: number; tierIndex: number }[];
   }[];
   mostSpins: { user: string; spins: number }[];
+  /**
+   * Per-wallet reward counts bucketed by tierIndex (index = tierIndex). The
+   * client maps tierIndex → rarity via the live pool tiers, the same
+   * approximation used elsewhere in the UI, to rank Legendary/Rare pulls.
+   */
+  tierCountsByUser: { user: string; tiers: number[]; total: number }[];
   totalSpins: number;
   totalPrizes: number;
   headBlock: number;
@@ -77,11 +85,13 @@ export async function GET() {
       spinsByUser.set(args.user, (spinsByUser.get(args.user) ?? 0) + quantity);
     }
 
-    // ---- Pulls per token ----
+    // ---- Pulls per token + per-wallet tier counts ----
     const byToken = new Map<
       string,
       { user: string; amountRaw: bigint; roundId: number; tierIndex: number }[]
     >();
+    const tiersByUser = new Map<string, Map<number, number>>();
+    let maxTier = 0;
     for (const log of assigned) {
       const args = log.args as {
         user?: Address;
@@ -92,14 +102,21 @@ export async function GET() {
       };
       if (!args.user || !args.token || args.amount === undefined) continue;
       const key = args.token.toLowerCase();
+      const tierIndex = Number(args.tierIndex ?? 0);
       const list = byToken.get(key) ?? [];
       list.push({
         user: args.user,
         amountRaw: args.amount,
         roundId: Number(args.roundId ?? 0n),
-        tierIndex: Number(args.tierIndex ?? 0),
+        tierIndex,
       });
       byToken.set(key, list);
+
+      const userKey = args.user.toLowerCase();
+      const tiers = tiersByUser.get(userKey) ?? new Map<number, number>();
+      tiers.set(tierIndex, (tiers.get(tierIndex) ?? 0) + 1);
+      tiersByUser.set(userKey, tiers);
+      if (tierIndex > maxTier) maxTier = tierIndex;
     }
 
     // One metadata read per token, not per pull.
@@ -120,7 +137,7 @@ export async function GET() {
         const decimals = metadata[index * 2 + 1];
         const entries = (byToken.get(token) ?? [])
           .sort((a, b) => (b.amountRaw > a.amountRaw ? 1 : b.amountRaw < a.amountRaw ? -1 : 0))
-          .slice(0, TOP_N)
+          .slice(0, PULLS_TOP)
           .map((entry) => ({ ...entry, amountRaw: entry.amountRaw.toString() }));
         return {
           token,
@@ -134,11 +151,20 @@ export async function GET() {
     const mostSpins = [...spinsByUser.entries()]
       .map(([user, spins]) => ({ user, spins }))
       .sort((a, b) => b.spins - a.spins)
-      .slice(0, TOP_N);
+      .slice(0, RANK_TOP);
+
+    const tierCountsByUser = [...tiersByUser.entries()]
+      .map(([user, tiers]) => {
+        const arr = Array.from({ length: maxTier + 1 }, (_, i) => tiers.get(i) ?? 0);
+        return { user, tiers: arr, total: arr.reduce((s, n) => s + n, 0) };
+      })
+      .sort((a, b) => b.total - a.total)
+      .slice(0, RANK_TOP);
 
     const payload: LeaderboardResponse = {
       biggestPulls,
       mostSpins,
+      tierCountsByUser,
       totalSpins,
       totalPrizes: assigned.length,
       headBlock: Number(headBlock),

@@ -26,21 +26,23 @@ export interface NavLink {
 
 export const SITE_NAV: readonly NavLink[] = [
   { label: "Home", href: "/" },
+  { label: "Discover", href: "/discover" },
   { label: "Spin", href: "/app" },
   { label: "Mint", href: "/mint" },
   { label: "Raffle", href: "/raffle" },
   { label: "Launchpad", href: "/launchpad" },
-  { label: "Activity", href: "/activity", walletOnly: true },
+  // Activity lives in the wallet dropdown, not the header nav.
 ];
 
 export const APP_NAV: readonly NavLink[] = [
   { label: "Home", href: "/" },
+  { label: "Discover", href: "/discover" },
   { label: "Spin", href: "/app" },
   { label: "Mint", href: "/mint" },
   { label: "Raffle", href: "/raffle" },
   { label: "Launchpad", href: "/launchpad" },
-  { label: "My Bag", href: "/bag", walletOnly: true },
-  { label: "Activity", href: "/activity", walletOnly: true },
+  // My Bag and Activity intentionally omitted here — both live in the wallet
+  // dropdown (see WalletButton), so repeating them in the header nav is noise.
 ];
 
 export const RARITY_ORDER: Rarity[] = [

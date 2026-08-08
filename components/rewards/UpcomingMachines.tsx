@@ -18,26 +18,20 @@ import { PageContainer, Pill, SectionHeader } from "@/components/shared/primitiv
  * honest picture of "nothing here yet", and every card still says so in words —
  * the tone is excited, the claim is not.
  */
+// The two upcoming machines that actually exist as products — each has its own
+// coming-soon page, so every card here links somewhere real. We deliberately
+// don't pad this list with named-but-nonexistent machines: an unlinked card
+// implying a machine we haven't started would be a fabricated product.
 const UPCOMING: { name: string; theme: string; href?: string }[] = [
   {
-    // The one machine on this list with a page of its own — it has a public
-    // teaser with a real candidate reel, so its card links out where the
-    // others stay sealed.
-    name: "NFT spins",
+    name: "NFT Machine",
     theme: "Same spin, but the capsule holds an NFT from a top Robinhood Chain collection.",
     href: "/nft-spins",
   },
   {
-    name: "Blue chip machine",
-    theme: "The big names on Robinhood Chain. Bigger pulls, bigger price.",
-  },
-  {
-    name: "Tokenised stocks",
-    theme: "Pull a slice of a real company instead of a memecoin. We’re exploring it — no promises yet.",
-  },
-  {
-    name: "Community machine",
-    theme: "Stocked with whatever you lot ask for. Loudest coins win.",
+    name: "Stock Machine",
+    theme: "Tokenized-stock discovery on Robinhood Chain. Assets, pool and odds get published before launch.",
+    href: "/machines/tokenized-stocks",
   },
 ];
 
@@ -58,7 +52,7 @@ export function UpcomingMachines({
         <SectionHeader
           eyebrow="In the workshop"
           title="More machines are coming."
-          description="Three more in the works. Locked until they're loaded — the moment one's ready it drops in above, with real prizes and real odds."
+          description="Two more in the works. Locked until they're loaded — the moment one's ready it drops in above, with real prizes and real odds."
           className="mb-6"
           action={<Pill tone="neutral">Locked</Pill>}
         />
@@ -135,7 +129,7 @@ function UpcomingStrip() {
         loaded and spinnable.
       </p>
 
-      <ul className="mt-3 grid gap-2 sm:grid-cols-3">
+      <ul className="mt-3 grid gap-2 sm:grid-cols-2">
         {UPCOMING.map((m) => (
           <li
             key={m.name}

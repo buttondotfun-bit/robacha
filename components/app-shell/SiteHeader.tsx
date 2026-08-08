@@ -23,8 +23,12 @@ import { MobileNavigation } from "./MobileNavigation";
 // the header instead (see below).
 const MOBILE_ITEMS = [
   ...SITE_NAV,
+  { label: "Machines", href: "/machines" },
+  { label: "Pools", href: "/pools" },
+  { label: "Leaderboard", href: "/leaderboard" },
   { label: "$ROB", href: "/rob" },
-  { label: "My Bag", href: "/bag", walletOnly: true },
+  // My Bag lives in the wallet dropdown ("View My Bag"), so it's not repeated
+  // in the header menu.
 ];
 
 /**

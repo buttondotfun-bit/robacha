@@ -20,6 +20,9 @@ import { WalletButton } from "./WalletButton";
 // chip next to a full-width "Connect Wallet"); on sm+ the chip shows inline.
 const MOBILE_ITEMS = [
   ...APP_NAV,
+  { label: "Machines", href: "/machines" },
+  { label: "Pools", href: "/pools" },
+  { label: "Leaderboard", href: "/leaderboard" },
   { label: "$ROB", href: "/rob" },
   { label: "FAQ", href: "/faq" },
   { label: "Help", href: "/support" },

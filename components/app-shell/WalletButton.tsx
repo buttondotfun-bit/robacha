@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, ExternalLink, LogOut, Wallet } from "lucide-react";
+import { Activity, Copy, ExternalLink, LogOut, Wallet } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { shortAddress } from "@/lib/formatters";
@@ -136,6 +136,16 @@ export function WalletButton({ className }: { className?: string }) {
           >
             <Wallet className="h-3.5 w-3.5" aria-hidden="true" />
             View My Bag
+          </Link>
+
+          <Link
+            role="menuitem"
+            href="/activity"
+            onClick={() => setOpen(false)}
+            className="flex w-full items-center gap-2 rounded-xl px-2 py-2 text-left text-[13px] text-ink-2 transition-colors hover:bg-[rgb(var(--edge-rgb)_/_0.6)] hover:text-ink"
+          >
+            <Activity className="h-3.5 w-3.5" aria-hidden="true" />
+            Activity
           </Link>
 
           <div className="my-1 h-px bg-[rgb(var(--line-rgb)_/_0.08)]" />

@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
     return [
       { source: "/nft", destination: "/mint", permanent: true },
       { source: "/rewards", destination: "/app", permanent: true },
+      // Friendly short path for the coming-soon Stock Machine preview, mirroring
+      // /app (token) and /nft-spins (NFT).
+      { source: "/stock-spins", destination: "/machines/tokenized-stocks", permanent: false },
       // One canonical host: www permanently folds into the apex, which is what
       // every canonical/OG URL points at (see lib/seo.ts). Host-scoped so it
       // only fires for the www hostname and never touches the apex or previews.

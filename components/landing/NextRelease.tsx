@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { LightField } from "@/components/shared/AmbientBackground";
 import { PageContainer, Pill, SectionHeader } from "@/components/shared/primitives";
 
@@ -94,36 +96,37 @@ export function NextRelease() {
           ))}
         </ul>
 
-        {/* The only forward-looking claim on the page. Robinhood Chain does
-            host tokenised equities, so this is grounded — but which ones we
-            could stock, and where, is not settled, and the copy must not imply
-            it is. */}
-        <div className="mt-6 overflow-hidden rounded-[20px] border border-[#e2f5a8] bg-accent-soft px-5 py-5 sm:px-6">
+        {/* The next machine, now a real page. Compact teaser → the coming-soon
+            preview. Copy stays grounded: Robinhood Chain does host tokenised
+            equities, but supported assets and odds aren't settled, and the words
+            avoid implying ownership, investment or a date. */}
+        <Link
+          href="/machines/tokenized-stocks"
+          className="group mt-6 block overflow-hidden rounded-[20px] border border-[#e2f5a8] bg-accent-soft px-5 py-5 transition-colors hover:border-[#cfeb84] sm:px-6"
+        >
           <div className="flex flex-wrap items-center gap-2.5">
             <span className="inline-flex h-6 items-center rounded-full bg-surface/70 px-2.5 text-[11px] font-medium text-accent-ink">
-              Up next
+              Next machine
             </span>
             <span className="text-[11px] font-medium uppercase tracking-[0.08em] text-accent-ink/70">
-              Exploring
+              Coming soon
             </span>
           </div>
 
           <h3 className="mt-3 text-[20px] font-semibold tracking-[-0.03em] text-ink sm:text-[22px]">
-            Tokenised stocks in the machine.
+            Tokenized Stocks
           </h3>
           <p className="mt-2.5 max-w-[62ch] text-[13.5px] leading-relaxed text-ink-2">
-            Robinhood Chain was built around tokenised stocks, so that&rsquo;s
-            where we want to take the machine next — pull a slice of a real
-            company instead of a memecoin.
+            A new machine built for tokenized-stock reward assets on Robinhood
+            Chain — the same transparent spin, a different kind of reward. Not
+            live yet, and not investment advice: supported assets, pool and odds
+            get published before launch.
           </p>
-          <p className="mt-2.5 max-w-[62ch] text-[12px] leading-relaxed text-accent-ink/80">
-            We&rsquo;re exploring this, not announcing it. There&rsquo;s no date.
-            Tokenised stocks are regulated differently to memecoins, so which
-            ones we can put in a pool — and who can spin for them — depends on
-            rules we don&rsquo;t set. We&rsquo;ll only ship it where it&rsquo;s
-            allowed, and we&rsquo;ll say plainly what changed when we do.
-          </p>
-        </div>
+          <span className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-accent-ink">
+            See the preview
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+          </span>
+        </Link>
 
         <p className="mt-6 max-w-[86ch] text-[12.5px] leading-relaxed text-ink-3">
           Every spin is chance — you might pull something small, you might pull

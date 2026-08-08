@@ -13,6 +13,9 @@ const COLUMNS = [
   {
     title: "Product",
     links: [
+      { label: "Discover", href: "/discover" },
+      { label: "Machines", href: "/machines" },
+      { label: "Pools", href: "/pools" },
       { label: "Spin", href: "/app" },
       { label: "My Bag", href: "/bag", walletOnly: true },
       { label: "Activity", href: "/activity", walletOnly: true },

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Coins, Image as ImageIcon } from "lucide-react";
+import { Coins, Image as ImageIcon, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -13,8 +13,9 @@ import { cn } from "@/lib/utils";
  * Shared by both pages so the control sits identically on each.
  */
 const TABS = [
-  { href: "/app", label: "Token Spins", icon: Coins },
-  { href: "/nft-spins", label: "NFT Spins", icon: ImageIcon },
+  { href: "/app", label: "Token Spins", icon: Coins, live: true },
+  { href: "/nft-spins", label: "NFT Spins", icon: ImageIcon, live: false },
+  { href: "/machines/tokenized-stocks", label: "Stocks", icon: TrendingUp, live: false },
 ] as const;
 
 export function SpinTabs({ className }: { className?: string }) {
@@ -45,6 +46,17 @@ export function SpinTabs({ className }: { className?: string }) {
           >
             <Icon className="h-3.5 w-3.5" aria-hidden="true" />
             {tab.label}
+            {tab.live ? (
+              <span
+                className="pulse-dot ml-0.5 h-1.5 w-1.5 rounded-full bg-[#8ec500]"
+                aria-hidden="true"
+                title="Live"
+              />
+            ) : (
+              <span className="ml-0.5 rounded-full bg-[rgb(var(--ink-rgb)_/_0.06)] px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.06em] text-ink-3">
+                Soon
+              </span>
+            )}
           </Link>
         );
       })}

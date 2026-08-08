@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Boxes, Coins, Sparkles, Ticket } from "lucide-react";
+import { ArrowRight, Boxes, Coins, Sparkles, Ticket, TrendingUp } from "lucide-react";
 import { PageContainer, SectionHeader } from "@/components/shared/primitives";
 
 /**
@@ -41,6 +41,15 @@ const PRODUCTS = [
     href: "/nft-spins",
   },
   {
+    icon: TrendingUp,
+    name: "Stock Machine",
+    status: "Coming soon",
+    live: false,
+    body: "Tokenized-stock discovery on Robinhood Chain.",
+    cta: "See preview",
+    href: "/machines/tokenized-stocks",
+  },
+  {
     icon: Boxes,
     name: "Capsules",
     status: "Minting soon",
@@ -61,7 +70,7 @@ export function EcosystemMap() {
           description="The same provable machine, expanding into new ways to spin, collect and win — on Robinhood Chain."
           className="mb-6"
         />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {PRODUCTS.map((p) => {
             const Icon = p.icon;
             return (

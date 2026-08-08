@@ -235,11 +235,12 @@ export const PAGE_SEO = {
     ogTitle: "Verify a round",
   },
   leaderboard: {
-    title: "Leaderboard | Robacha",
+    title: "Robacha Leaderboard — Onchain Records & Explorers",
     description:
-      "See the most active Robacha spinners and top pulls on Robinhood Chain, counted from onchain activity.",
+      "Explore verified Robacha records, reward milestones, top explorers and notable onchain pulls across Robinhood Chain.",
     path: "/leaderboard",
     ogTitle: "Leaderboard",
+    ogTag: "Records from the machine",
   },
   support: {
     title: "Help & Support | Robacha",
@@ -254,6 +255,46 @@ export const PAGE_SEO = {
       "View rewards, balances, claims and Robacha activity for your connected wallet.",
     path: "/bag",
     ogTitle: "My Bag",
+  },
+  discover: {
+    title: "Discover Robinhood Chain Projects | Robacha",
+    description:
+      "Explore projects moving through Robacha reward machines on Robinhood Chain — inspect live pools, discovery activity and new ecosystem assets.",
+    path: "/discover",
+    ogTitle: "Discover",
+    ogTag: "Inside the machine",
+  },
+  machines: {
+    title: "Robacha Machines — Onchain Discovery on Robinhood Chain",
+    description:
+      "Explore Robacha machines — the reward machines that move projects through transparent pools on Robinhood Chain.",
+    path: "/machines",
+    ogTitle: "Machines",
+    ogTag: "One machine, more ways to discover",
+  },
+  pools: {
+    title: "Robacha Reward Pools on Robinhood Chain",
+    description:
+      "Explore Robacha reward pools, published odds, live inventory and the projects currently loaded into Robacha machines on Robinhood Chain.",
+    path: "/pools",
+    ogTitle: "Reward Pools",
+    ogTag: "Inside the machine",
+  },
+  genesisPool: {
+    title: "Genesis Pool | Robacha",
+    description:
+      "The original Robacha reward pool on Robinhood Chain — published odds, live reward inventory and verifiable round history.",
+    path: "/pools/genesis",
+    ogTitle: "Genesis Pool",
+    ogTag: "Live reward pool",
+  },
+  stockMachine: {
+    title: "Robacha Stock Machine — Tokenized Stock Rewards",
+    description:
+      "A preview of the Robacha Stock Machine: tokenized-stock discovery on Robinhood Chain. Not live yet — supported assets, pool composition, pricing and probabilities will be published before launch. Not investment advice.",
+    path: "/machines/tokenized-stocks",
+    ogTitle: "Stock Machine",
+    ogTag: "Coming soon",
   },
 } as const;
 
